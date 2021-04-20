@@ -1,8 +1,8 @@
-name: Deploy Capstone Frontend
+name: Test Capstone Frontend
 on:
   push:
     branches:
-      - main
+      - develop
 
 jobs:
   deploy:
@@ -35,7 +35,7 @@ jobs:
 
       - name: Copy files to the test website with the AWS CLI
         run: |
-          aws s3 sync ./build/ s3://${{ secrets.AWS_S3_BUCKET }}
+          aws s3 sync ./build/ s3://${{ secrets.AWS_S3_BUCKET }}/capstone/test/root
 
       - name: invalidate
         uses: chetan/invalidate-cloudfront-action@master
@@ -45,3 +45,20 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_S3_REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Setup Test
+        run: |
+          cd ../
+          git clone https://github.com/noahvarghese/capstone-test
+          cd capstone-test
+          git checkout origin master
+
+      - name: Run tests
+        run: |
+          npm run build
+          npm run start
+
+      - name: Pull request to main
+        uses: peter-evans/create-pull-request@v3
+        with:
+          branch: main
