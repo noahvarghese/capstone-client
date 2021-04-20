@@ -7,12 +7,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_S3_REGION }}
-      DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}
-      SOURCE_PATH: "./*"
 
     steps:
       - name: Checkout
@@ -43,32 +37,11 @@ jobs:
         run: |
           aws s3 sync ./build/ s3://${{ secrets.AWS_S3_BUCKET }}
 
-      # - name: Set up secret file
-      #   run: |
-      #     echo $AWS_ACCESS_KEY_ID >> secrets.txt
-      #     echo $AWS_SECRET_ACCESS_KEY >> secrets.txt
-      #     echo $AWS_REGION >> secrets.txt
-      #     echo $DISTRIBUTION_ID >> secrets.txt
-      #     echo $SOURCE_PATH >> secrets.txt
-
-      # - name: Run tmate
-      #   uses: mxschmitt/action-tmate@v2
-
-      # - name: Invalidate Cloudfront Distribution
-      #   uses: awact/cloudfront-action@0.1.2
-      #   with:
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     AWS_REGION: ${{ secrets.AWS_S3_REGION }}
-      #     DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}
-      #     SOURCE_PATH: "./*"
-
-      # Invalidate Cloudfront (this action)
       - name: invalidate
         uses: chetan/invalidate-cloudfront-action@master
         env:
           DISTRIBUTION: ${{ secrets.AWS_DISTRIBUTION_ID }}
           PATHS: "/*"
-          AWS_REGION: "us-east-1"
+          AWS_REGION: ${{ secrets.AWS_S3_REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
