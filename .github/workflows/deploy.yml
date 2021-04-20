@@ -12,7 +12,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_S3_REGION }}
       DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}
-      SOURCE_PATH: "/\*"
+      SOURCE_PATH: "./*"
 
     steps:
       - name: Checkout
@@ -61,4 +61,4 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_S3_REGION }}
           DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}
-          SOURCE_PATH: "/\*"
+          SOURCE_PATH: "./*"
