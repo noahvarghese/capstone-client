@@ -39,17 +39,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_S3_REGION }}
 
-      - name: Copy files to the test website with the AWS CLI
-        run: |
-          aws s3 sync ./build/ s3://${{ secrets.AWS_S3_BUCKET }}
+      # - name: Copy files to the test website with the AWS CLI
+      #   run: |
+      #     aws s3 sync ./build/ s3://${{ secrets.AWS_S3_BUCKET }}
 
-      - name: Set up secret file
-        run: |
-          echo $AWS_ACCESS_KEY_ID >> secrets.txt
-          echo $AWS_SECRET_ACCESS_KEY >> secrets.txt
-          echo $AWS_REGION >> secrets.txt
-          echo $DISTRIBUTION_ID >> secrets.txt
-          echo $SOURCE_PATH >> secrets.txt
+      # - name: Set up secret file
+      #   run: |
+      #     echo $AWS_ACCESS_KEY_ID >> secrets.txt
+      #     echo $AWS_SECRET_ACCESS_KEY >> secrets.txt
+      #     echo $AWS_REGION >> secrets.txt
+      #     echo $DISTRIBUTION_ID >> secrets.txt
+      #     echo $SOURCE_PATH >> secrets.txt
 
       - name: Run tmate
         uses: mxschmitt/action-tmate@v2
