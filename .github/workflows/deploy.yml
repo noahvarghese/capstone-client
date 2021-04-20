@@ -1,0 +1,41 @@
+name: Deploy Capstone Frontend
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js 15.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 15.x
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run the tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Zip artifact
+        run: cd capstone-client && zip -r ../capstone-client.zip build/ && cd ..
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESSS_KEY }}
+          aws-region: ca-central-1
+
+      - name: Copy files to the test website with the AWS CLI
+        run: |
+          aws s3 sync . s3://${{ secrets.S3_BUCKET }}
