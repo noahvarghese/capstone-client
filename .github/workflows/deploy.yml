@@ -35,4 +35,4 @@ jobs:
 
       - name: Copy files to the test website with the AWS CLI
         run: |
-          aws s3 sync . s3://${{ secrets.S3_BUCKET }}/capstone
+          aws s3 sync ./build/ s3://${{ secrets.S3_BUCKET }}/capstone
