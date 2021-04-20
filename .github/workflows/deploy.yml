@@ -42,5 +42,5 @@ jobs:
         with:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_CLOUDFRFONT_REGION }}
+          AWS_REGION: ${{ secrets.AWS_CLOUDFRONT_REGION }}
           DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}
