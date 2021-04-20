@@ -21,3 +21,9 @@ They may be moved into their own repo at the end of this to showcase all parts o
 - React
 - Redux
 - TypeScript
+- GitHub Actions
+- AWS (S3, ACM, CloudFront)
+
+## Environment
+
+- Just rely on NODE_ENV to dictate what to use as any environment variables used will be visible client side
