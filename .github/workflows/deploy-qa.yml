@@ -46,12 +46,16 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Setup Test
         run: |
           cd ../
           git clone https://github.com/noahvarghese/capstone-test
           cd capstone-test
-          git checkout origin master
+          git checkout origin main
 
       - name: Run tests
         run: |
