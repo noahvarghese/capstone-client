@@ -70,14 +70,10 @@ jobs:
           ref: "main"
       - name: Setup Test
         run: |
-          pwd
-          ls -la
-          cd ./capstone-test
-          pwd
+          npm run build
 
       - name: Run tests
         run: |
-          npm run build
           npm run start
 
       - name: Pull request to main
