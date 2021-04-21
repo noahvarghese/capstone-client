@@ -5,62 +5,62 @@ on:
       - develop
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  # deploy:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-      - name: Set up Node.js 15.x
-        uses: actions/setup-node@v1
-        with:
-          node-version: 15.x
+  #     - name: Set up Node.js 15.x
+  #       uses: actions/setup-node@v1
+  #       with:
+  #         node-version: 15.x
 
-      - name: Install dependencies
-        run: npm install
+  #     - name: Install dependencies
+  #       run: npm install
 
-      - name: Run the tests
-        run: npm test
+  #     - name: Run the tests
+  #       run: npm test
 
-      - name: Build
-        run: npm run build
+  #     - name: Build
+  #       run: npm run build
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_S3_REGION }}
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: ${{ secrets.AWS_S3_REGION }}
 
-      - name: Copy files to the test website with the AWS CLI
-        run: |
-          aws s3 sync ./build/ s3://${{ secrets.AWS_S3_BUCKET }}/capstone/test/root
+  #     - name: Copy files to the test website with the AWS CLI
+  #       run: |
+  #         aws s3 sync ./build/ s3://${{ secrets.AWS_S3_BUCKET }}/capstone/test/root
 
-  invalidate:
-    runs-on: ubuntu-latest
-    needs: deploy
+  # invalidate:
+  #   runs-on: ubuntu-latest
+  #   needs: deploy
 
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_S3_REGION }}
+  #   steps:
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: ${{ secrets.AWS_S3_REGION }}
 
-      - name: invalidate
-        uses: chetan/invalidate-cloudfront-action@master
-        env:
-          DISTRIBUTION: ${{ secrets.AWS_QA_DISTRIBUTION_ID }}
-          PATHS: "/*"
-          AWS_REGION: ${{ secrets.AWS_S3_REGION }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #     - name: invalidate
+  #       uses: chetan/invalidate-cloudfront-action@master
+  #       env:
+  #         DISTRIBUTION: ${{ secrets.AWS_QA_DISTRIBUTION_ID }}
+  #         PATHS: "/*"
+  #         AWS_REGION: ${{ secrets.AWS_S3_REGION }}
+  #         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   test:
     runs-on: ubuntu-latest
-    needs: invalidate
+    # needs: invalidate
 
     steps:
       - name: Checkout
