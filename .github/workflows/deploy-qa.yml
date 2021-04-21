@@ -80,6 +80,6 @@ jobs:
       - name: Pull request to main
         uses: peter-evans/create-pull-request@v3
         with:
-          base: main
+          base: develop
           title: "Tests Passed"
-          branch: develop
+          branch: main
