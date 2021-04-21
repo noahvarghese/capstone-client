@@ -71,6 +71,7 @@ jobs:
       - name: Setup Test
         run: |
           pwd
+          ls -la
           cd ./capstone-test
           pwd
 
