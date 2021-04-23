@@ -21,8 +21,8 @@ They may be moved into their own repo at the end of this to showcase all parts o
 - React
 - Redux
 - TypeScript
-- GitHub Actions
-- AWS (S3, ACM, CloudFront)
+- CI/CD
+- AWS (S3, ACM, CloudFront, Route53, CodePipeline, CodeBuild)
 
 ## Environment
 
