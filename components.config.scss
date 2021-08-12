@@ -1,0 +1,36 @@
+/**************************************************
+ Copy this file to your project root
+ rename to components.config.scss
+ change values only, do not rename
+ also can add font imports via this file
+ by either importing a scss/sass file with the font face rules
+ or adding the font face rules directly to this file
+ **************************************************/
+
+// The themes provided currently are 'owd'
+// to not use the theme, cimply comment the next line out
+$default-theme: default;
+
+$primary-color: #000000;
+$secondary-color: #61dafb;
+$highlight-color: #fffff9;
+// FUCK
+$accent-color: #61dafb;
+
+$bg-color: #fffff9;
+$secondary-bg-color: #f3f3f3;
+
+$root-font-size: 16px;
+
+$header-font-family: Monsterrat;
+$header-font-style: "Regular";
+$header-letter-spacing: 16px;
+$header-line-height: 1.2rem;
+
+$content-font-family: Roboto;
+$content-font-style: "Regular";
+$content-letter-spacing: 16px;
+$content-line-height: 1.2rem;
+$content-font-size: 1.2rem;
+
+$accent-font-style: italic;
