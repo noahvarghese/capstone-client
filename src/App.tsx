@@ -1,18 +1,17 @@
 import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
-import { FileInput, Button } from "@noahvarghese/react-components";
+import { AppRouter } from "@noahvarghese/react-components";
+import items from "";
+import { connect } from "react-redux";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <FileInput name="YOLO" />
-        <Button text="HI" />
-      </header>
-    </div>
-  );
-}
+const App = () => {
+    return (
+        <AppRouter
+            navProps={{ logo: "/logo.png", items, type: "card" }}
+            footerProps={{ copyright: "Noah Varghese 2021" }}
+            routes={[]}
+        ></AppRouter>
+    );
+};
 
-export default App;
+export default connect()(App);
