@@ -3,7 +3,7 @@ import LoginForm from "../../components/LoginForm";
 import RegisterForm from "../../components/RegisterForm";
 import "./index.scss";
 
-const Login: React.FC<{}> = ({}) => {
+const Login: React.FC<{}> = () => {
     const [displayForm, setDisplayForm] = useState<0 | 1>(0);
     console.log(displayForm);
 
