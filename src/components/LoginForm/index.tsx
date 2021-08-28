@@ -1,11 +1,23 @@
 import React, { useState } from "react";
 import { Button, Form, Input } from "@noahvarghese/react-components";
 import { connect } from "react-redux";
+import { emailValidator, emptyValidator } from "../../lib/validators";
+
+const defaultLoginFormState = {
+    email: "",
+    password: "",
+};
 
 const LoginForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
-    const [formState, setFormState] = useState({ email: "", password: "" });
-    const setState = (name: string) => (newState: string) =>
+    const [formState, setFormState] = useState(defaultLoginFormState);
+    const [formErrorState, setFormErrorState] = useState(defaultLoginFormState);
+
+    const setState = (name: keyof typeof formState) => (newState: string) =>
         setFormState({ ...formState, [name]: newState });
+
+    const setErrorState =
+        (name: keyof typeof formErrorState) => (newState: string) =>
+            setFormErrorState({ ...formErrorState, [name]: newState });
 
     return (
         <Form
@@ -31,6 +43,16 @@ const LoginForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                     setState: setState("email"),
                     value: formState.email,
                 }}
+                errorState={{
+                    setError: (message?: string) =>
+                        setErrorState("email")(message ?? ""),
+                    value: formErrorState.email,
+                }}
+                validationOptions={{
+                    runOnInput: true,
+                    runOnComplete: true,
+                    validator: emailValidator,
+                }}
                 type="email"
                 name="email"
                 placeholder="email"
@@ -41,6 +63,16 @@ const LoginForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                 state={{
                     setState: setState("password"),
                     value: formState.password,
+                }}
+                errorState={{
+                    setError: (message?: string) =>
+                        setErrorState("password")(message ?? ""),
+                    value: formErrorState.password,
+                }}
+                validationOptions={{
+                    runOnInput: true,
+                    runOnComplete: true,
+                    validator: emptyValidator("password"),
                 }}
                 type="password"
                 name="password"
