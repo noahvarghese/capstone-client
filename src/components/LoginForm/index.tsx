@@ -31,8 +31,15 @@ const LoginForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                     type="button"
                     size="small"
                     onClick={setForm}
+                    key="Register"
                 />,
-                <Button text="Login" type="submit" primary size="small" />,
+                <Button
+                    text="Login"
+                    key="Login"
+                    type="submit"
+                    primary
+                    size="small"
+                />,
             ]}
             submitFunction={(
                 e: React.SyntheticEvent<Element, Event>
@@ -57,6 +64,7 @@ const LoginForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                 name="email"
                 placeholder="email"
                 required
+                autoComplete="email"
                 key="email"
             />
             <Input
@@ -74,6 +82,7 @@ const LoginForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                     runOnComplete: true,
                     validator: emptyValidator("password"),
                 }}
+                autoComplete="current-password"
                 type="password"
                 name="password"
                 key="password"

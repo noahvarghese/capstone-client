@@ -1,4 +1,4 @@
-import { PhoneNumberUtil } from "google-libphonenumber";
+import { PhoneNumber, PhoneNumberUtil } from "google-libphonenumber";
 import validator from "validator";
 
 export const emptyValidator = (field: string) => (val: string) => {
@@ -20,10 +20,19 @@ export const postalCodeValidator = (val: string) => {
     let res = emptyValidator("Postal code")(val);
 
     if (res.success) {
-        if (validator.isPostalCode(val, "CA")) {
+        if (
+            !/^[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z][ -]?\d[ABCEGHJ-NPRSTV-Z]\d$/i.test(
+                val
+            )
+        ) {
             res.success = false;
             res.errorMessage = "Invalid postal code";
         }
+        // validator does not work nicely with canadian postal codes
+        // if (validator.isPostalCode(val, "any")) {
+        // res.success = false;
+        // res.errorMessage = "Invalid postal code";
+        // }
     }
 
     return res;
@@ -47,7 +56,16 @@ export const phoneValidator = (val: string) => {
     let phoneUtil = new PhoneNumberUtil();
 
     if (res.success) {
-        if (!phoneUtil.isValidNumberForRegion(phoneUtil.parse(val), "CA")) {
+        let phone: string | PhoneNumber = val;
+
+        try {
+            phone = phoneUtil.parseAndKeepRawInput(phone, "CA");
+
+            if (!phoneUtil.isValidNumber(phone)) {
+                res.success = false;
+                res.errorMessage = "Invalid phone number";
+            }
+        } catch (e) {
             res.success = false;
             res.errorMessage = "Invalid phone number";
         }

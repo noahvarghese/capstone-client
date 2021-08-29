@@ -4,7 +4,6 @@ import {
     Checkbox,
     Form,
     Input,
-    RadioFieldset,
     Select,
 } from "@noahvarghese/react-components";
 import { connect } from "react-redux";
@@ -14,8 +13,9 @@ import {
     postalCodeValidator,
     emailValidator,
     phoneValidator,
-    passwordValidator,
 } from "../../lib/validators";
+import { server } from "../../lib/permalink";
+import validator from "validator";
 
 const defaultRegisterFormState = {
     first_name: "",
@@ -30,7 +30,6 @@ const defaultRegisterFormState = {
     business_code: "",
     password: "",
     confirm_password: "",
-    employee_type: "",
     business_name: "",
     business_address: "",
     business_city: "",
@@ -55,6 +54,53 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
         (name: keyof typeof formErrorState) => (newState: string) =>
             setFormErrorState({ ...formErrorState, [name]: newState });
 
+    const passwordValidator = (
+        val: string,
+        field: string
+    ): { success: true } | { success: false; errorMessage: string } => {
+        console.log(val, field);
+        if (field === "password") {
+            if (!validator.isLength(val, { min: 8 })) {
+                return {
+                    success: false,
+                    errorMessage: "Password must be at least 8 characters",
+                };
+            } else if (val !== formState.confirm_password) {
+                setFormErrorState({
+                    ...formErrorState,
+                    password: "Passwords do not match",
+                    confirm_password: "",
+                });
+            } else {
+                setFormErrorState({
+                    ...formErrorState,
+                    password: "",
+                    confirm_password: "",
+                });
+            }
+        } else if (field === "confirm_password") {
+            if (!val || val.trim() === "") {
+                return {
+                    success: false,
+                    errorMessage: "Password cannot be empty",
+                };
+            } else if (val !== formState.password) {
+                return {
+                    success: false,
+                    errorMessage: "Passwords do not match",
+                };
+            } else {
+                setFormErrorState({
+                    ...formErrorState,
+                    password: "",
+                    confirm_password: "",
+                });
+            }
+        }
+
+        return { success: true };
+    };
+
     return (
         <Form
             title="Register"
@@ -64,19 +110,36 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
             buttons={[
                 <Button
                     text="Login"
+                    key="Login"
                     type="reset"
                     size="small"
                     onClick={() => {
                         setForm();
                     }}
                 />,
-                <Button text="Register" type="submit" primary size="small" />,
+                <Button
+                    text="Register"
+                    key="Register"
+                    type="submit"
+                    primary
+                    size="small"
+                />,
             ]}
             submitFunction={(
                 e: React.SyntheticEvent<Element, Event>
             ): Promise<void> =>
-                new Promise((res, rej) => {
+                new Promise(async (res, rej) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
                     let empty = false;
+
+                    for (let value of Object.values(formErrorState)) {
+                        if (value.trim() !== "") {
+                            console.log("has errors", value);
+                            return;
+                        }
+                    }
 
                     for (let value of Object.values(formState)) {
                         if (value.trim() === "") {
@@ -84,8 +147,12 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                             return;
                         }
                     }
-                    if (!empty) res();
-                    else rej();
+                    if (!empty) {
+                        const res = await fetch(server + "auth/signup", {
+                            body: JSON.stringify(formState),
+                        });
+                        console.log(await res.json());
+                    } else rej();
                 })
             }
         >
@@ -104,6 +171,7 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                     runOnInput: true,
                     validator: emptyValidator("First name"),
                 }}
+                autoComplete="given-name"
                 type="text"
                 name="first_name"
                 placeholder="first name"
@@ -125,6 +193,7 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                     validator: emptyValidator("Last name"),
                 }}
                 type="text"
+                autoComplete="family-name"
                 name="last_name"
                 placeholder="last name"
                 required
@@ -144,6 +213,7 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                     runOnInput: true,
                     validator: emptyValidator("Address"),
                 }}
+                autoComplete="street-address"
                 type="text"
                 name="address"
                 placeholder="address"
@@ -161,6 +231,7 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                     runOnInput: true,
                     validator: emptyValidator("City"),
                 }}
+                autoComplete="address-level2"
                 type="text"
                 name="city"
                 placeholder="city"
@@ -184,6 +255,7 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                 type="text"
                 name="postal_code"
                 placeholder="postal code"
+                autoComplete="postal-code"
                 required
             />
             <Select
@@ -213,6 +285,7 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                     runOnInput: false,
                     validator: emptyValidator("birthday"),
                 }}
+                autoComplete="bday"
                 type="date"
                 name="birthday"
                 placeholder="birthday"
@@ -230,6 +303,7 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                     runOnComplete: true,
                     validator: emailValidator,
                 }}
+                autoComplete="email"
                 type="email"
                 name="email"
                 placeholder="email"
@@ -244,10 +318,11 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                 }}
                 validationOptions={{
                     runOnComplete: true,
-                    runOnInput: false,
+                    runOnInput: true,
                     validator: phoneValidator,
                 }}
-                type="phone"
+                autoComplete="tel"
+                type="tel"
                 name="phone"
                 placeholder="phone"
                 required
@@ -264,11 +339,12 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                 }}
                 validationOptions={{
                     runOnComplete: true,
-                    runOnInput: false,
+                    runOnInput: true,
                     validator: (val: string) =>
-                        passwordValidator(val, formState.confirm_password),
+                        passwordValidator(val, "password"),
                 }}
                 type="password"
+                autoComplete="new-password"
                 name="password"
                 placeholder="password"
                 required
@@ -278,6 +354,7 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                     setState: setState("confirm_password"),
                     value: formState.confirm_password,
                 }}
+                autoComplete="new-password"
                 errorState={{
                     setError: (message?: string) =>
                         setErrorState("confirm_password")(message ?? ""),
@@ -285,39 +362,14 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                 }}
                 validationOptions={{
                     runOnComplete: true,
-                    runOnInput: false,
+                    runOnInput: true,
                     validator: (val: string) =>
-                        passwordValidator(formState.password, val),
+                        passwordValidator(val, "confirm_password"),
                 }}
                 type="password"
                 name="confirm_password"
                 placeholder="confirm password"
                 required
-            />
-            <RadioFieldset
-                title="I am a(n)"
-                radioProps={[
-                    {
-                        name: "employee_type",
-                        id: "employee",
-                        label: "employee",
-                        state: {
-                            setState: () =>
-                                setState("employee_type")("employee"),
-                            value: formState.employee_type === "employee",
-                        },
-                    },
-                    {
-                        name: "employee_type",
-                        id: "manager",
-                        label: "manager",
-                        state: {
-                            setState: () =>
-                                setState("employee_type")("manager"),
-                            value: formState.employee_type === "manager",
-                        },
-                    },
-                ]}
             />
             <Checkbox
                 name="I am creating a new business account"
