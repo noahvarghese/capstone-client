@@ -13,8 +13,10 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '15'
+      - name: install dependencies
+        run: npm i
       - name: test
-        run: npm i && npm test
+        run: npm test
   continuous-deployment:
     needs: [continuous-integration]
     runs-on: ubuntu-latest
@@ -30,8 +32,10 @@ jobs:
         run: cd ../ && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
       - name: install AWS CLI
         run: unzip "awscliv2.zip" && ./aws/install
+      - name: install dependencies
+        run: cd ./capstone-client && npm i
       - name: build
-        run: cd ./capstone-client && npm i && npm build
+        run: npm build
       - name: deploy 
         run: aws s3 sync ./build/ ${{ secrets.AWS_BUCKET_PATH }}
       - name: invalidate cache
