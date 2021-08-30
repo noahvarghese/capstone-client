@@ -1,26 +1,30 @@
-name: Production
+name: Continuous Deployment 
 
 on:
   push:
     branches: [main]
 
 jobs:
-  release:
+  continuous-integration:
     runs-on: ubuntu-latest
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
     steps:
       - name: test
         run: cd ./capstone-client && npm test
+  continuous-deployment:
+    needs: [continuous-integration]
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
       - name: download AWS CLI
         run: cd ../ && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
       - name: install AWS CLI
         run: unzip "awscliv2.zip" && ./aws/install
       - name: build
         run: cd ./capstone-client && npm build
-      - name: release
+      - name: deploy 
         run: aws s3 sync ./build/ ${{ secrets.AWS_BUCKET_PATH }}
       - name: invalidate cache
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} --paths "/*"
