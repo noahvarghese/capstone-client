@@ -4,8 +4,10 @@ dotenv.config();
 
 const { REACT_APP_TARGET_ENV } = process.env;
 
-let clientURL: string = process.env[`ENV_${REACT_APP_TARGET_ENV}_CLIENT`] ?? "";
-let serverURL: string = process.env[`ENV_${REACT_APP_TARGET_ENV}_SERVER`] ?? "";
+let clientURL: string =
+    process.env[`REACT_APP_ENV_${REACT_APP_TARGET_ENV}_CLIENT`] ?? "";
+let serverURL: string =
+    process.env[`REACT_APP_ENV_${REACT_APP_TARGET_ENV}_SERVER`] ?? "";
 
 if (clientURL !== "") {
     clientURL = `http${
