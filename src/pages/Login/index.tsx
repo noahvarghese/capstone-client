@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import LoginForm from "../../components/LoginForm";
 import RegisterForm from "../../components/RegisterForm";
-import "./index.scss";
+import "./Login.scss";
 
 const Login: React.FC<{}> = () => {
     const [displayForm, setDisplayForm] = useState<0 | 1>(0);
