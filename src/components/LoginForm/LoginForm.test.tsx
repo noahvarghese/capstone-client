@@ -100,3 +100,11 @@ test("empty password", async () => {
         expect(screen.getByText(errors.emptyPassword)).toBeInTheDocument()
     );
 });
+
+const LoginAttributes = {
+    validAttributes: validLoginAttributes,
+    invalidAttributes: invalidLoginAttributes,
+    errors,
+};
+
+export default LoginAttributes;
