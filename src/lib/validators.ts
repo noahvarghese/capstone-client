@@ -9,7 +9,7 @@ export const emptyValidator = (field: string) => (val: string) => {
 
     if (val.trim() === "") {
         res.success = false;
-        res.errorMessage = `${field} cannot be empty`;
+        res.errorMessage = `${field.split("_").join(" ")} cannot be empty`;
         return res;
     }
 

@@ -20,7 +20,7 @@ const invalidInputs = {
 
 const errors = {
     emptyPassword: /^password cannot be empty$/i,
-    emptyConfirmPassword: /^confirm_password cannot be empty$/i,
+    emptyConfirmPassword: /^confirm password cannot be empty$/i,
 };
 
 beforeEach(() => {

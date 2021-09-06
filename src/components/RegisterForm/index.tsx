@@ -168,7 +168,7 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                 validationOptions={{
                     runOnComplete: true,
                     runOnInput: true,
-                    validator: emptyValidator("First name"),
+                    validator: emptyValidator("first_name"),
                 }}
                 autoComplete="given-name"
                 type="text"
@@ -189,7 +189,7 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                 validationOptions={{
                     runOnComplete: true,
                     runOnInput: true,
-                    validator: emptyValidator("Last name"),
+                    validator: emptyValidator("last_name"),
                 }}
                 type="text"
                 autoComplete="family-name"
@@ -210,7 +210,7 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                 validationOptions={{
                     runOnComplete: true,
                     runOnInput: true,
-                    validator: emptyValidator("Address"),
+                    validator: emptyValidator("address"),
                 }}
                 autoComplete="street-address"
                 type="text"
@@ -228,7 +228,7 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                 validationOptions={{
                     runOnComplete: true,
                     runOnInput: true,
-                    validator: emptyValidator("City"),
+                    validator: emptyValidator("city"),
                 }}
                 autoComplete="address-level2"
                 type="text"
@@ -339,8 +339,7 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                 validationOptions={{
                     runOnComplete: true,
                     runOnInput: true,
-                    validator: (val: string) =>
-                        passwordValidator(val, "password"),
+                    validator: emptyValidator("password"),
                 }}
                 type="password"
                 autoComplete="new-password"
