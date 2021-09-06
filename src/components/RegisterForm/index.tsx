@@ -357,13 +357,12 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                 errorState={{
                     setError: (message?: string) =>
                         setErrorState("confirm_password")(message ?? ""),
-                    value: formErrorState.password,
+                    value: formErrorState.confirm_password,
                 }}
                 validationOptions={{
                     runOnComplete: true,
                     runOnInput: true,
-                    validator: (val: string) =>
-                        passwordValidator(val, "confirm_password"),
+                    validator: emptyValidator("confirm_password"),
                 }}
                 type="password"
                 name="confirm_password"

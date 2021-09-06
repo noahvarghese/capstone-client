@@ -20,6 +20,7 @@ const invalidInputs = {
 
 const errors = {
     emptyPassword: /^password cannot be empty$/i,
+    emptyConfirmPassword: /^confirm_password cannot be empty$/i,
 };
 
 beforeEach(() => {
@@ -37,12 +38,20 @@ test("confirm_password is empty should show error message", () => {
 
     fireEmptyChangeEvent(confirmPasswordEl, { target: { value: "yolo" } });
 
-    const errorEl = screen.getByText(errors.emptyPassword);
+    const errorEl = screen.getByText(errors.emptyConfirmPassword);
 
     expect(errorEl).toBeInTheDocument();
 });
 
-test("password is empty should show error", () => {});
+test("password is empty should show error", () => {
+    const passwordEl = screen.getByLabelText(formLabels.password);
+
+    fireEmptyChangeEvent(passwordEl, { target: { value: "yolo" } });
+
+    const errorEl = screen.getByText(errors.emptyPassword);
+
+    expect(errorEl).toBeInTheDocument();
+});
 
 test("confirm password does not match password should show error", () => {});
 
