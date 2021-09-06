@@ -1,9 +1,4 @@
-import {
-    fireEvent,
-    Matcher,
-    screen,
-    SelectorMatcherOptions,
-} from "./test-utils";
+import { fireEvent, screen } from "./test-utils";
 
 export const fireEmptyChangeEvent = (
     element: Document | Node | Element | Window,

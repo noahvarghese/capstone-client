@@ -1,6 +1,6 @@
 import React from "react";
 import RegisterForm from ".";
-import { changeAllInputs, fireEmptyChangeEvent } from "../../test/helpers";
+import { fireEmptyChangeEvent } from "../../test/helpers";
 import { render, screen, fireEvent } from "../../test/test-utils";
 
 const formLabels = {
@@ -116,9 +116,11 @@ test("confirm password does not match password when corrected should show no err
 
 test("when the password does not match confirm password and is corrected should show no error", () => {});
 
-export default {
+const RegisterAttributes = {
     formLabels,
     validInputs,
     invalidInputs,
     errors,
 };
+
+export default RegisterAttributes;

@@ -15,7 +15,6 @@ import {
     phoneValidator,
 } from "../../lib/validators";
 import { server } from "../../lib/permalink";
-import validator from "validator";
 import { CustomAction } from "../../types/customAction";
 
 const defaultRegisterFormState = {
