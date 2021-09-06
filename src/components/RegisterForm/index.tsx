@@ -16,6 +16,7 @@ import {
 } from "../../lib/validators";
 import { server } from "../../lib/permalink";
 import validator from "validator";
+import { CustomAction } from "../../types/customAction";
 
 const defaultRegisterFormState = {
     first_name: "",
@@ -38,7 +39,10 @@ const defaultRegisterFormState = {
     business_email: "",
 };
 
-const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
+const RegisterForm: React.FC<{
+    setForm: () => void;
+    setAuth: (authenticated: boolean) => CustomAction;
+}> = ({ setForm, setAuth }) => {
     const [showNewBusiness, toggleShowNewBusiness] = useState(false);
 
     const [formState, setFormState] = useState(defaultRegisterFormState);
@@ -53,52 +57,6 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
     const setErrorState =
         (name: keyof typeof formErrorState) => (newState: string) =>
             setFormErrorState({ ...formErrorState, [name]: newState });
-
-    const passwordValidator = (
-        val: string,
-        field: string
-    ): { success: true } | { success: false; errorMessage: string } => {
-        if (field === "password") {
-            if (!validator.isLength(val, { min: 8 })) {
-                return {
-                    success: false,
-                    errorMessage: "Password must be at least 8 characters",
-                };
-            } else if (val !== formState.confirm_password) {
-                setFormErrorState({
-                    ...formErrorState,
-                    password: "Passwords do not match",
-                    confirm_password: "",
-                });
-            } else {
-                setFormErrorState({
-                    ...formErrorState,
-                    password: "",
-                    confirm_password: "",
-                });
-            }
-        } else if (field === "confirm_password") {
-            if (!val || val.trim() === "") {
-                return {
-                    success: false,
-                    errorMessage: "Password cannot be empty",
-                };
-            } else if (val !== formState.password) {
-                return {
-                    success: false,
-                    errorMessage: "Passwords do not match",
-                };
-            } else {
-                setFormErrorState({
-                    ...formErrorState,
-                    password: "",
-                    confirm_password: "",
-                });
-            }
-        }
-
-        return { success: true };
-    };
 
     return (
         <Form
@@ -147,10 +105,22 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                         }
                     }
                     if (!empty) {
-                        const res = await fetch(server + "auth/signup", {
-                            body: JSON.stringify(formState),
-                        });
-                        console.log(await res.json());
+                        if (process.env.NODE_ENV === "test") {
+                            setAuth(true);
+                        } else {
+                            const response = await fetch(
+                                server + "auth/signup",
+                                {
+                                    body: JSON.stringify(formState),
+                                }
+                            );
+                            const data = await response.json();
+                            console.log(data);
+
+                            if (data.success) {
+                                setAuth(true);
+                            }
+                        }
                     } else rej();
                 })
             }
