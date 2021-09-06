@@ -1,5 +1,6 @@
 import React from "react";
 import LoginForm from ".";
+import { fireEmptyChangeEvent } from "../../test/helpers";
 import { render, screen, fireEvent, waitFor } from "../../test/test-utils";
 
 const validLoginAttributes = {
@@ -76,11 +77,9 @@ test("empty email", async () => {
 
     const emailInput = screen.getByLabelText(formLabels.email);
 
-    // need to make a change so react registers "" as a change
-    fireEvent.change(emailInput, {
+    fireEmptyChangeEvent(emailInput, {
         target: { value: invalidLoginAttributes.notEmail },
     });
-    fireEvent.change(emailInput, { target: { value: "" } });
 
     await waitFor(() =>
         expect(screen.getByText(errors.emptyEmail)).toBeInTheDocument()
@@ -93,11 +92,9 @@ test("empty password", async () => {
 
     const pwdInput = screen.getByLabelText(formLabels.password);
 
-    // need to make a change so react registers "" as a change
-    fireEvent.change(pwdInput, {
+    fireEmptyChangeEvent(pwdInput, {
         target: { value: invalidLoginAttributes.password },
     });
-    fireEvent.change(pwdInput, { target: { value: "" } });
 
     await waitFor(() =>
         expect(screen.getByText(errors.emptyPassword)).toBeInTheDocument()

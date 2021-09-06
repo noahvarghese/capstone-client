@@ -58,7 +58,6 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
         val: string,
         field: string
     ): { success: true } | { success: false; errorMessage: string } => {
-        console.log(val, field);
         if (field === "password") {
             if (!validator.isLength(val, { min: 8 })) {
                 return {
