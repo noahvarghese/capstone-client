@@ -339,7 +339,20 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                 validationOptions={{
                     runOnComplete: true,
                     runOnInput: true,
-                    validator: emptyValidator("password"),
+                    validator: (val: string) => {
+                        const res = emptyValidator("password")(val);
+
+                        if (res.success) {
+                            if (
+                                formState.confirm_password &&
+                                formState.confirm_password !== val
+                            ) {
+                                res.success = false;
+                                res.errorMessage = "passwords do not match";
+                            }
+                        }
+                        return res;
+                    },
                 }}
                 type="password"
                 autoComplete="new-password"
@@ -361,7 +374,19 @@ const RegisterForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
                 validationOptions={{
                     runOnComplete: true,
                     runOnInput: true,
-                    validator: emptyValidator("confirm_password"),
+                    validator: (val: string) => {
+                        let res = emptyValidator("confirm_password")(val);
+                        if (res.success) {
+                            if (
+                                formState.password &&
+                                formState.password !== val
+                            ) {
+                                res.success = false;
+                                res.errorMessage = "passwords do not match";
+                            }
+                        }
+                        return res;
+                    },
                 }}
                 type="password"
                 name="confirm_password"

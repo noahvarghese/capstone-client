@@ -21,6 +21,7 @@ const invalidInputs = {
 const errors = {
     emptyPassword: /^password cannot be empty$/i,
     emptyConfirmPassword: /^confirm password cannot be empty$/i,
+    noMatch: "passwords do not match",
 };
 
 beforeEach(() => {
@@ -53,6 +54,46 @@ test("password is empty should show error", () => {
     expect(errorEl).toBeInTheDocument();
 });
 
-test("confirm password does not match password should show error", () => {});
+test("confirm password does not match password should show error", () => {
+    const passwordEl = screen.getByLabelText(formLabels.password);
+    fireEvent.change(passwordEl, { target: { value: invalidInputs.password } });
 
-test("password does not match confirm password should show error", () => {});
+    const confirmPasswordEl = screen.getByLabelText(formLabels.confirmPassword);
+    fireEvent.change(confirmPasswordEl, {
+        target: { value: invalidInputs.confirmPassword },
+    });
+
+    const confirmPasswordErrorEl =
+        confirmPasswordEl.parentElement?.getElementsByClassName(
+            "error-message"
+        );
+
+    expect(confirmPasswordErrorEl?.length).toBe(1);
+    expect(
+        confirmPasswordErrorEl![0].getElementsByTagName("p")[0].textContent
+    ).toBe(errors.noMatch);
+});
+
+test("password does not match confirm password should show error", () => {
+    const confirmPasswordEl = screen.getByLabelText(formLabels.confirmPassword);
+    fireEvent.change(confirmPasswordEl, {
+        target: { value: invalidInputs.confirmPassword },
+    });
+
+    const passwordEl = screen.getByLabelText(formLabels.password);
+    fireEvent.change(passwordEl, {
+        target: { value: invalidInputs.password },
+    });
+
+    const passwordErrorEl =
+        passwordEl.parentElement?.getElementsByClassName("error-message");
+
+    expect(passwordErrorEl?.length).toBe(1);
+    expect(passwordErrorEl![0].getElementsByTagName("p")[0].textContent).toBe(
+        errors.noMatch
+    );
+});
+
+test("confirm password does not match password when corrected should show no error", () => {});
+
+test("when the password does not match confirm password and is corrected should show no error", () => {});
