@@ -1,3 +1,5 @@
+import React from "react";
+
 export const checkEnvironmentBeforeAction = (
     dev: boolean,
     prodAction: () => any,
@@ -10,3 +12,10 @@ export const checkEnvironmentBeforeAction = (
         devAction();
     } else prodAction();
 };
+
+export const setState =
+    <T>(setStateFn: React.Dispatch<React.SetStateAction<T>>, prevState: T) =>
+    (name: keyof T) =>
+    (newVal: any) => {
+        setStateFn({ ...prevState, [name]: newVal });
+    };

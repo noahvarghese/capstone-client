@@ -5,6 +5,7 @@ import { emailValidator, emptyValidator } from "../../lib/validators";
 import { server } from "../../lib/permalink";
 import { CustomAction } from "../../types/customAction";
 import { checkEnvironmentBeforeAction } from "../../lib/helpers";
+import { Link } from "react-router-dom";
 
 const defaultLoginFormState = {
     email: "",
@@ -134,6 +135,11 @@ const LoginForm: React.FC<{
                 placeholder="password"
                 required
             />
+            <div className="forgot-password">
+                <Link to="/forgot-password">
+                    Click here to reset your password
+                </Link>
+            </div>
         </Form>
     );
 };

@@ -7,6 +7,7 @@ import { AuthState } from "./types/state/auth";
 import { RouteComponentProps } from "react-router-dom";
 import { StaticContext } from "react-router";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
 
 const App: React.FC<{ auth: AuthState }> = ({ auth }) => {
     let items: { name: string; path: string }[] = [];
@@ -24,7 +25,10 @@ const App: React.FC<{ auth: AuthState }> = ({ auth }) => {
             condition: () => boolean;
             redirectPath: string;
         };
-    }[] = [{ path: "/", component: Login, exact: true }];
+    }[] = [
+        { path: "/", component: Login, exact: true },
+        { path: "/forgot-password", component: ForgotPassword, exact: true },
+    ];
 
     if (auth.authentication) {
         items = [
