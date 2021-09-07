@@ -2,8 +2,8 @@ import React from "react";
 import { render, screen } from "./test/test-utils";
 import App from "./App";
 import { submitForm } from "./test/helpers";
-import RegisterAttributes from "./components/RegisterForm/RegisterForm.test";
-import LoginAttributes from "./components/LoginForm/LoginForm.test";
+import RegisterAttributes from "./components/RegisterForm/testAttributes";
+import LoginAttributes from "./components/LoginForm/testAttributes";
 
 beforeEach(() => {
     render(<App />);

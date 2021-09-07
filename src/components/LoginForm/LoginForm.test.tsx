@@ -2,29 +2,7 @@ import React from "react";
 import LoginForm from ".";
 import { fireEmptyChangeEvent } from "../../test/helpers";
 import { render, screen, fireEvent, waitFor } from "../../test/test-utils";
-
-const validLoginAttributes = {
-    email: "test@test.com",
-    password: "testtest",
-};
-
-const invalidLoginAttributes = {
-    notEmail: "test",
-    invalidEmail: "test123@test.com",
-    password: "yoloyolo",
-};
-
-const errors = {
-    invalidEmail: "Invalid email",
-    emptyEmail: "Email cannot be empty",
-    emptyPassword: "password cannot be empty",
-};
-
-const formLabels = {
-    email: /email/i,
-    password: /password/i,
-};
-
+import LoginAttributes from "./testAttributes";
 beforeEach(() => {
     render(
         <LoginForm
@@ -38,73 +16,75 @@ beforeEach(() => {
 // need to make sure that the user is created
 // and apply cleanup
 test("Valid login", () => {
-    const emailInput = screen.getByLabelText(formLabels.email);
+    const emailInput = screen.getByLabelText(LoginAttributes.formLabels.email);
     expect(emailInput).toBeInTheDocument();
 
     fireEvent.change(emailInput, {
-        target: { value: validLoginAttributes.email },
+        target: { value: LoginAttributes.validAttributes.email },
     });
 
-    expect((emailInput as any).value).toBe(validLoginAttributes.email);
+    expect((emailInput as any).value).toBe(
+        LoginAttributes.validAttributes.email
+    );
 
-    const passwordInput = screen.getByLabelText(formLabels.password);
+    const passwordInput = screen.getByLabelText(
+        LoginAttributes.formLabels.password
+    );
     expect(passwordInput).toBeInTheDocument();
 
     fireEvent.change(passwordInput, {
-        target: { value: validLoginAttributes.password },
+        target: { value: LoginAttributes.validAttributes.password },
     });
 
-    expect((passwordInput as any).value).toBe(validLoginAttributes.password);
+    expect((passwordInput as any).value).toBe(
+        LoginAttributes.validAttributes.password
+    );
 });
 
 test("invalid email", () => {
-    let emailError = screen.queryByText(errors.invalidEmail);
+    let emailError = screen.queryByText(LoginAttributes.errors.invalidEmail);
     expect(emailError).not.toBeInTheDocument();
 
-    const emailInput = screen.getByLabelText(formLabels.email);
+    const emailInput = screen.getByLabelText(LoginAttributes.formLabels.email);
 
     fireEvent.change(emailInput, {
-        target: { value: invalidLoginAttributes.notEmail },
+        target: { value: LoginAttributes.invalidAttributes.notEmail },
     });
 
-    emailError = screen.getByText(errors.invalidEmail);
+    emailError = screen.getByText(LoginAttributes.errors.invalidEmail);
     expect(emailError).toBeInTheDocument();
 });
 
 test("empty email", async () => {
-    let emailError = screen.queryByText(errors.emptyEmail);
+    let emailError = screen.queryByText(LoginAttributes.errors.emptyEmail);
     expect(emailError).not.toBeInTheDocument();
 
-    const emailInput = screen.getByLabelText(formLabels.email);
+    const emailInput = screen.getByLabelText(LoginAttributes.formLabels.email);
 
     fireEmptyChangeEvent(emailInput, {
-        target: { value: invalidLoginAttributes.notEmail },
+        target: { value: LoginAttributes.invalidAttributes.notEmail },
     });
 
     await waitFor(() =>
-        expect(screen.getByText(errors.emptyEmail)).toBeInTheDocument()
+        expect(
+            screen.getByText(LoginAttributes.errors.emptyEmail)
+        ).toBeInTheDocument()
     );
 });
 
 test("empty password", async () => {
-    let pwdError = screen.queryByText(errors.emptyPassword);
+    let pwdError = screen.queryByText(LoginAttributes.errors.emptyPassword);
     expect(pwdError).not.toBeInTheDocument();
 
-    const pwdInput = screen.getByLabelText(formLabels.password);
+    const pwdInput = screen.getByLabelText(LoginAttributes.formLabels.password);
 
     fireEmptyChangeEvent(pwdInput, {
-        target: { value: invalidLoginAttributes.password },
+        target: { value: LoginAttributes.invalidAttributes.password },
     });
 
     await waitFor(() =>
-        expect(screen.getByText(errors.emptyPassword)).toBeInTheDocument()
+        expect(
+            screen.getByText(LoginAttributes.errors.emptyPassword)
+        ).toBeInTheDocument()
     );
 });
-
-const LoginAttributes = {
-    validAttributes: validLoginAttributes,
-    invalidAttributes: invalidLoginAttributes,
-    errors,
-};
-
-export default LoginAttributes;
