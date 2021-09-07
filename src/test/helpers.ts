@@ -13,7 +13,22 @@ export const fireEmptyChangeEvent = (
 export const fillOutForm = (options: {}): void => {
     for (let [key, value] of Object.entries(options)) {
         const inputEl = screen.getByLabelText("* " + key.split("_").join(" "));
-        fireEvent.change(inputEl, { target: { value } });
+
+        // this accounts for my custom select
+        // not for regular HTML select elemtns
+        // because it needs to be set visually I need to go and
+        // make this more accesible for those who wouldn't operate this with a mouse/touchscreen
+        if (inputEl instanceof HTMLSelectElement) {
+            fireEvent.click(inputEl.parentElement!);
+            fireEvent.click(getElementByText("div", value as string)!);
+            // inputEl.selectedIndex = value as number;
+        } else {
+            if (value instanceof Date) {
+                value = `${value.getFullYear()}-0${value.getMonth()}-0${value.getDay()}`;
+            }
+
+            fireEvent.change(inputEl, { target: { value } });
+        }
     }
 };
 

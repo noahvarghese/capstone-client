@@ -7,7 +7,6 @@ export const checkEnvironmentBeforeAction = (
         process.env.NODE_ENV === "test" ||
         (dev && process.env.NODE_ENV === "development")
     ) {
-        console.log("correct");
         devAction();
     } else prodAction();
 };
