@@ -6,3 +6,10 @@ export const createReducer =
         handlers.hasOwnProperty(action.type)
             ? (handlers[action.type as keyof object] as any)(state, action)
             : state;
+
+export const reducerFunction =
+    <T>(key: string) =>
+    (prevState: T, action: CustomAction) => ({
+        ...prevState,
+        [key as keyof T]: action.payload,
+    });

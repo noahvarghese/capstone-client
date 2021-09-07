@@ -35,7 +35,7 @@ export const submitForm = (
     formValues: {},
     expectedElementText: Matcher
 ) => {
-    if (screen.getAllByText(formName).length > 1) {
+    if (screen.getAllByText(formName).length === 1) {
         const goToFormButton = getElementByText("button", formName);
         if (!goToFormButton) throw new Error(`${formName} button not found`);
         fireEvent.click(goToFormButton);

@@ -2,13 +2,19 @@ import React, { useState } from "react";
 import { Button, Form, Input } from "@noahvarghese/react-components";
 import { connect } from "react-redux";
 import { emailValidator, emptyValidator } from "../../lib/validators";
+import { server } from "../../lib/permalink";
+import { CustomAction } from "../../types/customAction";
+import { checkEnvironmentBeforeAction } from "../../lib/helpers";
 
 const defaultLoginFormState = {
     email: "",
     password: "",
 };
 
-const LoginForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
+const LoginForm: React.FC<{
+    setForm: () => void;
+    setAuth: (auth: boolean) => CustomAction;
+}> = ({ setForm, setAuth }) => {
     const [formState, setFormState] = useState(defaultLoginFormState);
     const [formErrorState, setFormErrorState] = useState(defaultLoginFormState);
 
@@ -43,7 +49,46 @@ const LoginForm: React.FC<{ setForm: () => void }> = ({ setForm }) => {
             ]}
             submitFunction={(
                 e: React.SyntheticEvent<Element, Event>
-            ): Promise<void> => new Promise((res, rej) => res())}
+            ): Promise<void> =>
+                new Promise(async (res, rej) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    let empty = false;
+
+                    for (let value of Object.values(formErrorState)) {
+                        if (value.trim() !== "") {
+                            return;
+                        }
+                    }
+
+                    for (let value of Object.values(formState)) {
+                        if (value.trim() === "") {
+                            empty = true;
+                            return;
+                        }
+                    }
+                    if (!empty) {
+                        checkEnvironmentBeforeAction(
+                            true,
+                            async () => {
+                                const response = await fetch(
+                                    server + "auth/login",
+                                    {
+                                        body: JSON.stringify(formState),
+                                    }
+                                );
+                                const data = await response.json();
+
+                                if (data.success) {
+                                    setAuth(true);
+                                }
+                            },
+                            () => setAuth(true)
+                        );
+                    } else rej();
+                })
+            }
         >
             <Input
                 state={{
@@ -97,6 +142,6 @@ export default connect(
     () => ({}),
     (dispatch) => ({
         setAuth: (authenticated: boolean) =>
-            dispatch({ type: "SET_AUTHENTICATED", payload: authenticated }),
+            dispatch({ type: "SET_AUTHENTICATION", payload: authenticated }),
     })
 )(LoginForm);

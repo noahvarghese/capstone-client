@@ -15,9 +15,9 @@ test("renders to public page", () => {
 });
 
 test("Succesful register should redirect to Dashboard", () => {
-    submitForm(/register/i, RegisterAttributes.validInputs, /home/i);
+    submitForm(/register/i, RegisterAttributes.validInputs, /logout/i);
 });
 
 test("Successful login should redirect to the dashbaord", () => {
-    submitForm(/login/i, LoginAttributes.validAttributes, /home/i);
+    submitForm(/login/i, LoginAttributes.validAttributes, /logout/i);
 });

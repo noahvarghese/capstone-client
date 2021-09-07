@@ -16,6 +16,7 @@ import {
 } from "../../lib/validators";
 import { server } from "../../lib/permalink";
 import { CustomAction } from "../../types/customAction";
+import { checkEnvironmentBeforeAction } from "../../lib/helpers";
 
 const defaultRegisterFormState = {
     first_name: "",
@@ -92,34 +93,40 @@ const RegisterForm: React.FC<{
 
                     for (let value of Object.values(formErrorState)) {
                         if (value.trim() !== "") {
-                            console.log("has errors", value);
                             return;
                         }
                     }
 
-                    for (let value of Object.values(formState)) {
-                        if (value.trim() === "") {
-                            empty = true;
-                            return;
+                    let skipBusinessValues =
+                        formState.business_code !== "" &&
+                        formState.business_code.trim() !== "";
+
+                    for (let [key, value] of Object.entries(formState)) {
+                        if (!skipBusinessValues || !key.includes("business")) {
+                            if (value.trim() === "") {
+                                empty = true;
+                                return;
+                            }
                         }
                     }
                     if (!empty) {
-                        if (process.env.NODE_ENV === "test") {
-                            setAuth(true);
-                        } else {
-                            const response = await fetch(
-                                server + "auth/signup",
-                                {
-                                    body: JSON.stringify(formState),
-                                }
-                            );
-                            const data = await response.json();
-                            console.log(data);
+                        checkEnvironmentBeforeAction(
+                            true,
+                            async () => {
+                                const response = await fetch(
+                                    server + "auth/login",
+                                    {
+                                        body: JSON.stringify(formState),
+                                    }
+                                );
+                                const data = await response.json();
 
-                            if (data.success) {
-                                setAuth(true);
-                            }
-                        }
+                                if (data.success) {
+                                    setAuth(true);
+                                }
+                            },
+                            () => setAuth(true)
+                        );
                     } else rej();
                 })
             }
@@ -528,6 +535,6 @@ export default connect(
     () => ({}),
     (dispatch) => ({
         setAuth: (authenticated: boolean) =>
-            dispatch({ type: "SET_AUTHENTICATED", payload: authenticated }),
+            dispatch({ type: "SET_AUTHENTICATION", payload: authenticated }),
     })
 )(RegisterForm);

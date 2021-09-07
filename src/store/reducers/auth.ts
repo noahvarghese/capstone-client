@@ -1,12 +1,8 @@
-import { createReducer } from "../../lib/reduxHelpers";
-import { CustomAction } from "../../types/customAction";
-import { DefaultAuthState } from "../../types/state/auth";
+import { createReducer, reducerFunction } from "../../lib/reduxHelpers";
+import { AuthState, DefaultAuthState } from "../../types/state/auth";
 
-export const setAuthentication = (_: any, action: CustomAction) =>
-    action.payload;
-
-export const setAuthorization = (_: any, action: CustomAction) =>
-    action.payload;
+export const setAuthentication = reducerFunction<AuthState>("authentication");
+export const setAuthorization = reducerFunction<AuthState>("authorization");
 
 const authReducer = createReducer(DefaultAuthState, {
     SET_AUTHENTICATION: setAuthentication,
