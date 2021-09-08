@@ -1,23 +1,31 @@
 import React from "react";
-import { render, screen } from "./test/test-utils";
+import { render, screen, cleanup } from "./test/test-utils";
 import App from "./App";
-import { submitForm } from "./test/helpers";
-import RegisterAttributes from "./components/RegisterForm/testAttributes";
-import LoginAttributes from "./components/LoginForm/testAttributes";
+import { createMemoryHistory } from "history";
+import DefaultState from "./types/state";
+import { store } from "./store";
+
+let unmount: () => void;
+let history;
 
 beforeEach(() => {
-    render(<App />);
+    jest.resetModules();
+    jest.resetModuleRegistry();
+    history = createMemoryHistory();
+    unmount = render(
+        <App />,
+        { preloadedState: DefaultState, currentStore: store },
+        history
+    ).unmount;
+});
+
+afterEach(() => {
+    unmount();
+    history = undefined;
+    cleanup();
 });
 
 test("renders to public page", () => {
     const h1El = screen.getByText(/welcome onboard/i);
     expect(h1El).toBeInTheDocument();
-});
-
-test("Succesful register should redirect to Dashboard", () => {
-    submitForm(/register/i, RegisterAttributes.validInputs, /logout/i);
-});
-
-test("Successful login should redirect to the dashbaord", () => {
-    submitForm(/login/i, LoginAttributes.validAttributes, /logout/i);
 });

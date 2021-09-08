@@ -1,6 +1,6 @@
 import React from "react";
 import { render as rtlRender } from "@testing-library/react";
-import { BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter, Router } from "react-router-dom";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
 import reducer from "../store/reducers";
@@ -16,7 +16,8 @@ function render(
             preloadedState,
         }),
         ...renderOptions
-    }: { preloadedState?: State; currentStore?: typeof store } = {}
+    }: { preloadedState?: State; currentStore?: typeof store } = {},
+    history?: any
 ) {
     function Wrapper({
         children,
@@ -28,7 +29,8 @@ function render(
     }) {
         return (
             <Provider store={store}>
-                <Router>{children}</Router>
+                {history && <Router history={history}>{children}</Router>}
+                {!history && <BrowserRouter>{children}</BrowserRouter>}
             </Provider>
         );
     }

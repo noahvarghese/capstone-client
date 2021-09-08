@@ -36,11 +36,21 @@ export const getElementByText = (
     tagName: string,
     elementText: Matcher
 ): Element | undefined => {
-    return Array.from(document.getElementsByTagName(tagName)).find((el) =>
-        elementText instanceof RegExp
-            ? elementText.test(el.textContent ?? "")
-            : elementText === el.textContent
-    );
+    const elements = Array.from(document.getElementsByTagName(tagName));
+    let found;
+
+    for (let el of elements) {
+        if (
+            elementText instanceof RegExp
+                ? elementText.test(el.textContent ?? "")
+                : elementText === el.textContent
+        ) {
+            found = el;
+            break;
+        }
+    }
+
+    return found;
 };
 
 // its expected that the button name is the same as the formName (title)

@@ -1,16 +1,26 @@
 import React from "react";
 
-export const checkEnvironmentBeforeAction = (
-    dev: boolean,
-    prodAction: () => any,
-    devAction: () => any
-): void => {
+export const checkEnvironmentBeforeAction = async (
+    prodAction: () => any | Promise<any>,
+    devAction: () => any | Promise<any>
+): Promise<void> => {
     if (
         process.env.NODE_ENV === "test" ||
-        (dev && process.env.NODE_ENV === "development")
+        (process.env.REACT_APP_RUN_DISCONNECTED &&
+            process.env.NODE_ENV === "development")
     ) {
-        devAction();
-    } else prodAction();
+        if (devAction instanceof Promise) {
+            await devAction();
+        } else {
+            devAction();
+        }
+    } else {
+        if (prodAction instanceof Promise) {
+            await prodAction();
+        } else {
+            prodAction();
+        }
+    }
 };
 
 export const setState =

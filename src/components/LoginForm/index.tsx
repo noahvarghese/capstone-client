@@ -71,7 +71,6 @@ const LoginForm: React.FC<{
                     }
                     if (!empty) {
                         checkEnvironmentBeforeAction(
-                            true,
                             async () => {
                                 const response = await fetch(
                                     server + "auth/login",
@@ -136,7 +135,7 @@ const LoginForm: React.FC<{
                 required
             />
             <div className="forgot-password">
-                <Link to="/forgot-password">
+                <Link to="/forgotPassword">
                     Click here to reset your password
                 </Link>
             </div>

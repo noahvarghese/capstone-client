@@ -111,7 +111,6 @@ const RegisterForm: React.FC<{
                     }
                     if (!empty) {
                         checkEnvironmentBeforeAction(
-                            true,
                             async () => {
                                 const response = await fetch(
                                     server + "auth/login",
