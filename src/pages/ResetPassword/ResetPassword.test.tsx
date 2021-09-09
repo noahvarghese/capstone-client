@@ -41,122 +41,123 @@ test("reset notification displays on submit", () => {
     expect(notification[0].classList).toContain("show");
 });
 
-// test("reset password form's confirm password when empty should show an error message", () => {
-//     act(() => {
-//         const confirmPasswordInputEl = screen.getByLabelText(
-//             ResetPasswordAttributes.formLabels.confirmPassword
-//         );
-//         console.log(confirmPasswordInputEl);
-//         fireEmptyChangeEvent(confirmPasswordInputEl, {
-//             target: {
-//                 value: "yes",
-//             },
-//         });
-//         screen.debug();
-//     });
+test("reset password form's confirm password when empty should show an error message", () => {
+    // items that trigger a rerender must be placed within act
+    const confirmPasswordInputEl = screen.getByLabelText(
+        ResetPasswordAttributes.formLabels.confirmPassword
+    );
 
-//     // const confirmPasswordErrorEl = screen.getByText(
-//     //     ResetPasswordAttributes.errors.emptyConfirmPassword
-//     // );
-//     // expect(confirmPasswordErrorEl).toBeInTheDocument();
-// });
+    fireEmptyChangeEvent(confirmPasswordInputEl!, {
+        target: {
+            value: "yes",
+        },
+    });
 
-// test("reset confirm_password is empty should show error message", () => {
-//     const confirmPasswordEl = screen.getByLabelText(
-//         ResetPasswordAttributes.formLabels.confirmPassword
-//     );
+    const confirmPasswordErrorEl = screen.getByText(
+        ResetPasswordAttributes.errors.emptyConfirmPassword
+    );
 
-//     fireEmptyChangeEvent(confirmPasswordEl, { target: { value: "yolo" } });
+    expect(confirmPasswordErrorEl).toBeInTheDocument();
+});
 
-//     const errorEl = screen.getByText(
-//         ResetPasswordAttributes.errors.emptyConfirmPassword
-//     );
+test("reset confirm_password is empty should show error message", () => {
+    const confirmPasswordEl = screen.getByLabelText(
+        ResetPasswordAttributes.formLabels.confirmPassword
+    );
 
-//     expect(errorEl).toBeInTheDocument();
-// });
+    fireEmptyChangeEvent(confirmPasswordEl, { target: { value: "yolo" } });
 
-// test("reset password is empty should show error", () => {
-//     const passwordEl = screen.getByLabelText(
-//         ResetPasswordAttributes.formLabels.password
-//     );
+    const errorEl = screen.getByText(
+        ResetPasswordAttributes.errors.emptyConfirmPassword
+    );
 
-//     fireEmptyChangeEvent(passwordEl, { target: { value: "yolo" } });
+    expect(errorEl).toBeInTheDocument();
+});
 
-//     const errorEl = screen.getByText(
-//         ResetPasswordAttributes.errors.emptyPassword
-//     );
+test("reset password is empty should show error", () => {
+    const passwordEl = screen.getByLabelText(
+        ResetPasswordAttributes.formLabels.password
+    );
 
-//     expect(errorEl).toBeInTheDocument();
-// });
+    fireEmptyChangeEvent(passwordEl, { target: { value: "yolo" } });
 
-// test("reset confirm password does not match password should show error", () => {
-//     const passwordEl = screen.getByLabelText(
-//         ResetPasswordAttributes.formLabels.password
-//     );
-//     fireEvent.change(passwordEl, {
-//         target: { value: ResetPasswordAttributes.invalidInputs.password },
-//     });
+    const errorEl = screen.getByText(
+        ResetPasswordAttributes.errors.emptyPassword
+    );
 
-//     const confirmPasswordEl = screen.getByLabelText(
-//         ResetPasswordAttributes.formLabels.confirmPassword
-//     );
-//     fireEvent.change(confirmPasswordEl, {
-//         target: {
-//             value: ResetPasswordAttributes.invalidInputs.confirmPassword,
-//         },
-//     });
+    expect(errorEl).toBeInTheDocument();
+});
 
-//     const confirmPasswordErrorEl =
-//         confirmPasswordEl.parentElement?.getElementsByClassName(
-//             "error-message"
-//         );
+test("reset confirm password does not match password should show error", () => {
+    const passwordEl = screen.getByLabelText(
+        ResetPasswordAttributes.formLabels.password
+    );
+    fireEvent.change(passwordEl, {
+        target: { value: ResetPasswordAttributes.invalidInputs.password },
+    });
 
-//     expect(confirmPasswordErrorEl?.length).toBe(1);
-//     expect(
-//         confirmPasswordErrorEl![0].getElementsByTagName("p")[0].textContent
-//     ).toBe(ResetPasswordAttributes.errors.noMatch);
-// });
+    const confirmPasswordEl = screen.getByLabelText(
+        ResetPasswordAttributes.formLabels.confirmPassword
+    );
+    fireEvent.change(confirmPasswordEl, {
+        target: {
+            value: ResetPasswordAttributes.invalidInputs.confirmPassword,
+        },
+    });
 
-// test("reset password does not match confirm password should show error", () => {
-//     const confirmPasswordEl = screen.getByLabelText(
-//         ResetPasswordAttributes.formLabels.confirmPassword
-//     );
-//     fireEvent.change(confirmPasswordEl, {
-//         target: {
-//             value: ResetPasswordAttributes.invalidInputs.confirmPassword,
-//         },
-//     });
+    const confirmPasswordErrorEl =
+        confirmPasswordEl.parentElement?.getElementsByClassName(
+            "error-message"
+        );
 
-//     const passwordEl = screen.getByLabelText(
-//         ResetPasswordAttributes.formLabels.password
-//     );
-//     fireEvent.change(passwordEl, {
-//         target: { value: ResetPasswordAttributes.invalidInputs.password },
-//     });
+    expect(confirmPasswordErrorEl?.length).toBe(1);
+    expect(
+        confirmPasswordErrorEl![0].getElementsByTagName("p")[0].textContent
+    ).toBe(ResetPasswordAttributes.errors.noMatch);
+});
 
-//     const passwordErrorEl =
-//         passwordEl.parentElement?.getElementsByClassName("error-message");
+test("reset password does not match confirm password should show error", () => {
+    const confirmPasswordEl = screen.getByLabelText(
+        ResetPasswordAttributes.formLabels.confirmPassword
+    );
 
-//     expect(passwordErrorEl?.length).toBe(1);
-//     expect(passwordErrorEl![0].getElementsByTagName("p")[0].textContent).toBe(
-//         ResetPasswordAttributes.errors.noMatch
-//     );
-// });
+    const passwordEl = screen.getByLabelText(
+        ResetPasswordAttributes.formLabels.password
+    );
 
-// test("reset confirm password does not match password when corrected should show no error", () => {
-//     const passwordEl = screen.getByLabelText(
-//         ResetPasswordAttributes.formLabels.password
-//     );
-//     fireEvent.change(passwordEl, {
-//         target: { value: ResetPasswordAttributes.invalidInputs.password },
-//     });
+    fireEvent.change(confirmPasswordEl, {
+        target: {
+            value: ResetPasswordAttributes.invalidInputs.confirmPassword,
+        },
+    });
 
-//     const confirmPasswordEl = screen.getByLabelText(
-//         ResetPasswordAttributes.formLabels.confirmPassword
-//     );
-//     fireEvent.change(confirmPasswordEl, {
-//         target: {
-//             value: ResetPasswordAttributes.invalidInputs.confirmPassword,
-//         },
-//     });
-// });
+    fireEvent.change(passwordEl, {
+        target: { value: ResetPasswordAttributes.invalidInputs.password },
+    });
+
+    const passwordErrorEl =
+        passwordEl.parentElement?.getElementsByClassName("error-message");
+
+    expect(passwordErrorEl?.length).toBe(1);
+    expect(passwordErrorEl![0].getElementsByTagName("p")[0].textContent).toBe(
+        ResetPasswordAttributes.errors.noMatch
+    );
+});
+
+test("reset confirm password does not match password when corrected should show no error", () => {
+    const passwordEl = screen.getByLabelText(
+        ResetPasswordAttributes.formLabels.password
+    );
+    fireEvent.change(passwordEl, {
+        target: { value: ResetPasswordAttributes.invalidInputs.password },
+    });
+
+    const confirmPasswordEl = screen.getByLabelText(
+        ResetPasswordAttributes.formLabels.confirmPassword
+    );
+    fireEvent.change(confirmPasswordEl, {
+        target: {
+            value: ResetPasswordAttributes.invalidInputs.confirmPassword,
+        },
+    });
+});

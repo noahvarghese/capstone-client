@@ -1,4 +1,5 @@
 import { Matcher } from "@testing-library/react";
+import { act } from "react-dom/test-utils";
 import { fireEvent, screen } from "./test-utils";
 
 export const fireEmptyChangeEvent = (
@@ -6,8 +7,12 @@ export const fireEmptyChangeEvent = (
     options: {}
 ) => {
     // need to make a change so react registers "" as a change
-    fireEvent.change(element, options);
-    fireEvent.change(element, { target: { value: "" } });
+    act(() => {
+        fireEvent.change(element, options);
+    });
+    act(() => {
+        fireEvent.change(element, { target: { value: "" } });
+    });
 };
 
 export const fillOutForm = (options: {}): void => {
