@@ -4,7 +4,7 @@ import {
     Input,
     Notification,
 } from "@noahvarghese/react-components";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useParams } from "react-router";
 import { checkEnvironmentBeforeAction, setState } from "../../lib/helpers";
 import { server } from "../../lib/permalink";
