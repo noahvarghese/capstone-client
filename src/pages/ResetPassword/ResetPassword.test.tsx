@@ -88,7 +88,7 @@ test("reset password is empty should show error", () => {
     expect(errorEl).toBeInTheDocument();
 });
 
-test("reset confirm password does not match password should show error", () => {
+test("changing confirm password to not match password should show error", () => {
     const passwordEl = screen.getByLabelText(
         ResetPasswordAttributes.formLabels.password
     );
@@ -116,7 +116,7 @@ test("reset confirm password does not match password should show error", () => {
     ).toBe(ResetPasswordAttributes.errors.noMatch);
 });
 
-test("reset password does not match confirm password should show error", () => {
+test("changing password to not match confirm password should show error", () => {
     const confirmPasswordEl = screen.getByLabelText(
         ResetPasswordAttributes.formLabels.confirmPassword
     );

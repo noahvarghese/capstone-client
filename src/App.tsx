@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 import { State } from "./types/state";
 import { AuthState } from "./types/state/auth";
 import { RouteComponentProps } from "react-router-dom";
-import { StaticContext, Switch } from "react-router";
+import { StaticContext } from "react-router";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";

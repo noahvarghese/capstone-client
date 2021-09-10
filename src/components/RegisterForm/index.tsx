@@ -8,15 +8,13 @@ import {
 } from "@noahvarghese/react-components";
 import { connect } from "react-redux";
 import { provinces } from "../../data/provinces";
-import {
-    emptyValidator,
-    postalCodeValidator,
-    emailValidator,
-    phoneValidator,
-} from "../../lib/validators";
+import { emptyValidator } from "../../lib/validators";
 import { server } from "../../lib/permalink";
 import { CustomAction } from "../../types/customAction";
-import { checkEnvironmentBeforeAction } from "../../lib/helpers";
+import {
+    checkEnvironmentBeforeAction,
+    setStateFactory,
+} from "../../lib/helpers";
 
 const defaultRegisterFormState = {
     first_name: "",
@@ -51,12 +49,14 @@ const RegisterForm: React.FC<{
         defaultRegisterFormState
     );
 
-    const setState = (name: keyof typeof formState) => (newState: string) =>
-        setFormState({ ...formState, [name]: newState });
-
-    const setErrorState =
-        (name: keyof typeof formErrorState) => (newState: string) =>
-            setFormErrorState({ ...formErrorState, [name]: newState });
+    const setState = setStateFactory<typeof defaultRegisterFormState>(
+        setFormState,
+        formState
+    );
+    const setErrorState = setStateFactory<typeof defaultRegisterFormState>(
+        setFormErrorState,
+        formErrorState
+    );
 
     return (
         <Form
@@ -133,17 +133,11 @@ const RegisterForm: React.FC<{
             <Input
                 state={{
                     setState: setState("first_name"),
-                    value: formState.first_name,
+                    state: formState.first_name,
                 }}
                 errorState={{
-                    setError: (message?: string) =>
-                        setErrorState("first_name")(message ?? ""),
-                    value: formErrorState.first_name,
-                }}
-                validationOptions={{
-                    runOnComplete: true,
-                    runOnInput: true,
-                    validator: emptyValidator("first_name"),
+                    setError: setErrorState("first_name"),
+                    error: formErrorState.first_name,
                 }}
                 autoComplete="given-name"
                 type="text"
@@ -154,17 +148,11 @@ const RegisterForm: React.FC<{
             <Input
                 state={{
                     setState: setState("last_name"),
-                    value: formState.last_name,
+                    state: formState.last_name,
                 }}
                 errorState={{
-                    setError: (message?: string) =>
-                        setErrorState("last_name")(message ?? ""),
-                    value: formErrorState.last_name,
-                }}
-                validationOptions={{
-                    runOnComplete: true,
-                    runOnInput: true,
-                    validator: emptyValidator("last_name"),
+                    setError: setErrorState("last_name"),
+                    error: formErrorState.last_name,
                 }}
                 type="text"
                 autoComplete="family-name"
@@ -175,17 +163,11 @@ const RegisterForm: React.FC<{
             <Input
                 state={{
                     setState: setState("address"),
-                    value: formState.address,
+                    state: formState.address,
                 }}
                 errorState={{
-                    setError: (message?: string) =>
-                        setErrorState("address")(message ?? ""),
-                    value: formErrorState.address,
-                }}
-                validationOptions={{
-                    runOnComplete: true,
-                    runOnInput: true,
-                    validator: emptyValidator("address"),
+                    setError: setErrorState("address"),
+                    error: formErrorState.address,
                 }}
                 autoComplete="street-address"
                 type="text"
@@ -194,16 +176,10 @@ const RegisterForm: React.FC<{
                 required
             />
             <Input
-                state={{ setState: setState("city"), value: formState.city }}
+                state={{ setState: setState("city"), state: formState.city }}
                 errorState={{
-                    setError: (message?: string) =>
-                        setErrorState("city")(message ?? ""),
-                    value: formErrorState.city,
-                }}
-                validationOptions={{
-                    runOnComplete: true,
-                    runOnInput: true,
-                    validator: emptyValidator("city"),
+                    setError: setErrorState("city"),
+                    error: formErrorState.city,
                 }}
                 autoComplete="address-level2"
                 type="text"
@@ -214,17 +190,11 @@ const RegisterForm: React.FC<{
             <Input
                 state={{
                     setState: setState("postal_code"),
-                    value: formState.postal_code,
+                    state: formState.postal_code,
                 }}
                 errorState={{
-                    setError: (message?: string) =>
-                        setErrorState("postal_code")(message ?? ""),
-                    value: formErrorState.postal_code,
-                }}
-                validationOptions={{
-                    runOnComplete: true,
-                    runOnInput: true,
-                    validator: postalCodeValidator,
+                    setError: setErrorState("postal_code"),
+                    error: formErrorState.postal_code,
                 }}
                 type="text"
                 name="postal_code"
@@ -239,7 +209,7 @@ const RegisterForm: React.FC<{
                 required
                 state={{
                     setState: (val) => setState("province")(val.value),
-                    value: provinces.find(
+                    state: provinces.find(
                         (val) => val.value === formState.province
                     ) ?? { id: -1, value: "" },
                 }}
@@ -247,17 +217,11 @@ const RegisterForm: React.FC<{
             <Input
                 state={{
                     setState: setState("birthday"),
-                    value: formState.birthday,
+                    state: formState.birthday,
                 }}
                 errorState={{
-                    setError: (message?: string) =>
-                        setErrorState("birthday")(message ?? ""),
-                    value: formErrorState.birthday,
-                }}
-                validationOptions={{
-                    runOnComplete: true,
-                    runOnInput: false,
-                    validator: emptyValidator("birthday"),
+                    setError: setErrorState("birthday"),
+                    error: formErrorState.birthday,
                 }}
                 autoComplete="bday"
                 type="date"
@@ -266,16 +230,10 @@ const RegisterForm: React.FC<{
                 required
             />
             <Input
-                state={{ setState: setState("email"), value: formState.email }}
+                state={{ setState: setState("email"), state: formState.email }}
                 errorState={{
-                    setError: (message?: string) =>
-                        setErrorState("email")(message ?? ""),
-                    value: formErrorState.email,
-                }}
-                validationOptions={{
-                    runOnInput: true,
-                    runOnComplete: true,
-                    validator: emailValidator,
+                    setError: setErrorState("email"),
+                    error: formErrorState.email,
                 }}
                 autoComplete="email"
                 type="email"
@@ -284,16 +242,10 @@ const RegisterForm: React.FC<{
                 required
             />
             <Input
-                state={{ setState: setState("phone"), value: formState.phone }}
+                state={{ setState: setState("phone"), state: formState.phone }}
                 errorState={{
-                    setError: (message?: string) =>
-                        setErrorState("phone")(message ?? ""),
-                    value: formErrorState.phone,
-                }}
-                validationOptions={{
-                    runOnComplete: true,
-                    runOnInput: true,
-                    validator: phoneValidator,
+                    setError: setErrorState("phone"),
+                    error: formErrorState.phone,
                 }}
                 autoComplete="tel"
                 type="tel"
@@ -304,17 +256,16 @@ const RegisterForm: React.FC<{
             <Input
                 state={{
                     setState: setState("password"),
-                    value: formState.password,
+                    state: formState.password,
                 }}
                 errorState={{
-                    setError: (message?: string) =>
-                        setErrorState("password")(message ?? ""),
-                    value: formErrorState.password,
+                    setError: setErrorState("password"),
+                    error: formErrorState.password,
                 }}
                 validationOptions={{
                     runOnComplete: true,
                     runOnInput: true,
-                    validator: (val: string) => {
+                    validatorFn: (val: string) => {
                         const res = emptyValidator("password")(val);
 
                         if (res.success) {
@@ -338,18 +289,17 @@ const RegisterForm: React.FC<{
             <Input
                 state={{
                     setState: setState("confirm_password"),
-                    value: formState.confirm_password,
+                    state: formState.confirm_password,
                 }}
                 autoComplete="new-password"
                 errorState={{
-                    setError: (message?: string) =>
-                        setErrorState("confirm_password")(message ?? ""),
-                    value: formErrorState.confirm_password,
+                    setError: setErrorState("confirm_password"),
+                    error: formErrorState.confirm_password,
                 }}
                 validationOptions={{
                     runOnComplete: true,
                     runOnInput: true,
-                    validator: (val: string) => {
+                    validatorFn: (val: string) => {
                         let res = emptyValidator("confirm_password")(val);
                         if (res.success) {
                             if (
@@ -372,7 +322,7 @@ const RegisterForm: React.FC<{
                 name="I am creating a new business account"
                 state={{
                     setState: toggleShowNewBusiness,
-                    value: showNewBusiness,
+                    state: showNewBusiness,
                 }}
             />
             {showNewBusiness ? (
@@ -380,17 +330,11 @@ const RegisterForm: React.FC<{
                     <Input
                         state={{
                             setState: setState("business_name"),
-                            value: formState.business_name,
+                            state: formState.business_name,
                         }}
                         errorState={{
-                            setError: (message?: string) =>
-                                setErrorState("business_name")(message ?? ""),
-                            value: formErrorState.business_name,
-                        }}
-                        validationOptions={{
-                            runOnComplete: true,
-                            runOnInput: true,
-                            validator: emptyValidator("business_name"),
+                            setError: setErrorState("business_name"),
+                            error: formErrorState.business_name,
                         }}
                         type="text"
                         name="business_name"
@@ -400,19 +344,11 @@ const RegisterForm: React.FC<{
                     <Input
                         state={{
                             setState: setState("business_address"),
-                            value: formState.business_address,
+                            state: formState.business_address,
                         }}
                         errorState={{
-                            setError: (message?: string) =>
-                                setErrorState("business_address")(
-                                    message ?? ""
-                                ),
-                            value: formErrorState.business_address,
-                        }}
-                        validationOptions={{
-                            runOnComplete: true,
-                            runOnInput: true,
-                            validator: emptyValidator("business_address"),
+                            setError: setErrorState("business_address"),
+                            error: formErrorState.business_address,
                         }}
                         type="text"
                         name="business_address"
@@ -422,19 +358,11 @@ const RegisterForm: React.FC<{
                     <Input
                         state={{
                             setState: setState("business_address"),
-                            value: formState.business_address,
+                            state: formState.business_address,
                         }}
                         errorState={{
-                            setError: (message?: string) =>
-                                setErrorState("business_address")(
-                                    message ?? ""
-                                ),
-                            value: formErrorState.business_address,
-                        }}
-                        validationOptions={{
-                            runOnComplete: true,
-                            runOnInput: true,
-                            validator: emptyValidator("business_address"),
+                            setError: setErrorState("business_address"),
+                            error: formErrorState.business_address,
                         }}
                         type="text"
                         name="business_city"
@@ -444,19 +372,11 @@ const RegisterForm: React.FC<{
                     <Input
                         state={{
                             setState: setState("business_postal_code"),
-                            value: formState.business_postal_code,
+                            state: formState.business_postal_code,
                         }}
                         errorState={{
-                            setError: (message?: string) =>
-                                setErrorState("business_postal_code")(
-                                    message ?? ""
-                                ),
-                            value: formErrorState.business_postal_code,
-                        }}
-                        validationOptions={{
-                            runOnComplete: true,
-                            runOnInput: true,
-                            validator: postalCodeValidator,
+                            setError: setErrorState("business_postal_code"),
+                            error: formErrorState.business_postal_code,
                         }}
                         type="text"
                         name="business_postal_code"
@@ -466,19 +386,13 @@ const RegisterForm: React.FC<{
                     <Input
                         state={{
                             setState: setState("business_phone"),
-                            value: formState.business_phone,
+                            state: formState.business_phone,
                         }}
                         errorState={{
-                            setError: (message?: string) =>
-                                setErrorState("business_phone")(message ?? ""),
-                            value: formErrorState.business_phone,
+                            setError: setErrorState("business_phone"),
+                            error: formErrorState.business_phone,
                         }}
-                        validationOptions={{
-                            runOnComplete: true,
-                            runOnInput: true,
-                            validator: phoneValidator,
-                        }}
-                        type="phone"
+                        type="tel"
                         name="business_phone"
                         placeholder="business phone"
                         required
@@ -486,17 +400,11 @@ const RegisterForm: React.FC<{
                     <Input
                         state={{
                             setState: setState("business_email"),
-                            value: formState.business_email,
+                            state: formState.business_email,
                         }}
                         errorState={{
-                            setError: (message?: string) =>
-                                setErrorState("business_email")(message ?? ""),
-                            value: formErrorState.business_email,
-                        }}
-                        validationOptions={{
-                            runOnComplete: true,
-                            runOnInput: true,
-                            validator: emailValidator,
+                            setError: setErrorState("business_email"),
+                            error: formErrorState.business_email,
                         }}
                         type="email"
                         name="business_email"
@@ -512,17 +420,11 @@ const RegisterForm: React.FC<{
                     required
                     state={{
                         setState: setState("business_code"),
-                        value: formState.business_code,
+                        state: formState.business_code,
                     }}
                     errorState={{
-                        setError: (message?: string) =>
-                            setErrorState("business_code")(message ?? ""),
-                        value: formErrorState.business_code,
-                    }}
-                    validationOptions={{
-                        runOnComplete: true,
-                        runOnInput: false,
-                        validator: emptyValidator("business_code"),
+                        setError: setErrorState("business_code"),
+                        error: formErrorState.business_code,
                     }}
                 />
             )}

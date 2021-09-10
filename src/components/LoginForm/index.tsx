@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Button, Form, Input } from "@noahvarghese/react-components";
 import { connect } from "react-redux";
-import { emailValidator, emptyValidator } from "../../lib/validators";
 import { server } from "../../lib/permalink";
 import { CustomAction } from "../../types/customAction";
-import { checkEnvironmentBeforeAction } from "../../lib/helpers";
+import {
+    checkEnvironmentBeforeAction,
+    setStateFactory,
+} from "../../lib/helpers";
 import { Link } from "react-router-dom";
 
 const defaultLoginFormState = {
@@ -19,12 +21,12 @@ const LoginForm: React.FC<{
     const [formState, setFormState] = useState(defaultLoginFormState);
     const [formErrorState, setFormErrorState] = useState(defaultLoginFormState);
 
-    const setState = (name: keyof typeof formState) => (newState: string) =>
-        setFormState({ ...formState, [name]: newState });
+    const setState = setStateFactory<typeof formState>(setFormState, formState);
 
-    const setErrorState =
-        (name: keyof typeof formErrorState) => (newState: string) =>
-            setFormErrorState({ ...formErrorState, [name]: newState });
+    const setErrorState = setStateFactory<typeof formErrorState>(
+        setFormErrorState,
+        formErrorState
+    );
 
     return (
         <Form
@@ -93,17 +95,11 @@ const LoginForm: React.FC<{
             <Input
                 state={{
                     setState: setState("email"),
-                    value: formState.email,
+                    state: formState.email,
                 }}
                 errorState={{
-                    setError: (message?: string) =>
-                        setErrorState("email")(message ?? ""),
-                    value: formErrorState.email,
-                }}
-                validationOptions={{
-                    runOnInput: true,
-                    runOnComplete: true,
-                    validator: emailValidator,
+                    setError: setErrorState("email"),
+                    error: formErrorState.email,
                 }}
                 type="email"
                 name="email"
@@ -115,17 +111,11 @@ const LoginForm: React.FC<{
             <Input
                 state={{
                     setState: setState("password"),
-                    value: formState.password,
+                    state: formState.password,
                 }}
                 errorState={{
-                    setError: (message?: string) =>
-                        setErrorState("password")(message ?? ""),
-                    value: formErrorState.password,
-                }}
-                validationOptions={{
-                    runOnInput: true,
-                    runOnComplete: true,
-                    validator: emptyValidator("password"),
+                    setError: setErrorState("password"),
+                    error: formErrorState.password,
                 }}
                 autoComplete="current-password"
                 type="password"

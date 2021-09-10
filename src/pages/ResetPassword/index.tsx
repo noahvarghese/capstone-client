@@ -6,7 +6,10 @@ import {
 } from "@noahvarghese/react-components";
 import React, { useCallback, useState } from "react";
 import { useParams } from "react-router";
-import { checkEnvironmentBeforeAction, setState } from "../../lib/helpers";
+import {
+    checkEnvironmentBeforeAction,
+    setStateFactory,
+} from "../../lib/helpers";
 import { server } from "../../lib/permalink";
 import { emptyValidator } from "../../lib/validators";
 import "./ResetPassword.scss";
@@ -23,6 +26,12 @@ const ResetPassword = () => {
     >(DefaultResetPasswordFormState);
     const [submitted, setSubmitted] = useState(false);
     const [notification, setNotification] = useState("");
+
+    const setState = setStateFactory<typeof formState>(setFormState, formState);
+    const setErrorState = setStateFactory<typeof formErrorState>(
+        setFormErrorState,
+        formErrorState
+    );
 
     const hasError = useCallback(() => {
         let error = false;
@@ -103,27 +112,17 @@ const ResetPassword = () => {
                     autoComplete="new-password"
                     required
                     state={{
-                        value: formState.password,
-                        setState: setState<
-                            typeof DefaultResetPasswordFormState
-                        >(
-                            setFormState,
-                            formState
-                        )("password"),
+                        state: formState.password,
+                        setState: setState("password"),
                     }}
                     errorState={{
-                        value: formErrorState.password,
-                        setError: setState<
-                            typeof DefaultResetPasswordFormState
-                        >(
-                            setFormErrorState,
-                            formErrorState
-                        )("confirm_password"),
+                        error: formErrorState.password,
+                        setError: setErrorState("confirm_password"),
                     }}
                     validationOptions={{
                         runOnComplete: true,
                         runOnInput: true,
-                        validator: (val: string) => {
+                        validatorFn: (val: string) => {
                             const res = emptyValidator("password")(val);
 
                             if (res.success) {
@@ -145,28 +144,18 @@ const ResetPassword = () => {
                     autoComplete="new-password"
                     required
                     state={{
-                        value: formState.confirm_password,
-                        setState: setState<
-                            typeof DefaultResetPasswordFormState
-                        >(
-                            setFormState,
-                            formState
-                        )("confirm_password"),
+                        state: formState.confirm_password,
+                        setState: setState("confirm_password"),
                     }}
                     errorState={{
-                        value: formErrorState.confirm_password,
-                        setError: setState<
-                            typeof DefaultResetPasswordFormState
-                        >(
-                            setFormErrorState,
-                            formErrorState
-                        )("confirm_password"),
+                        error: formErrorState.confirm_password,
+                        setError: setErrorState("confirm_password"),
                     }}
                     placeholder="confirm password"
                     validationOptions={{
                         runOnComplete: true,
                         runOnInput: true,
-                        validator: (val: string) => {
+                        validatorFn: (val: string) => {
                             let res = emptyValidator("confirm_password")(val);
                             if (res.success) {
                                 if (

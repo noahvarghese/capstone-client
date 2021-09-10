@@ -1,6 +1,6 @@
 const formLabels = {
     password: /^\* password$/i,
-    confirmPassword: /confirm password/i,
+    confirm_password: /confirm password/i,
 };
 
 const validInputs = {
@@ -20,13 +20,13 @@ const validInputs = {
 
 const invalidInputs = {
     password: "testttt",
-    confirmPassword: "testtest",
+    confirm_password: "testtest",
 };
 
 const errors = {
-    emptyPassword: /^password cannot be empty$/i,
-    emptyConfirmPassword: /^confirm password cannot be empty$/i,
-    noMatch: "passwords do not match",
+    empty_password: /^password cannot be empty$/i,
+    empty_confirm_password: /^confirm password cannot be empty$/i,
+    no_match: "passwords do not match",
 };
 
 const RegisterAttributes = {

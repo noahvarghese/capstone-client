@@ -6,9 +6,11 @@ import {
 } from "@noahvarghese/react-components";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { checkEnvironmentBeforeAction, setState } from "../../lib/helpers";
+import {
+    checkEnvironmentBeforeAction,
+    setStateFactory,
+} from "../../lib/helpers";
 import { server } from "../../lib/permalink";
-import { emailValidator } from "../../lib/validators";
 import "./ForgotPassword.scss";
 
 const ForgotPassword = () => {
@@ -16,6 +18,16 @@ const ForgotPassword = () => {
     const [formErrorState, setFormErrorState] = useState({ email: "" });
     const [submitted, setSubmitted] = useState(false);
     const [notification, setNotification] = useState("");
+
+    const setState = setStateFactory<{ email: string }>(
+        setFormState,
+        formState
+    );
+
+    const setErrorState = setStateFactory<{ email: string }>(
+        setFormErrorState,
+        formErrorState
+    );
 
     return (
         <div className="ForgotPassword">
@@ -119,23 +131,12 @@ const ForgotPassword = () => {
                     autoComplete="email"
                     placeholder="email"
                     state={{
-                        setState: setState<typeof formState>(
-                            setFormState,
-                            formState
-                        )("email"),
-                        value: formState.email,
+                        setState: setState("email"),
+                        state: formState.email,
                     }}
                     errorState={{
-                        setError: setState<typeof formErrorState>(
-                            setFormErrorState,
-                            formErrorState
-                        )("email"),
-                        value: formErrorState.email,
-                    }}
-                    validationOptions={{
-                        runOnComplete: true,
-                        runOnInput: true,
-                        validator: emailValidator,
+                        setError: setErrorState("email"),
+                        error: formErrorState.email,
                     }}
                 />
                 <div className="back-to-login">

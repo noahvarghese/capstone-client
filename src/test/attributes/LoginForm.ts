@@ -1,5 +1,5 @@
 const validLoginAttributes = {
-    email: "test@test.com",
+    email: "test@test.ca",
     password: "testtest",
 };
 

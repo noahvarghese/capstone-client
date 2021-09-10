@@ -1,17 +1,15 @@
 import { Matcher } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
 import { fireEvent, screen } from "./test-utils";
+import userEvent from "@testing-library/user-event";
 
-export const fireEmptyChangeEvent = (
-    element: Document | Node | Element | Window,
-    options: {}
-) => {
+export const fireEmptyChangeEvent = (_element: HTMLElement, value: any) => {
     // need to make a change so react registers "" as a change
+    const element = _element as HTMLInputElement;
+
     act(() => {
-        fireEvent.change(element, options);
-    });
-    act(() => {
-        fireEvent.change(element, { target: { value: "" } });
+        userEvent.type(element, value);
+        userEvent.clear(element);
     });
 };
 

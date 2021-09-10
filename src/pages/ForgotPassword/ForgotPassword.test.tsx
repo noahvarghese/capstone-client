@@ -8,36 +8,6 @@ beforeEach(() => {
     render(<ForgotPassword />);
 });
 
-test("Error displays when email is left empty", () => {
-    const emailEl = screen.getByLabelText(
-        ForgotPasswordAttributes.formLabels.email
-    );
-
-    fireEmptyChangeEvent(emailEl, {
-        target: { value: ForgotPasswordAttributes.validAttributes.email },
-    });
-
-    const errorEl = screen.getByText(
-        ForgotPasswordAttributes.errors.emptyEmail
-    );
-    expect(errorEl).toBeInTheDocument();
-});
-
-test("Error displays when email is invalid", () => {
-    const emailEl = screen.getByLabelText(
-        ForgotPasswordAttributes.formLabels.email
-    );
-
-    fireEvent.change(emailEl, {
-        target: { value: ForgotPasswordAttributes.invalidAttributes.email },
-    });
-
-    const errorEl = screen.getByText(
-        ForgotPasswordAttributes.errors.invalidEmail
-    );
-    expect(errorEl).toBeInTheDocument();
-});
-
 test("Notification doesn't display when email is empty", () => {
     const emailEl = screen.getByLabelText(
         ForgotPasswordAttributes.formLabels.email
