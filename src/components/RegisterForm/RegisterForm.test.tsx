@@ -2,14 +2,8 @@ import React from "react";
 import RegisterForm from ".";
 import App from "../../App";
 import { store } from "../../store";
-import { fireEmptyChangeEvent, submitForm } from "../../test/helpers";
-import {
-    render,
-    screen,
-    fireEvent,
-    cleanup,
-    waitFor,
-} from "../../test/test-utils";
+import { submitForm } from "../../test/helpers";
+import { render, screen, cleanup, waitFor } from "../../test/test-utils";
 import DefaultState from "../../types/state";
 import RegisterAttributes from "../../test/attributes/RegisterForm";
 import { createMemoryHistory } from "history";
@@ -76,18 +70,17 @@ describe("General form behaviour", () => {
         const passwordEl = screen.getByLabelText(
             RegisterAttributes.formLabels.password
         );
-        fireEvent.change(passwordEl, {
-            target: { value: RegisterAttributes.invalidInputs.password },
-        });
+
+        userEvent.type(passwordEl, RegisterAttributes.validInputs.password);
 
         const confirmPasswordEl = screen.getByLabelText(
             RegisterAttributes.formLabels.confirm_password
         );
-        fireEvent.change(confirmPasswordEl, {
-            target: {
-                value: RegisterAttributes.invalidInputs.confirm_password,
-            },
-        });
+
+        userEvent.type(
+            confirmPasswordEl,
+            RegisterAttributes.invalidInputs.confirm_password
+        );
 
         const confirmPasswordErrorEl =
             confirmPasswordEl.parentElement?.getElementsByClassName(
@@ -104,18 +97,17 @@ describe("General form behaviour", () => {
         const confirmPasswordEl = screen.getByLabelText(
             RegisterAttributes.formLabels.confirm_password
         );
-        fireEvent.change(confirmPasswordEl, {
-            target: {
-                value: RegisterAttributes.invalidInputs.confirm_password,
-            },
-        });
+
+        userEvent.type(
+            confirmPasswordEl,
+            RegisterAttributes.validInputs.confirm_password
+        );
 
         const passwordEl = screen.getByLabelText(
             RegisterAttributes.formLabels.password
         );
-        fireEvent.change(passwordEl, {
-            target: { value: RegisterAttributes.invalidInputs.password },
-        });
+
+        userEvent.type(passwordEl, RegisterAttributes.invalidInputs.password);
 
         const passwordErrorEl =
             passwordEl.parentElement?.getElementsByClassName("error-message");
@@ -166,18 +158,17 @@ describe("General form behaviour", () => {
         const confirmPasswordEl = screen.getByLabelText(
             RegisterAttributes.formLabels.confirm_password
         );
-        fireEvent.change(confirmPasswordEl, {
-            target: {
-                value: RegisterAttributes.validInputs.confirm_password,
-            },
-        });
+
+        userEvent.type(
+            confirmPasswordEl,
+            RegisterAttributes.validInputs.confirm_password
+        );
 
         const passwordEl = screen.getByLabelText(
             RegisterAttributes.formLabels.password
         );
-        fireEvent.change(passwordEl, {
-            target: { value: RegisterAttributes.invalidInputs.password },
-        });
+
+        userEvent.type(passwordEl, RegisterAttributes.invalidInputs.password);
 
         // Check errors
         let passwordErrorEl =
@@ -188,9 +179,8 @@ describe("General form behaviour", () => {
             passwordErrorEl![0].getElementsByTagName("p")[0].textContent
         ).toBe(RegisterAttributes.errors.no_match);
 
-        fireEvent.change(passwordEl, {
-            target: { value: RegisterAttributes.validInputs.password },
-        });
+        userEvent.clear(passwordEl);
+        userEvent.type(passwordEl, RegisterAttributes.validInputs.password);
 
         passwordErrorEl =
             passwordEl.parentElement?.getElementsByClassName("error-message");
@@ -199,14 +189,14 @@ describe("General form behaviour", () => {
     });
 });
 
-test("Succesful register should redirect to Dashboard", () => {
+test("Succesful register should redirect to Dashboard", async () => {
     const history = createMemoryHistory();
     const unmount = render(
         <App />,
         { preloadedState: DefaultState, currentStore: store },
         history
     ).unmount;
-    submitForm(/register/i, RegisterAttributes.validInputs, /logout/i);
+    await submitForm(/register/i, RegisterAttributes.validInputs, /logout/i);
 
     unmount();
     cleanup();

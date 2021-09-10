@@ -1,6 +1,6 @@
-import { Matcher } from "@testing-library/react";
+import { Matcher, waitFor } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
-import { fireEvent, screen } from "./test-utils";
+import { screen } from "./test-utils";
 import userEvent from "@testing-library/user-event";
 
 export const fireEmptyChangeEvent = (_element: HTMLElement, value: any) => {
@@ -22,15 +22,15 @@ export const fillOutForm = (options: {}): void => {
         // because it needs to be set visually I need to go and
         // make this more accesible for those who wouldn't operate this with a mouse/touchscreen
         if (inputEl instanceof HTMLSelectElement) {
-            fireEvent.click(inputEl.parentElement!);
-            fireEvent.click(getElementByText("div", value as string)!);
+            userEvent.click(inputEl.parentElement!);
+            userEvent.click(getElementByText("div", value as string)!);
             // inputEl.selectedIndex = value as number;
         } else {
             if (value instanceof Date) {
                 value = `${value.getFullYear()}-0${value.getMonth()}-0${value.getDay()}`;
             }
 
-            fireEvent.change(inputEl, { target: { value } });
+            userEvent.type(inputEl, value as string);
         }
     }
 };
@@ -58,7 +58,7 @@ export const getElementByText = (
 
 // its expected that the button name is the same as the formName (title)
 // the expectedElementText is the text that is expected to appear as a result of the form bein submitted
-export const submitForm = (
+export const submitForm = async (
     formName: Matcher,
     formValues: {},
     expectedElementText: Matcher
@@ -66,7 +66,7 @@ export const submitForm = (
     if (screen.getAllByText(formName).length === 1) {
         const goToFormButton = getElementByText("button", formName);
         if (!goToFormButton) throw new Error(`${formName} button not found`);
-        fireEvent.click(goToFormButton);
+        userEvent.click(goToFormButton);
     }
     fillOutForm(formValues);
 
@@ -74,8 +74,9 @@ export const submitForm = (
 
     if (!submitButton) throw new Error("submit button not found");
 
-    fireEvent.click(submitButton);
+    userEvent.click(submitButton);
 
-    const expectedEl = screen.getByText(expectedElementText);
-    expect(expectedEl).toBeInTheDocument();
+    await waitFor(() => {
+        expect(screen.getByText(expectedElementText)).toBeInTheDocument();
+    });
 };

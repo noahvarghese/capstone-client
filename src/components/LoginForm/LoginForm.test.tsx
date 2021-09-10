@@ -25,8 +25,8 @@ afterEach(() => {
 
 // need to make sure that the user is created
 // and apply cleanup
-test("Successful login should redirect to the dashboard", () => {
-    submitForm(/login/i, LoginAttributes.validAttributes, /logout/i);
+test("Successful login should redirect to the dashboard", async () => {
+    await submitForm(/login/i, LoginAttributes.validAttributes, /logout/i);
 });
 
 test("Invalid login should display error", () => {});

@@ -1,8 +1,8 @@
 import React from "react";
-import { fireEvent, render, screen } from "../../test/test-utils";
+import { render, screen } from "../../test/test-utils";
 import ForgotPassword from ".";
 import ForgotPasswordAttributes from "../../test/attributes/ForgotPassword";
-import { fireEmptyChangeEvent } from "../../test/helpers";
+import userEvent from "@testing-library/user-event";
 
 beforeEach(() => {
     render(<ForgotPassword />);
@@ -13,12 +13,11 @@ test("Notification doesn't display when email is empty", () => {
         ForgotPasswordAttributes.formLabels.email
     );
 
-    fireEmptyChangeEvent(emailEl, {
-        target: { value: ForgotPasswordAttributes.validAttributes.email },
-    });
+    userEvent.type(emailEl, ForgotPasswordAttributes.validAttributes.email);
+    userEvent.clear(emailEl);
 
     const submitBtn = screen.getByText(/submit/i);
-    fireEvent.click(submitBtn);
+    userEvent.click(submitBtn);
 
     const notification = document.getElementsByClassName("Notification");
     expect(notification.length).toBe(1);
@@ -29,12 +28,10 @@ test("Notification displays on submit", () => {
     const emailEl = screen.getByLabelText(
         ForgotPasswordAttributes.formLabels.email
     );
-    fireEvent.change(emailEl, {
-        target: { value: ForgotPasswordAttributes.validAttributes.email },
-    });
+    userEvent.type(emailEl, ForgotPasswordAttributes.validAttributes.email);
 
     const submitBtn = screen.getByText(/submit/i);
-    fireEvent.click(submitBtn);
+    userEvent.click(submitBtn);
 
     const notification = document.getElementsByClassName("Notification");
     expect(notification.length).toBe(1);

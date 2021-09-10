@@ -1,14 +1,7 @@
 import React from "react";
-import {
-    cleanup,
-    fireEvent,
-    render,
-    screen,
-    waitFor,
-} from "../../test/test-utils";
+import { cleanup, render, screen, waitFor } from "../../test/test-utils";
 import ResetPassword from ".";
 import ResetPasswordAttributes from "../../test/attributes/ResetPassword";
-import { fireEmptyChangeEvent } from "../../test/helpers";
 import { act } from "react-dom/test-utils";
 import userEvent from "@testing-library/user-event";
 
@@ -34,15 +27,14 @@ test("reset notification displays on submit", () => {
         ResetPasswordAttributes.formLabels.confirmPassword
     );
 
-    fireEvent.change(passwordEl, {
-        target: { value: ResetPasswordAttributes.validInputs.password },
-    });
-    fireEvent.change(confirmPasswordEl, {
-        target: { value: ResetPasswordAttributes.validInputs.confirmPassword },
-    });
+    userEvent.type(passwordEl, ResetPasswordAttributes.validInputs.password);
+    userEvent.type(
+        confirmPasswordEl,
+        ResetPasswordAttributes.validInputs.confirmPassword
+    );
 
     const submitBtn = screen.getByText(/submit/i);
-    fireEvent.click(submitBtn);
+    userEvent.click(submitBtn);
 
     const notification = document.getElementsByClassName("Notification");
     expect(notification.length).toBe(1);
