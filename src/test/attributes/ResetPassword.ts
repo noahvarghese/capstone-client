@@ -4,7 +4,7 @@ export const validInputs = {
 };
 
 export const invalidInputs = {
-    password: "testtest",
+    password: "test4568",
     confirmPassword: "test123123",
 };
 

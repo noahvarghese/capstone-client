@@ -1,9 +1,16 @@
 import React from "react";
-import { cleanup, fireEvent, render, screen } from "../../test/test-utils";
+import {
+    cleanup,
+    fireEvent,
+    render,
+    screen,
+    waitFor,
+} from "../../test/test-utils";
 import ResetPassword from ".";
 import ResetPasswordAttributes from "../../test/attributes/ResetPassword";
 import { fireEmptyChangeEvent } from "../../test/helpers";
 import { act } from "react-dom/test-utils";
+import userEvent from "@testing-library/user-event";
 
 let unmount: any;
 
@@ -22,13 +29,14 @@ test("reset notification displays on submit", () => {
     const passwordEl = screen.getByLabelText(
         ResetPasswordAttributes.formLabels.password
     );
-    fireEvent.change(passwordEl, {
-        target: { value: ResetPasswordAttributes.validInputs.password },
-    });
 
     const confirmPasswordEl = screen.getByLabelText(
         ResetPasswordAttributes.formLabels.confirmPassword
     );
+
+    fireEvent.change(passwordEl, {
+        target: { value: ResetPasswordAttributes.validInputs.password },
+    });
     fireEvent.change(confirmPasswordEl, {
         target: { value: ResetPasswordAttributes.validInputs.confirmPassword },
     });
@@ -42,30 +50,12 @@ test("reset notification displays on submit", () => {
 });
 
 test("reset password form's confirm password when empty should show an error message", () => {
-    // items that trigger a rerender must be placed within act
-    const confirmPasswordInputEl = screen.getByLabelText(
-        ResetPasswordAttributes.formLabels.confirmPassword
-    );
-
-    fireEmptyChangeEvent(confirmPasswordInputEl!, {
-        target: {
-            value: "yes",
-        },
-    });
-
-    const confirmPasswordErrorEl = screen.getByText(
-        ResetPasswordAttributes.errors.emptyConfirmPassword
-    );
-
-    expect(confirmPasswordErrorEl).toBeInTheDocument();
-});
-
-test("reset confirm_password is empty should show error message", () => {
     const confirmPasswordEl = screen.getByLabelText(
         ResetPasswordAttributes.formLabels.confirmPassword
     );
 
-    fireEmptyChangeEvent(confirmPasswordEl, { target: { value: "yolo" } });
+    userEvent.type(confirmPasswordEl, "yolo");
+    userEvent.clear(confirmPasswordEl);
 
     const errorEl = screen.getByText(
         ResetPasswordAttributes.errors.emptyConfirmPassword
@@ -79,7 +69,8 @@ test("reset password is empty should show error", () => {
         ResetPasswordAttributes.formLabels.password
     );
 
-    fireEmptyChangeEvent(passwordEl, { target: { value: "yolo" } });
+    userEvent.type(passwordEl, "yolo");
+    userEvent.clear(passwordEl);
 
     const errorEl = screen.getByText(
         ResetPasswordAttributes.errors.emptyPassword
@@ -88,35 +79,36 @@ test("reset password is empty should show error", () => {
     expect(errorEl).toBeInTheDocument();
 });
 
-test("changing confirm password to not match password should show error", () => {
+test("changing confirm password to not match password should show error", async () => {
     const passwordEl = screen.getByLabelText(
         ResetPasswordAttributes.formLabels.password
     );
-    fireEvent.change(passwordEl, {
-        target: { value: ResetPasswordAttributes.invalidInputs.password },
-    });
 
     const confirmPasswordEl = screen.getByLabelText(
         ResetPasswordAttributes.formLabels.confirmPassword
     );
-    fireEvent.change(confirmPasswordEl, {
-        target: {
-            value: ResetPasswordAttributes.invalidInputs.confirmPassword,
-        },
+
+    userEvent.type(passwordEl, ResetPasswordAttributes.validInputs.password);
+
+    userEvent.type(
+        confirmPasswordEl,
+        ResetPasswordAttributes.invalidInputs.confirmPassword
+    );
+
+    await waitFor(() => {
+        const confirmPasswordErrorEl =
+            confirmPasswordEl.parentElement?.getElementsByClassName(
+                "error-message"
+            );
+
+        expect(confirmPasswordErrorEl?.length).toBe(1);
+        expect(
+            confirmPasswordErrorEl![0].getElementsByTagName("p")[0].textContent
+        ).toBe(ResetPasswordAttributes.errors.noMatch);
     });
-
-    const confirmPasswordErrorEl =
-        confirmPasswordEl.parentElement?.getElementsByClassName(
-            "error-message"
-        );
-
-    expect(confirmPasswordErrorEl?.length).toBe(1);
-    expect(
-        confirmPasswordErrorEl![0].getElementsByTagName("p")[0].textContent
-    ).toBe(ResetPasswordAttributes.errors.noMatch);
 });
 
-test("changing password to not match confirm password should show error", () => {
+test("changing password to not match confirm password should show error", async () => {
     const confirmPasswordEl = screen.getByLabelText(
         ResetPasswordAttributes.formLabels.confirmPassword
     );
@@ -125,39 +117,47 @@ test("changing password to not match confirm password should show error", () => 
         ResetPasswordAttributes.formLabels.password
     );
 
-    fireEvent.change(confirmPasswordEl, {
-        target: {
-            value: ResetPasswordAttributes.invalidInputs.confirmPassword,
-        },
-    });
-
-    fireEvent.change(passwordEl, {
-        target: { value: ResetPasswordAttributes.invalidInputs.password },
-    });
-
-    const passwordErrorEl =
-        passwordEl.parentElement?.getElementsByClassName("error-message");
-
-    expect(passwordErrorEl?.length).toBe(1);
-    expect(passwordErrorEl![0].getElementsByTagName("p")[0].textContent).toBe(
-        ResetPasswordAttributes.errors.noMatch
+    userEvent.type(
+        confirmPasswordEl,
+        ResetPasswordAttributes.validInputs.confirmPassword
     );
+
+    userEvent.type(passwordEl, ResetPasswordAttributes.invalidInputs.password);
+
+    await waitFor(() => {
+        const passwordErrorEl =
+            passwordEl.parentElement?.getElementsByClassName("error-message");
+
+        expect(passwordErrorEl?.length).toBe(1);
+        expect(
+            passwordErrorEl![0].getElementsByTagName("p")[0].textContent
+        ).toBe(ResetPasswordAttributes.errors.noMatch);
+    });
 });
 
 test("reset confirm password does not match password when corrected should show no error", () => {
     const passwordEl = screen.getByLabelText(
         ResetPasswordAttributes.formLabels.password
     );
-    fireEvent.change(passwordEl, {
-        target: { value: ResetPasswordAttributes.invalidInputs.password },
-    });
+
+    userEvent.type(passwordEl, ResetPasswordAttributes.validInputs.password);
 
     const confirmPasswordEl = screen.getByLabelText(
         ResetPasswordAttributes.formLabels.confirmPassword
     );
-    fireEvent.change(confirmPasswordEl, {
-        target: {
-            value: ResetPasswordAttributes.invalidInputs.confirmPassword,
-        },
-    });
+
+    userEvent.type(
+        confirmPasswordEl,
+        ResetPasswordAttributes.invalidInputs.confirmPassword
+    );
+
+    expect(confirmPasswordEl.parentElement?.classList).toContain("error");
+
+    userEvent.clear(confirmPasswordEl);
+    userEvent.type(
+        confirmPasswordEl,
+        ResetPasswordAttributes.validInputs.confirmPassword
+    );
+
+    expect(confirmPasswordEl.parentElement?.classList).not.toContain("error");
 });

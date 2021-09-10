@@ -117,7 +117,7 @@ const ResetPassword = () => {
                     }}
                     errorState={{
                         error: formErrorState.password,
-                        setError: setErrorState("confirm_password"),
+                        setError: setErrorState("password"),
                     }}
                     validationOptions={{
                         runOnComplete: true,
@@ -155,7 +155,10 @@ const ResetPassword = () => {
                     validationOptions={{
                         runOnComplete: true,
                         runOnInput: true,
-                        validatorFn: (val: string) => {
+                        validatorFn: (
+                            val: string,
+                            field: string = "confirm password"
+                        ) => {
                             let res = emptyValidator("confirm_password")(val);
                             if (res.success) {
                                 if (

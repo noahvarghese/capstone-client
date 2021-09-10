@@ -19,13 +19,13 @@ const validInputs = {
 };
 
 const invalidInputs = {
-    password: "testttt",
-    confirm_password: "testtest",
+    password: "test1234",
+    confirm_password: "test4567",
 };
 
 const errors = {
-    empty_password: /^password cannot be empty$/i,
-    empty_confirm_password: /^confirm password cannot be empty$/i,
+    empty_password: "password cannot be empty",
+    empty_confirm_password: "confirm password cannot be empty",
     no_match: "passwords do not match",
 };
 

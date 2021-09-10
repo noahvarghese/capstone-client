@@ -3,10 +3,17 @@ import RegisterForm from ".";
 import App from "../../App";
 import { store } from "../../store";
 import { fireEmptyChangeEvent, submitForm } from "../../test/helpers";
-import { render, screen, fireEvent, cleanup } from "../../test/test-utils";
+import {
+    render,
+    screen,
+    fireEvent,
+    cleanup,
+    waitFor,
+} from "../../test/test-utils";
 import DefaultState from "../../types/state";
 import RegisterAttributes from "../../test/attributes/RegisterForm";
 import { createMemoryHistory } from "history";
+import userEvent from "@testing-library/user-event";
 
 describe("General form behaviour", () => {
     beforeEach(() => {
@@ -19,38 +26,50 @@ describe("General form behaviour", () => {
         );
     });
 
-    test("when confirm password is empty should show error message", () => {
+    test("when confirm password is empty should show error message", async () => {
         const confirmPasswordEl = screen.getByLabelText(
             RegisterAttributes.formLabels.confirm_password
         ) as HTMLInputElement;
 
-        fireEmptyChangeEvent(
+        userEvent.type(
             confirmPasswordEl,
-            RegisterAttributes.validInputs.password
+            RegisterAttributes.validInputs.confirm_password
         );
+        userEvent.clear(confirmPasswordEl);
 
-        const errorEl = screen.getByText(
-            RegisterAttributes.errors.empty_confirm_password
-        );
+        await waitFor(() => {
+            const confirmPasswordErrorEl =
+                confirmPasswordEl.parentElement?.getElementsByClassName(
+                    "error-message"
+                );
 
-        expect(errorEl).toBeInTheDocument();
+            expect(confirmPasswordErrorEl?.length).toBe(1);
+            expect(
+                confirmPasswordErrorEl![0].getElementsByTagName("p")[0]
+                    .textContent
+            ).toBe(RegisterAttributes.errors.empty_confirm_password);
+        });
     });
 
-    test("password is empty should show error", () => {
+    test("when password is empty should show error", async () => {
         const passwordEl = screen.getByLabelText(
             RegisterAttributes.formLabels.password
         ) as HTMLInputElement;
 
-        fireEmptyChangeEvent(
-            passwordEl,
-            RegisterAttributes.invalidInputs.password
-        );
+        userEvent.type(passwordEl, RegisterAttributes.validInputs.password);
+        userEvent.clear(passwordEl);
 
-        const errorEl = screen.getByText(
-            RegisterAttributes.errors.empty_password
-        );
+        await waitFor(() => {
+            const passwordErrorEl =
+                passwordEl.parentElement?.getElementsByClassName(
+                    "error-message"
+                );
 
-        expect(errorEl).toBeInTheDocument();
+            expect(passwordErrorEl?.length).toBe(1);
+            expect(
+                passwordErrorEl![0].getElementsByTagName("p")[0].textContent
+            ).toBe(RegisterAttributes.errors.empty_password);
+        });
     });
 
     test("confirm password does not match password should show error", () => {
@@ -112,40 +131,35 @@ describe("General form behaviour", () => {
             RegisterAttributes.formLabels.password
         );
 
-        fireEvent.change(passwordEl, {
-            target: { value: RegisterAttributes.validInputs.password },
-        });
+        userEvent.type(passwordEl, RegisterAttributes.validInputs.password);
 
         const confirmPasswordEl = screen.getByLabelText(
             RegisterAttributes.formLabels.confirm_password
         );
-        fireEvent.change(confirmPasswordEl, {
-            target: {
-                value: RegisterAttributes.invalidInputs.confirm_password,
-            },
-        });
 
-        // Check errors
+        userEvent.type(
+            confirmPasswordEl,
+            RegisterAttributes.invalidInputs.confirm_password
+        );
+
+        expect(confirmPasswordEl.parentElement?.classList).toContain("error");
+
+        userEvent.clear(confirmPasswordEl);
+        userEvent.type(
+            confirmPasswordEl,
+            RegisterAttributes.validInputs.confirm_password
+        );
+
+        expect(confirmPasswordEl.parentElement?.classList).not.toContain(
+            "error"
+        );
+
         let confirmPasswordErrorEl =
             confirmPasswordEl.parentElement?.getElementsByClassName(
                 "error-message"
             );
 
-        expect(confirmPasswordErrorEl?.length).toBe(1);
-        expect(
-            confirmPasswordErrorEl![0].getElementsByTagName("p")[0].textContent
-        ).toBe(RegisterAttributes.errors.no_match);
-
-        fireEvent.change(confirmPasswordEl, {
-            target: { value: RegisterAttributes.validInputs.confirm_password },
-        });
-
-        confirmPasswordErrorEl =
-            confirmPasswordEl.parentElement?.getElementsByClassName(
-                "error-message"
-            );
-
-        expect(confirmPasswordErrorEl).toBeUndefined();
+        expect(confirmPasswordErrorEl?.length).toBe(0);
     });
 
     test("when the password does not match confirm password and is corrected should show no error", () => {
@@ -181,7 +195,7 @@ describe("General form behaviour", () => {
         passwordErrorEl =
             passwordEl.parentElement?.getElementsByClassName("error-message");
 
-        expect(passwordErrorEl).toBeUndefined();
+        expect(passwordErrorEl?.length).toBe(0);
     });
 });
 
