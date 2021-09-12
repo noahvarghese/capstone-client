@@ -1,13 +1,15 @@
-import React, { useState } from "react";
-import { Button, Form, Input } from "@noahvarghese/react-components";
-import { connect } from "react-redux";
-import { server } from "../../lib/permalink";
-import { CustomAction } from "../../types/customAction";
+import React, { useCallback, useState } from "react";
 import {
-    checkEnvironmentBeforeAction,
-    setStateFactory,
-} from "../../lib/helpers";
+    Button,
+    Form,
+    Input,
+    Notification,
+} from "@noahvarghese/react-components";
+import { connect } from "react-redux";
+import { CustomAction } from "../../types/customAction";
+import { setStateFactory } from "../../lib/helpers";
 import { Link } from "react-router-dom";
+import login from "../../network-calls/login";
 
 const defaultLoginFormState = {
     email: "",
@@ -20,12 +22,44 @@ const LoginForm: React.FC<{
 }> = ({ setForm, setAuth }) => {
     const [formState, setFormState] = useState(defaultLoginFormState);
     const [formErrorState, setFormErrorState] = useState(defaultLoginFormState);
+    const [notificationError, setNotificationError] = useState("");
 
     const setState = setStateFactory<typeof formState>(setFormState, formState);
 
     const setErrorState = setStateFactory<typeof formErrorState>(
         setFormErrorState,
         formErrorState
+    );
+
+    const submitForm = useCallback(
+        async (e: React.SyntheticEvent<Element, Event>): Promise<void> => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            let empty = false;
+
+            for (let value of Object.values(formErrorState)) {
+                if (value.trim() !== "") {
+                    return;
+                }
+            }
+
+            for (let value of Object.values(formState)) {
+                if (value.trim() === "") {
+                    empty = true;
+                    return;
+                }
+            }
+            if (!empty) {
+                const response = await login(formState);
+                if (response === true) {
+                    setAuth(true);
+                } else {
+                    setNotificationError(response.message);
+                }
+            }
+        },
+        [formErrorState, formState, setAuth]
     );
 
     return (
@@ -50,47 +84,7 @@ const LoginForm: React.FC<{
                     size="small"
                 />,
             ]}
-            submitFunction={(
-                e: React.SyntheticEvent<Element, Event>
-            ): Promise<void> =>
-                new Promise(async (res, rej) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    let empty = false;
-
-                    for (let value of Object.values(formErrorState)) {
-                        if (value.trim() !== "") {
-                            return;
-                        }
-                    }
-
-                    for (let value of Object.values(formState)) {
-                        if (value.trim() === "") {
-                            empty = true;
-                            return;
-                        }
-                    }
-                    if (!empty) {
-                        checkEnvironmentBeforeAction(
-                            async () => {
-                                const response = await fetch(
-                                    server + "auth/login",
-                                    {
-                                        body: JSON.stringify(formState),
-                                    }
-                                );
-                                const data = await response.json();
-
-                                if (data.success) {
-                                    setAuth(true);
-                                }
-                            },
-                            () => setAuth(true)
-                        );
-                    } else rej();
-                })
-            }
+            submitFunction={submitForm}
         >
             <Input
                 state={{
@@ -129,6 +123,14 @@ const LoginForm: React.FC<{
                     Click here to reset your password
                 </Link>
             </div>
+            <Notification
+                error
+                message={notificationError}
+                hide={() => setNotificationError("")}
+                display={
+                    notificationError !== "" && notificationError.trim() !== ""
+                }
+            />
         </Form>
     );
 };

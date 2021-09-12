@@ -6,13 +6,11 @@ import {
 } from "@noahvarghese/react-components";
 import React, { useCallback, useState } from "react";
 import { useParams } from "react-router";
-import {
-    checkEnvironmentBeforeAction,
-    setStateFactory,
-} from "../../lib/helpers";
+import { setStateFactory } from "../../lib/helpers";
 import { server } from "../../lib/permalink";
-import { emptyValidator } from "../../lib/validators";
+import { passwordValidator } from "../../lib/validators";
 import "./ResetPassword.scss";
+import { submitNewPassword } from "../../network-calls/resetPassword";
 
 export const DefaultResetPasswordFormState = {
     password: "",
@@ -46,6 +44,45 @@ const ResetPassword = () => {
         return error;
     }, [formErrorState]);
 
+    // we know that none of the functions or parameters within will change except for the state
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const handlePasswordChange = useCallback(
+        passwordValidator<typeof formState, "password" | "confirm_password">(
+            formState
+        ),
+        [formState]
+    );
+
+    const submitForm = useCallback(
+        async (e: React.SyntheticEvent<Element, Event>) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const response = await submitNewPassword({
+                token,
+                ...formState,
+            });
+
+            if (Object.keys(response).includes("success")) {
+                setNotification("Password reset");
+                setSubmitted(true);
+            } else {
+                const { message, field } = response as {
+                    field: keyof typeof formErrorState;
+                    message: string;
+                };
+                setErrorState(field)(message);
+                setNotification(message);
+
+                setFormErrorState({
+                    ...formErrorState,
+                    [field as keyof typeof formErrorState]: message as string,
+                });
+            }
+        },
+        [formErrorState, formState, setErrorState, token]
+    );
+
     return (
         <div className="ResetPassword">
             <Form
@@ -63,47 +100,7 @@ const ResetPassword = () => {
                 title="Reset Password"
                 type="card"
                 method="POST"
-                submitFunction={(e: React.SyntheticEvent<Element, Event>) =>
-                    new Promise((res, rej) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        checkEnvironmentBeforeAction(
-                            async () => {
-                                const response = await fetch(
-                                    server + "auth/resetPassword",
-                                    {
-                                        method: "POST",
-                                        body: JSON.stringify({
-                                            ...formState,
-                                            token,
-                                        }),
-                                    }
-                                );
-
-                                if (response.status !== 200) {
-                                    const { message, field } =
-                                        await response.json();
-                                    setNotification(message);
-                                    setFormErrorState({
-                                        ...formErrorState,
-                                        [field as keyof typeof formErrorState]:
-                                            message as string,
-                                    });
-                                    rej(message);
-                                } else {
-                                    setNotification("Password reset");
-                                    setSubmitted(true);
-                                    res();
-                                }
-                            },
-                            () => {
-                                setNotification("Password reset");
-                                setSubmitted(true);
-                            }
-                        );
-                    })
-                }
+                submitFunction={submitForm}
             >
                 <Input
                     type="password"
@@ -122,20 +119,7 @@ const ResetPassword = () => {
                     validationOptions={{
                         runOnComplete: true,
                         runOnInput: true,
-                        validatorFn: (val: string) => {
-                            const res = emptyValidator("password")(val);
-
-                            if (res.success) {
-                                if (
-                                    formState.confirm_password &&
-                                    formState.confirm_password !== val
-                                ) {
-                                    res.success = false;
-                                    res.errorMessage = "passwords do not match";
-                                }
-                            }
-                            return res;
-                        },
+                        validatorFn: handlePasswordChange("password"),
                     }}
                 />
                 <Input
@@ -155,22 +139,7 @@ const ResetPassword = () => {
                     validationOptions={{
                         runOnComplete: true,
                         runOnInput: true,
-                        validatorFn: (
-                            val: string,
-                            field: string = "confirm password"
-                        ) => {
-                            let res = emptyValidator("confirm_password")(val);
-                            if (res.success) {
-                                if (
-                                    formState.password &&
-                                    formState.password !== val
-                                ) {
-                                    res.success = false;
-                                    res.errorMessage = "passwords do not match";
-                                }
-                            }
-                            return res;
-                        },
+                        validatorFn: handlePasswordChange("confirm_password"),
                     }}
                 />
                 <Notification

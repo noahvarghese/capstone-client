@@ -9,6 +9,13 @@ import RegisterAttributes from "../../test/attributes/RegisterForm";
 import { createMemoryHistory } from "history";
 import userEvent from "@testing-library/user-event";
 
+let unmount: any;
+global.fetch = jest.fn(() => Promise.resolve(new Response()));
+
+beforeEach(() => {
+    (fetch as jest.Mock<Promise<Response>>).mockClear();
+});
+
 describe("General form behaviour", () => {
     beforeEach(() => {
         render(
@@ -196,6 +203,10 @@ test("Succesful register should redirect to Dashboard", async () => {
         { preloadedState: DefaultState, currentStore: store },
         history
     ).unmount;
+
+    (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
+        Promise.resolve(new Response(JSON.stringify({}), { status: 201 }))
+    );
     await submitForm(/register/i, RegisterAttributes.validInputs, /logout/i);
 
     unmount();

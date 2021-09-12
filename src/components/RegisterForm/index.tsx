@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
     Button,
     Checkbox,
@@ -8,13 +8,10 @@ import {
 } from "@noahvarghese/react-components";
 import { connect } from "react-redux";
 import { provinces } from "../../data/provinces";
-import { emptyValidator } from "../../lib/validators";
-import { server } from "../../lib/permalink";
+import { passwordValidator } from "../../lib/validators";
 import { CustomAction } from "../../types/customAction";
-import {
-    checkEnvironmentBeforeAction,
-    setStateFactory,
-} from "../../lib/helpers";
+import { setStateFactory } from "../../lib/helpers";
+import register from "../../network-calls/register";
 
 const defaultRegisterFormState = {
     first_name: "",
@@ -58,6 +55,52 @@ const RegisterForm: React.FC<{
         formErrorState
     );
 
+    const submitForm = useCallback(
+        async (e: React.SyntheticEvent<Element, Event>): Promise<void> => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            let empty = false;
+
+            for (let value of Object.values(formErrorState)) {
+                if (value.trim() !== "") {
+                    return;
+                }
+            }
+
+            let skipBusinessValues =
+                formState.business_code !== "" &&
+                formState.business_code.trim() !== "";
+
+            for (let [key, value] of Object.entries(formState)) {
+                if (!skipBusinessValues || !key.includes("business")) {
+                    if (value.trim() === "") {
+                        empty = true;
+                        return;
+                    }
+                }
+            }
+            if (!empty) {
+                const response = await register(formState);
+                setAuth(response === true);
+
+                if (response !== true && response.field && response.message) {
+                    setErrorState(response.field)(response.message);
+                }
+            }
+        },
+        [formErrorState, formState, setAuth, setErrorState]
+    );
+
+    // we know that none of the functions or parameters within will change except for the state
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const handlePasswordChange = useCallback(
+        passwordValidator<typeof formState, "password" | "confirm_password">(
+            formState
+        ),
+        [formState]
+    );
+
     return (
         <Form
             title="Register"
@@ -82,53 +125,7 @@ const RegisterForm: React.FC<{
                     size="small"
                 />,
             ]}
-            submitFunction={(
-                e: React.SyntheticEvent<Element, Event>
-            ): Promise<void> =>
-                new Promise(async (res, rej) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    let empty = false;
-
-                    for (let value of Object.values(formErrorState)) {
-                        if (value.trim() !== "") {
-                            return;
-                        }
-                    }
-
-                    let skipBusinessValues =
-                        formState.business_code !== "" &&
-                        formState.business_code.trim() !== "";
-
-                    for (let [key, value] of Object.entries(formState)) {
-                        if (!skipBusinessValues || !key.includes("business")) {
-                            if (value.trim() === "") {
-                                empty = true;
-                                return;
-                            }
-                        }
-                    }
-                    if (!empty) {
-                        checkEnvironmentBeforeAction(
-                            async () => {
-                                const response = await fetch(
-                                    server + "auth/login",
-                                    {
-                                        body: JSON.stringify(formState),
-                                    }
-                                );
-                                const data = await response.json();
-
-                                if (data.success) {
-                                    setAuth(true);
-                                }
-                            },
-                            () => setAuth(true)
-                        );
-                    } else rej();
-                })
-            }
+            submitFunction={submitForm}
         >
             <Input
                 state={{
@@ -265,20 +262,7 @@ const RegisterForm: React.FC<{
                 validationOptions={{
                     runOnComplete: true,
                     runOnInput: true,
-                    validatorFn: (val: string) => {
-                        const res = emptyValidator("password")(val);
-
-                        if (res.success) {
-                            if (
-                                formState.confirm_password &&
-                                formState.confirm_password !== val
-                            ) {
-                                res.success = false;
-                                res.errorMessage = "passwords do not match";
-                            }
-                        }
-                        return res;
-                    },
+                    validatorFn: handlePasswordChange("password"),
                 }}
                 type="password"
                 autoComplete="new-password"
@@ -299,19 +283,7 @@ const RegisterForm: React.FC<{
                 validationOptions={{
                     runOnComplete: true,
                     runOnInput: true,
-                    validatorFn: (val: string) => {
-                        let res = emptyValidator("confirm_password")(val);
-                        if (res.success) {
-                            if (
-                                formState.password &&
-                                formState.password !== val
-                            ) {
-                                res.success = false;
-                                res.errorMessage = "passwords do not match";
-                            }
-                        }
-                        return res;
-                    },
+                    validatorFn: handlePasswordChange("confirm_password"),
                 }}
                 type="password"
                 name="confirm_password"

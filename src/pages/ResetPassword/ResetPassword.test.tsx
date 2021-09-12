@@ -7,7 +7,10 @@ import userEvent from "@testing-library/user-event";
 
 let unmount: any;
 
+global.fetch = jest.fn(() => Promise.resolve(new Response()));
+
 beforeEach(() => {
+    (fetch as jest.Mock<Promise<Response>>).mockClear();
     act(() => {
         unmount = render(<ResetPassword />).unmount;
     });
@@ -18,7 +21,15 @@ afterEach(() => {
     cleanup();
 });
 
-test("reset notification displays on submit", () => {
+test("reset notification displays on submit", async () => {
+    (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
+        Promise.resolve(
+            new Response(JSON.stringify({ success: true }), {
+                status: 201,
+            })
+        )
+    );
+
     const passwordEl = screen.getByLabelText(
         ResetPasswordAttributes.formLabels.password
     );
@@ -36,9 +47,11 @@ test("reset notification displays on submit", () => {
     const submitBtn = screen.getByText(/submit/i);
     userEvent.click(submitBtn);
 
-    const notification = document.getElementsByClassName("Notification");
-    expect(notification.length).toBe(1);
-    expect(notification[0].classList).toContain("show");
+    await waitFor(() => {
+        const notification = document.getElementsByClassName("Notification");
+        expect(notification.length).toBe(1);
+        expect(notification[0].classList).toContain("show");
+    });
 });
 
 test("reset password form's confirm password when empty should show an error message", () => {
