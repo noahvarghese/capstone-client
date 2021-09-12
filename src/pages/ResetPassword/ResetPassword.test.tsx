@@ -140,7 +140,7 @@ test("changing password to not match confirm password should show error", async 
     });
 });
 
-test("reset confirm password does not match password when corrected should show no error", () => {
+test("reset confirm password does not match password when corrected should show no error", async () => {
     const passwordEl = screen.getByLabelText(
         ResetPasswordAttributes.formLabels.password
     );
@@ -164,5 +164,9 @@ test("reset confirm password does not match password when corrected should show 
         ResetPasswordAttributes.validInputs.confirmPassword
     );
 
-    expect(confirmPasswordEl.parentElement?.classList).not.toContain("error");
+    await waitFor(() => {
+        expect(confirmPasswordEl.parentElement?.classList).not.toContain(
+            "error"
+        );
+    });
 });

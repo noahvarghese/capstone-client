@@ -95,9 +95,7 @@ const RegisterForm: React.FC<{
     // we know that none of the functions or parameters within will change except for the state
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const handlePasswordChange = useCallback(
-        passwordValidator<typeof formState, "password" | "confirm_password">(
-            formState
-        ),
+        passwordValidator<typeof formState>(formState),
         [formState]
     );
 

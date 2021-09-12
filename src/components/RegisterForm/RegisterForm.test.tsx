@@ -9,7 +9,6 @@ import RegisterAttributes from "../../test/attributes/RegisterForm";
 import { createMemoryHistory } from "history";
 import userEvent from "@testing-library/user-event";
 
-let unmount: any;
 global.fetch = jest.fn(() => Promise.resolve(new Response()));
 
 beforeEach(() => {
@@ -17,14 +16,20 @@ beforeEach(() => {
 });
 
 describe("General form behaviour", () => {
+    let unmount: any;
     beforeEach(() => {
-        render(
+        unmount = render(
             <RegisterForm
                 setForm={() => {
                     return;
                 }}
             />
-        );
+        ).unmount;
+    });
+
+    afterEach(() => {
+        unmount();
+        cleanup();
     });
 
     test("when confirm password is empty should show error message", async () => {
