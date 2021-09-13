@@ -9,20 +9,20 @@
 
 // The themes provided currently are 'owd'
 // to not use the theme, cimply comment the next line out
-$default-theme: default;
+// $default-theme: default;
 
 $primary-color: #000000;
 $secondary-color: #61dafb;
 $highlight-color: #fffff9;
-// FUCK
+$error_color: #f55549;
 $accent-color: #61dafb;
 
 $bg-color: #fffff9;
 $secondary-bg-color: #f3f3f3;
 
-$root-font-size: 16px;
+$root-font-size: 14px;
 
-$header-font-family: Monsterrat;
+$header-font-family: Montserrat;
 $header-font-style: "Regular";
 $header-letter-spacing: 16px;
 $header-line-height: 1.2rem;
