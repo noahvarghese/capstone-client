@@ -28,9 +28,6 @@ jobs:
             - uses: actions/setup-node@v2
               with:
                   node-version: "15"
-            - name: change target environment
-              run: |
-                  sed -i 's/^REACT_APP_TARGET_ENV=LOCAL$/REACT_APP_TARGET_ENV=PROD/g' .env
             - name: download AWS CLI
               run: curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             - name: install AWS CLI
@@ -38,7 +35,7 @@ jobs:
             - name: install dependencies
               run: npm i
             - name: build
-              run: npm run build && cp .env ./build
+              run: npm run build
             - name: deploy
               run: aws s3 sync ./build/ ${{ secrets.AWS_BUCKET_PATH }}
             - name: invalidate cache
