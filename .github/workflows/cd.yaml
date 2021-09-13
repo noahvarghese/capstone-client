@@ -38,7 +38,7 @@ jobs:
             - name: install dependencies
               run: npm i
             - name: build
-              run: npm build && cp .env ./build
+              run: npm run build && cp .env ./build
             - name: deploy
               run: aws s3 sync ./build/ ${{ secrets.AWS_BUCKET_PATH }}
             - name: invalidate cache
