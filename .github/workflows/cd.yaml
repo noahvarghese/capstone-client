@@ -32,13 +32,13 @@ jobs:
               run: |
                   sed -i 's/^REACT_APP_TARGET_ENV=LOCAL$/REACT_APP_TARGET_ENV=PROD/g' .env
             - name: download AWS CLI
-              run: cd ../ && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+              run: curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             - name: install AWS CLI
               run: unzip "awscliv2.zip" && ./aws/install
             - name: install dependencies
-              run: cd ./capstone-client && npm i
+              run: npm i
             - name: build
-              run: npm build
+              run: npm build && cp .env ./build
             - name: deploy
               run: aws s3 sync ./build/ ${{ secrets.AWS_BUCKET_PATH }}
             - name: invalidate cache
