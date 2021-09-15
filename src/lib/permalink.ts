@@ -4,10 +4,14 @@ dotenv.config();
 
 const { REACT_APP_TARGET_ENV } = process.env;
 
+console.log("TARGET ENV", REACT_APP_TARGET_ENV);
+
 let clientURL: string =
-    process.env[`REACT_APP_ENV_${REACT_APP_TARGET_ENV}_CLIENT`] ?? "capstone.noahvarghese.me";
+    process.env[`REACT_APP_ENV_${REACT_APP_TARGET_ENV}_CLIENT`] ??
+    "capstone.noahvarghese.me";
 let serverURL: string =
-    process.env[`REACT_APP_ENV_${REACT_APP_TARGET_ENV}_SERVER`] ?? "api.capstone.noahvarghese.me";
+    process.env[`REACT_APP_ENV_${REACT_APP_TARGET_ENV}_SERVER`] ??
+    "api.capstone.noahvarghese.me";
 
 if (clientURL !== "") {
     clientURL = `http${
