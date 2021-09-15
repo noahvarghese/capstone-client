@@ -4,6 +4,7 @@ const login = async <T>(
     body: T
 ): Promise<true | { field: keyof Text; message: string }> => {
     const response = await fetch(server + "auth/login", {
+        method: "POST",
         body: JSON.stringify(body),
     });
     const data = await response.json();

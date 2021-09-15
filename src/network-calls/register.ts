@@ -4,6 +4,7 @@ const register = async <T>(
     body: T
 ): Promise<true | { field: keyof T; message: string }> => {
     const response = await fetch(server + "auth/signup", {
+        method: "POST",
         body: JSON.stringify(body),
     });
     const data = await response.json();
