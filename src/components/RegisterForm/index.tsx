@@ -333,11 +333,11 @@ const RegisterForm: React.FC<{
                     />
                     <Input
                         state={{
-                            setState: setState("business_address"),
+                            setState: setState("business_city"),
                             state: formState.business_address,
                         }}
                         errorState={{
-                            setError: setErrorState("business_address"),
+                            setError: setErrorState("business_city"),
                             error: formErrorState.business_address,
                         }}
                         type="text"
