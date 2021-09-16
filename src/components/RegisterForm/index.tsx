@@ -76,7 +76,10 @@ const RegisterForm: React.FC<{
                 formState.business_code.trim() !== "";
 
             for (let [key, value] of Object.entries(formState)) {
-                if (!skipBusinessValues || !key.includes("business")) {
+                if (
+                    !key.includes("business") ||
+                    (!skipBusinessValues && key !== "business_code")
+                ) {
                     if (value.trim() === "") {
                         empty = true;
                         return;
@@ -351,9 +354,11 @@ const RegisterForm: React.FC<{
                     <Select
                         items={provinces}
                         state={{
-                            setState: (val) => setState("province")(val.value),
+                            setState: (val) =>
+                                setState("business_province")(val.value),
                             state: provinces.find(
-                                (val) => val.value === formState.province
+                                (val) =>
+                                    val.value === formState.business_province
                             ) ?? { id: -1, value: "" },
                         }}
                         errorState={{
