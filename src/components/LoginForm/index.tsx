@@ -51,11 +51,15 @@ const LoginForm: React.FC<{
                 }
             }
             if (!empty) {
-                const response = await login(formState);
-                if (response === true) {
+                try {
+                    await login(formState);
                     setAuth(true);
-                } else {
-                    setNotificationError(response.message);
+                } catch (err) {
+                    if (err.message) {
+                        setNotificationError(err.message);
+                    } else {
+                        setNotificationError("Unable to contact server");
+                    }
                 }
             }
         },
