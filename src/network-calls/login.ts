@@ -7,12 +7,15 @@ const login = async <T>(body: T): Promise<void> =>
                 method: "POST",
                 body: JSON.stringify(body),
             });
-            const data = await response.json();
 
             if (response.status === 200) {
                 res();
-            } else rej(data);
+            } else {
+                const data = await response.json();
+                rej(data);
+            }
         } catch (e) {
+            console.log(e);
             rej(e);
         }
     });

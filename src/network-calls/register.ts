@@ -8,11 +8,12 @@ const register = async <T>(body: T): Promise<void> =>
                 body: JSON.stringify(body),
             });
 
-            const data = await response.json();
-
             if (response.status === 201) {
                 res();
-            } else rej(data);
+            } else {
+                const data = await response.json();
+                rej(data);
+            }
         } catch (e) {
             rej(e);
         }
