@@ -31,6 +31,7 @@ const defaultRegisterFormState = {
     business_address: "",
     business_city: "",
     business_postal_code: "",
+    business_province: "",
     business_phone: "",
     business_email: "",
 };
@@ -295,6 +296,7 @@ const RegisterForm: React.FC<{
                 required
             />
             <Checkbox
+                label="new_business"
                 name="I am creating a new business account"
                 state={{
                     setState: toggleShowNewBusiness,
@@ -343,6 +345,23 @@ const RegisterForm: React.FC<{
                         type="text"
                         name="business_city"
                         placeholder="business city"
+                        required
+                    />
+
+                    <Select
+                        items={provinces}
+                        state={{
+                            setState: (val) => setState("province")(val.value),
+                            state: provinces.find(
+                                (val) => val.value === formState.province
+                            ) ?? { id: -1, value: "" },
+                        }}
+                        errorState={{
+                            setError: setErrorState("business_province"),
+                            error: formErrorState.business_province,
+                        }}
+                        name="business_province"
+                        placeholder="business province"
                         required
                     />
                     <Input
