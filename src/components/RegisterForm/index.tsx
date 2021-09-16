@@ -5,6 +5,7 @@ import {
     Form,
     Input,
     Select,
+    Notification,
 } from "@noahvarghese/react-components";
 import { connect } from "react-redux";
 import { provinces } from "../../data/provinces";
@@ -40,6 +41,7 @@ const RegisterForm: React.FC<{
 }> = ({ setForm, setAuth }) => {
     const [showNewBusiness, toggleShowNewBusiness] = useState(false);
 
+    const [notificationError, setNotificationError] = useState("");
     const [formState, setFormState] = useState(defaultRegisterFormState);
 
     const [formErrorState, setFormErrorState] = useState(
@@ -81,11 +83,15 @@ const RegisterForm: React.FC<{
                 }
             }
             if (!empty) {
-                const response = await register(formState);
-                setAuth(response === true);
-
-                if (response !== true && response.field && response.message) {
-                    setErrorState(response.field)(response.message);
+                try {
+                    await register(formState);
+                    setAuth(true);
+                } catch (e) {
+                    if (e.field && e.message) {
+                        setErrorState(e.field)(e.message);
+                    } else if (e.message) {
+                        setNotificationError(e.message);
+                    }
                 }
             }
         },
@@ -398,6 +404,14 @@ const RegisterForm: React.FC<{
                     }}
                 />
             )}
+            <Notification
+                error
+                message={notificationError}
+                hide={() => setNotificationError("")}
+                display={
+                    notificationError !== "" && notificationError.trim() !== ""
+                }
+            />
         </Form>
     );
 };

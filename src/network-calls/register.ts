@@ -1,17 +1,21 @@
 import { server } from "../lib/permalink";
 
-const register = async <T>(
-    body: T
-): Promise<true | { field: keyof T; message: string }> => {
-    const response = await fetch(server + "auth/signup", {
-        method: "POST",
-        body: JSON.stringify(body),
-    });
-    const data = await response.json();
+const register = async <T>(body: T): Promise<void> =>
+    new Promise<void>(async (res, rej) => {
+        try {
+            const response = await fetch(server + "auth/signup", {
+                method: "POST",
+                body: JSON.stringify(body),
+            });
 
-    if (response.status === 201) {
-        return true;
-    } else return data;
-};
+            const data = await response.json();
+
+            if (response.status === 201) {
+                res();
+            } else rej(data);
+        } catch (e) {
+            rej(e);
+        }
+    });
 
 export default register;
