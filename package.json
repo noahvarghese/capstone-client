@@ -59,7 +59,8 @@
         "@types/react-redux": "^7.1.18",
         "@types/react-router": "^5.1.16",
         "@types/react-router-dom": "^5.1.8",
-        "@types/validator": "^13.6.3"
+        "@types/validator": "^13.6.3",
+        "prettier": "^2.4.1"
     },
     "jest": {}
 }
