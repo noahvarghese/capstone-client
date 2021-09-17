@@ -203,15 +203,20 @@ describe("General form behaviour", () => {
 
 test("Succesful register should redirect to Dashboard", async () => {
     const history = createMemoryHistory();
+
+    (fetch as jest.Mock<Promise<Response>>)
+        .mockImplementationOnce(() =>
+            Promise.resolve(new Response(JSON.stringify({}), { status: 400 }))
+        )
+        .mockImplementation(() =>
+            Promise.resolve(new Response(JSON.stringify({}), { status: 201 }))
+        );
+
     const unmount = render(
         <App />,
         { preloadedState: DefaultState, currentStore: store },
         history
     ).unmount;
-
-    (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
-        Promise.resolve(new Response(JSON.stringify({}), { status: 201 }))
-    );
     await submitForm(/register/i, RegisterAttributes.validInputs, /logout/i);
 
     unmount();

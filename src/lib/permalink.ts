@@ -31,9 +31,6 @@ if (serverURL !== "") {
     );
 }
 
-// export const client = clientURL;
-// export const server = serverURL;
-
 export const client = (path: string) =>
     clientURL + (path[0] === "/" ? path.substring(1) : path);
 export const server = (path: string) =>
