@@ -1,12 +1,13 @@
+import { fetchWithCredentials } from "../lib/fetchHelper";
 import { server } from "../lib/permalink";
 
 export const requestResetPassword = async (
     params: unknown
 ): Promise<true | { message: string }> => {
-    const response = await fetch(server("auth/requestResetPassword"), {
-        method: "POST",
-        body: JSON.stringify(params),
-    });
+    const response = await fetchWithCredentials(
+        server("auth/requestResetPassword"),
+        { body: JSON.stringify(params), method: "POST" }
+    );
 
     if (response.status !== 200) {
         const { message } = await response.json();
@@ -21,11 +22,12 @@ export const submitNewPassword = async <T>(
 ): Promise<void> =>
     new Promise<void>(async (res, rej) => {
         try {
-            const response = await fetch(
+            const response = await fetchWithCredentials(
                 server(`auth/resetPassword/${token}`),
                 {
-                    method: "POST",
                     body: JSON.stringify(params),
+                    credentials: "include",
+                    method: "POST",
                 }
             );
 
