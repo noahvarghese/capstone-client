@@ -80,7 +80,7 @@ const ForgotPassword = () => {
                 type="card"
                 method="POST"
                 submitFunction={submitForm}
-                url={server + "/auth/requestResetPassword"}
+                url={server("/auth/requestResetPassword")}
             >
                 <Input
                     type="email"

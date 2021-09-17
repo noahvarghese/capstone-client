@@ -56,35 +56,26 @@ const ResetPassword = () => {
             e.preventDefault();
             e.stopPropagation();
 
-            const response = await submitNewPassword({
-                token,
-                ...formState,
-            });
-
-            if (Object.keys(response).includes("success")) {
+            try {
+                await submitNewPassword(token, formState);
                 setNotification("Password reset");
-                setSubmitted(true);
-            } else {
-                const { message, field } = response as {
-                    field: keyof typeof formErrorState;
-                    message: string;
-                };
-                setErrorState(field)(message);
-                setNotification(message);
-
-                setFormErrorState({
-                    ...formErrorState,
-                    [field as keyof typeof formErrorState]: message as string,
-                });
+            } catch (e) {
+                if (e.field && e.message) {
+                    setErrorState(e.field)(e.message);
+                } else if (e.message) {
+                    setNotification(e.message);
+                } else {
+                    setNotification("An unexpected error occurred");
+                }
             }
         },
-        [formErrorState, formState, setErrorState, token]
+        [formState, setErrorState, token]
     );
 
     return (
         <div className="ResetPassword">
             <Form
-                url={server + "auth/resetPassword"}
+                url={server("auth/resetPassword")}
                 buttons={[
                     <Button
                         key="Submit"

@@ -3,7 +3,7 @@ import { server } from "../lib/permalink";
 const login = async <T>(body: T): Promise<void> =>
     new Promise(async (res, rej) => {
         try {
-            const response = await fetch(server + "auth/login", {
+            const response = await fetch(server("auth/login"), {
                 method: "POST",
                 body: JSON.stringify(body),
             });

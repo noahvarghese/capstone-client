@@ -3,7 +3,7 @@ import { server } from "../lib/permalink";
 export const requestResetPassword = async (
     params: unknown
 ): Promise<true | { message: string }> => {
-    const response = await fetch(server + "auth/requestResetPassword", {
+    const response = await fetch(server("auth/requestResetPassword"), {
         method: "POST",
         body: JSON.stringify(params),
     });
@@ -16,17 +16,26 @@ export const requestResetPassword = async (
 };
 
 export const submitNewPassword = async <T>(
+    token: string,
     params: T
-): Promise<{ success: true } | { message: string; field: keyof T }> => {
-    const response = await fetch(server + "auth/resetPassword", {
-        method: "POST",
-        body: JSON.stringify(params),
-    });
+): Promise<void> =>
+    new Promise<void>(async (res, rej) => {
+        try {
+            const response = await fetch(
+                server(`auth/resetPassword/${token}`),
+                {
+                    method: "POST",
+                    body: JSON.stringify(params),
+                }
+            );
 
-    if (response.status !== 201) {
-        const { message, field } = await response.json();
-        return { message, field };
-    } else {
-        return { success: true };
-    }
-};
+            if (response.status === 201) {
+                res();
+            } else {
+                const data = await response.json();
+                rej(data);
+            }
+        } catch (e) {
+            rej(e);
+        }
+    });
