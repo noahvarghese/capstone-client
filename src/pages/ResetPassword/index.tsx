@@ -22,7 +22,6 @@ const ResetPassword = () => {
     const [formErrorState, setFormErrorState] = useState<
         typeof DefaultResetPasswordFormState
     >(DefaultResetPasswordFormState);
-    const [submitted, setSubmitted] = useState(false);
     const [notification, setNotification] = useState("");
 
     const setState = setStateFactory<typeof formState>(setFormState, formState);
@@ -30,6 +29,7 @@ const ResetPassword = () => {
         setFormErrorState,
         formErrorState
     );
+    const [error, setError] = useState(false);
 
     const hasError = useCallback(() => {
         let error = false;
@@ -58,8 +58,10 @@ const ResetPassword = () => {
 
             try {
                 await submitNewPassword(token, formState);
+                setError(false);
                 setNotification("Password reset");
             } catch (e) {
+                setError(true);
                 if (e.field && e.message) {
                     setErrorState(e.field)(e.message);
                 } else if (e.message) {
@@ -83,7 +85,7 @@ const ResetPassword = () => {
                         primary
                         size="small"
                         type="submit"
-                        disabled={submitted}
+                        disabled={notification !== ""}
                     />,
                 ]}
                 title="Reset Password"
@@ -133,9 +135,9 @@ const ResetPassword = () => {
                 />
                 <Notification
                     message={notification}
-                    error={hasError()}
-                    hide={() => setSubmitted(false)}
-                    display={submitted}
+                    error={hasError() || error}
+                    hide={() => setNotification("")}
+                    display={notification !== ""}
                 />
             </Form>
         </div>
