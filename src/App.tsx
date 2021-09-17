@@ -11,6 +11,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
+import Logout from "./components/Logout";
 
 const App: React.FC<{ auth: AuthState }> = ({ auth }) => {
     let items: { name: string; path: string }[] = [];
@@ -31,6 +32,7 @@ const App: React.FC<{ auth: AuthState }> = ({ auth }) => {
     }[] = auth.authentication
         ? [
               { path: "/", exact: true, component: Home },
+              { path: "/logout", exact: true, component: Logout },
               { path: "*", component: NotFound },
           ]
         : [

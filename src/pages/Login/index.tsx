@@ -15,9 +15,7 @@ const Login: React.FC<{ setAuth: (authenticated: boolean) => CustomAction }> =
                 try {
                     await checkAuthenticated();
                     setAuth(true);
-                    console.log("SET AUTH");
                 } catch (_) {
-                    // console.log(_);
                     return;
                 }
             })();
