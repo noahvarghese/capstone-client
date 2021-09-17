@@ -6,7 +6,6 @@ import DefaultState from "../../types/state";
 import LoginAttributes from "../../test/attributes/LoginForm";
 import { createMemoryHistory } from "history";
 import App from "../../App";
-import { checkAuthenticated } from "../../network-calls/checkAuthenticated";
 
 let unmount: () => void;
 global.fetch = jest.fn(() => Promise.resolve(new Response()));
