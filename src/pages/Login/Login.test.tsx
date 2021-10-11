@@ -1,6 +1,6 @@
 import React from "react";
 import Login from ".";
-import { fireEvent, render, screen } from "../../test/test-utils";
+import { fireEvent, render, screen } from "../../../test/test-utils";
 
 test("login form is displayed", () => {
     render(<Login />);

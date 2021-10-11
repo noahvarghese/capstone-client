@@ -1,7 +1,7 @@
 import React from "react";
-import { cleanup, render, screen, waitFor } from "../../test/test-utils";
+import { cleanup, render, screen, waitFor } from "../../../test/test-utils";
 import ResetPassword from ".";
-import ResetPasswordAttributes from "../../test/attributes/ResetPassword";
+import ResetPasswordAttributes from "../../../test/attributes/ResetPassword";
 import { act } from "react-dom/test-utils";
 import userEvent from "@testing-library/user-event";
 

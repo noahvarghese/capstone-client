@@ -2,10 +2,10 @@ import React from "react";
 import RegisterForm from ".";
 import App from "../../App";
 import { store } from "../../store";
-import { submitForm } from "../../test/helpers";
-import { render, screen, cleanup, waitFor } from "../../test/test-utils";
+import { submitForm } from "../../../test/helpers";
+import { render, screen, cleanup, waitFor } from "../../../test/test-utils";
 import DefaultState from "../../types/state";
-import RegisterAttributes from "../../test/attributes/RegisterForm";
+import RegisterAttributes from "../../../test/attributes/RegisterForm";
 import { createMemoryHistory } from "history";
 import userEvent from "@testing-library/user-event";
 

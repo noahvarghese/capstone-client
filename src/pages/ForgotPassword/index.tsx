@@ -50,12 +50,12 @@ const ForgotPassword = () => {
             }
 
             if (!preventSubmit) {
-                const response = await requestResetPassword(formState);
-                if (response === true) {
+                try {
+                    await requestResetPassword(formState);
                     setNotification("Email sent");
                     setSubmitted(true);
-                } else {
-                    const { message } = response;
+                } catch (e) {
+                    const { message } = e;
                     setNotification(message);
                     setFormErrorState({ email: message });
                 }

@@ -3,9 +3,9 @@ import { render as rtlRender } from "@testing-library/react";
 import { BrowserRouter, Router } from "react-router-dom";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
-import reducer from "../store/reducers";
-import { State } from "../types/state";
-import { store } from "../store";
+import reducer from "../src/store/reducers";
+import { State } from "../src/types/state";
+import { store } from "../src/store";
 
 function render(
     ui: React.ReactElement<any, string | React.JSXElementConstructor<any>>,

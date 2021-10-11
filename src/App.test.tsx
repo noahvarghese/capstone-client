@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, cleanup } from "./test/test-utils";
+import { render, screen, cleanup } from "../test/test-utils";
 import App from "./App";
 import { createMemoryHistory } from "history";
 import DefaultState from "./types/state";

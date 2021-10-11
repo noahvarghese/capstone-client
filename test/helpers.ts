@@ -68,6 +68,7 @@ export const submitForm = async (
         if (!goToFormButton) throw new Error(`${formName} button not found`);
         userEvent.click(goToFormButton);
     }
+
     fillOutForm(formValues);
 
     const submitButton = getElementByText("button", formName);

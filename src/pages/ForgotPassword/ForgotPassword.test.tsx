@@ -1,7 +1,7 @@
 import React from "react";
-import { act, cleanup, render, screen, waitFor } from "../../test/test-utils";
+import { act, cleanup, render, screen, waitFor } from "../../../test/test-utils";
 import ForgotPassword from ".";
-import ForgotPasswordAttributes from "../../test/attributes/ForgotPassword";
+import ForgotPasswordAttributes from "../../../test/attributes/ForgotPassword";
 import userEvent from "@testing-library/user-event";
 
 let unmount: any;

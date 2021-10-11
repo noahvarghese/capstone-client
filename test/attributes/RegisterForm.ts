@@ -11,10 +11,9 @@ const validInputs = {
     city: "WhoKnows",
     postal_code: "L6L 1Z3",
     province: "ON",
-    birthday: new Date(1996, 8, 7),
     phone: "9053393294",
-    business_code: "3are123asdf",
     password: "testtest",
+    name: "Oakville Windows & Doors",
     confirm_password: "testtest",
 };
 

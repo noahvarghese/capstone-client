@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from "react";
 import {
     Button,
-    Checkbox,
     Form,
     Input,
     Select,
@@ -15,6 +14,7 @@ import { setStateFactory } from "../../lib/helpers";
 import register from "../../network-calls/register";
 
 const defaultRegisterFormState = {
+    name: "",
     first_name: "",
     last_name: "",
     email: "",
@@ -23,25 +23,16 @@ const defaultRegisterFormState = {
     city: "",
     postal_code: "",
     province: "",
-    birthday: "",
-    business_code: "",
     password: "",
     confirm_password: "",
-    business_name: "",
-    business_address: "",
-    business_city: "",
-    business_postal_code: "",
-    business_province: "",
-    business_phone: "",
-    business_email: "",
 };
+
+type RegisterFormAttributes = typeof defaultRegisterFormState;
 
 const RegisterForm: React.FC<{
     setForm: () => void;
     setAuth: (authenticated: boolean) => CustomAction;
 }> = ({ setForm, setAuth }) => {
-    const [showNewBusiness, toggleShowNewBusiness] = useState(false);
-
     const [notificationError, setNotificationError] = useState("");
     const [formState, setFormState] = useState(defaultRegisterFormState);
 
@@ -49,11 +40,11 @@ const RegisterForm: React.FC<{
         defaultRegisterFormState
     );
 
-    const setState = setStateFactory<typeof defaultRegisterFormState>(
+    const setState = setStateFactory<RegisterFormAttributes>(
         setFormState,
         formState
     );
-    const setErrorState = setStateFactory<typeof defaultRegisterFormState>(
+    const setErrorState = setStateFactory<RegisterFormAttributes>(
         setFormErrorState,
         formErrorState
     );
@@ -71,21 +62,16 @@ const RegisterForm: React.FC<{
                 }
             }
 
-            let skipBusinessValues =
-                formState.business_code !== "" &&
-                formState.business_code.trim() !== "";
-
             for (let [key, value] of Object.entries(formState)) {
-                if (
-                    !key.includes("business") ||
-                    (!skipBusinessValues && key !== "business_code")
-                ) {
-                    if (value.trim() === "") {
-                        empty = true;
-                        return;
-                    }
+                if (value.trim() === "") {
+                    setErrorState(key as keyof RegisterFormAttributes)(
+                        `${key.split("_").join(" ")} cannot be empty`
+                    );
+                    empty = true;
+                    return;
                 }
             }
+
             if (!empty) {
                 try {
                     await register(formState);
@@ -135,301 +121,188 @@ const RegisterForm: React.FC<{
             ]}
             submitFunction={submitForm}
         >
-            <Input
-                state={{
-                    setState: setState("first_name"),
-                    state: formState.first_name,
-                }}
-                errorState={{
-                    setError: setErrorState("first_name"),
-                    error: formErrorState.first_name,
-                }}
-                autoComplete="given-name"
-                type="text"
-                name="first_name"
-                placeholder="first name"
-                required
-            />
-            <Input
-                state={{
-                    setState: setState("last_name"),
-                    state: formState.last_name,
-                }}
-                errorState={{
-                    setError: setErrorState("last_name"),
-                    error: formErrorState.last_name,
-                }}
-                type="text"
-                autoComplete="family-name"
-                name="last_name"
-                placeholder="last name"
-                required
-            />
-            <Input
-                state={{
-                    setState: setState("address"),
-                    state: formState.address,
-                }}
-                errorState={{
-                    setError: setErrorState("address"),
-                    error: formErrorState.address,
-                }}
-                autoComplete="street-address"
-                type="text"
-                name="address"
-                placeholder="address"
-                required
-            />
-            <Input
-                state={{ setState: setState("city"), state: formState.city }}
-                errorState={{
-                    setError: setErrorState("city"),
-                    error: formErrorState.city,
-                }}
-                autoComplete="address-level2"
-                type="text"
-                name="city"
-                placeholder="city"
-                required
-            />
-            <Input
-                state={{
-                    setState: setState("postal_code"),
-                    state: formState.postal_code,
-                }}
-                errorState={{
-                    setError: setErrorState("postal_code"),
-                    error: formErrorState.postal_code,
-                }}
-                type="text"
-                name="postal_code"
-                placeholder="postal code"
-                autoComplete="postal-code"
-                required
-            />
-            <Select
-                items={provinces}
-                name="province"
-                placeholder="province"
-                required
-                state={{
-                    setState: (val) => setState("province")(val.value),
-                    state: provinces.find(
-                        (val) => val.value === formState.province
-                    ) ?? { id: -1, value: "" },
-                }}
-            />
-            <Input
-                state={{
-                    setState: setState("birthday"),
-                    state: formState.birthday,
-                }}
-                errorState={{
-                    setError: setErrorState("birthday"),
-                    error: formErrorState.birthday,
-                }}
-                autoComplete="bday"
-                type="date"
-                name="birthday"
-                placeholder="birthday"
-                required
-            />
-            <Input
-                state={{ setState: setState("email"), state: formState.email }}
-                errorState={{
-                    setError: setErrorState("email"),
-                    error: formErrorState.email,
-                }}
-                autoComplete="email"
-                type="email"
-                name="email"
-                placeholder="email"
-                required
-            />
-            <Input
-                state={{ setState: setState("phone"), state: formState.phone }}
-                errorState={{
-                    setError: setErrorState("phone"),
-                    error: formErrorState.phone,
-                }}
-                autoComplete="tel"
-                type="tel"
-                name="phone"
-                placeholder="phone"
-                required
-            />
-            <Input
-                state={{
-                    setState: setState("password"),
-                    state: formState.password,
-                }}
-                errorState={{
-                    setError: setErrorState("password"),
-                    error: formErrorState.password,
-                }}
-                validationOptions={{
-                    runOnComplete: true,
-                    runOnInput: true,
-                    validatorFn: handlePasswordChange("password"),
-                }}
-                type="password"
-                autoComplete="new-password"
-                name="password"
-                placeholder="password"
-                required
-            />
-            <Input
-                state={{
-                    setState: setState("confirm_password"),
-                    state: formState.confirm_password,
-                }}
-                autoComplete="new-password"
-                errorState={{
-                    setError: setErrorState("confirm_password"),
-                    error: formErrorState.confirm_password,
-                }}
-                validationOptions={{
-                    runOnComplete: true,
-                    runOnInput: true,
-                    validatorFn: handlePasswordChange("confirm_password"),
-                }}
-                type="password"
-                name="confirm_password"
-                placeholder="confirm password"
-                required
-            />
-            <Checkbox
-                label="new_business"
-                name="I am creating a new business account"
-                state={{
-                    setState: toggleShowNewBusiness,
-                    state: showNewBusiness,
-                }}
-            />
-            {showNewBusiness ? (
-                <>
-                    <Input
-                        state={{
-                            setState: setState("business_name"),
-                            state: formState.business_name,
-                        }}
-                        errorState={{
-                            setError: setErrorState("business_name"),
-                            error: formErrorState.business_name,
-                        }}
-                        type="text"
-                        name="business_name"
-                        placeholder="business name"
-                        required
-                    />
-                    <Input
-                        state={{
-                            setState: setState("business_address"),
-                            state: formState.business_address,
-                        }}
-                        errorState={{
-                            setError: setErrorState("business_address"),
-                            error: formErrorState.business_address,
-                        }}
-                        type="text"
-                        name="business_address"
-                        placeholder="business address"
-                        required
-                    />
-                    <Input
-                        state={{
-                            setState: setState("business_city"),
-                            state: formState.business_city,
-                        }}
-                        errorState={{
-                            setError: setErrorState("business_city"),
-                            error: formErrorState.business_city,
-                        }}
-                        type="text"
-                        name="business_city"
-                        placeholder="business city"
-                        required
-                    />
-
-                    <Select
-                        items={provinces}
-                        state={{
-                            setState: (val) =>
-                                setState("business_province")(val.value),
-                            state: provinces.find(
-                                (val) =>
-                                    val.value === formState.business_province
-                            ) ?? { id: -1, value: "" },
-                        }}
-                        errorState={{
-                            setError: setErrorState("business_province"),
-                            error: formErrorState.business_province,
-                        }}
-                        name="business_province"
-                        placeholder="business province"
-                        required
-                    />
-                    <Input
-                        state={{
-                            setState: setState("business_postal_code"),
-                            state: formState.business_postal_code,
-                        }}
-                        errorState={{
-                            setError: setErrorState("business_postal_code"),
-                            error: formErrorState.business_postal_code,
-                        }}
-                        type="text"
-                        name="business_postal_code"
-                        placeholder="business postal code"
-                        required
-                    />
-                    <Input
-                        state={{
-                            setState: setState("business_phone"),
-                            state: formState.business_phone,
-                        }}
-                        errorState={{
-                            setError: setErrorState("business_phone"),
-                            error: formErrorState.business_phone,
-                        }}
-                        type="tel"
-                        name="business_phone"
-                        placeholder="business phone"
-                        required
-                    />
-                    <Input
-                        state={{
-                            setState: setState("business_email"),
-                            state: formState.business_email,
-                        }}
-                        errorState={{
-                            setError: setErrorState("business_email"),
-                            error: formErrorState.business_email,
-                        }}
-                        type="email"
-                        name="business_email"
-                        placeholder="business email"
-                        required
-                    />
-                </>
-            ) : (
+            <fieldset>
+                <legend>User</legend>
                 <Input
-                    type="text"
-                    name="business_code"
-                    placeholder="business code"
-                    required
                     state={{
-                        setState: setState("business_code"),
-                        state: formState.business_code,
+                        setState: setState("first_name"),
+                        state: formState.first_name,
                     }}
                     errorState={{
-                        setError: setErrorState("business_code"),
-                        error: formErrorState.business_code,
+                        setError: setErrorState("first_name"),
+                        error: formErrorState.first_name,
+                    }}
+                    autoComplete="given-name"
+                    type="text"
+                    name="first_name"
+                    placeholder="first name"
+                    required
+                />
+                <Input
+                    state={{
+                        setState: setState("last_name"),
+                        state: formState.last_name,
+                    }}
+                    errorState={{
+                        setError: setErrorState("last_name"),
+                        error: formErrorState.last_name,
+                    }}
+                    type="text"
+                    autoComplete="family-name"
+                    name="last_name"
+                    placeholder="last name"
+                    required
+                />
+                <Input
+                    state={{
+                        setState: setState("email"),
+                        state: formState.email,
+                    }}
+                    errorState={{
+                        setError: setErrorState("email"),
+                        error: formErrorState.email,
+                    }}
+                    autoComplete="email"
+                    type="email"
+                    name="email"
+                    placeholder="email"
+                    required
+                />
+                <Input
+                    state={{
+                        setState: setState("phone"),
+                        state: formState.phone,
+                    }}
+                    errorState={{
+                        setError: setErrorState("phone"),
+                        error: formErrorState.phone,
+                    }}
+                    autoComplete="tel"
+                    type="tel"
+                    name="phone"
+                    placeholder="phone"
+                    required
+                />
+                <Input
+                    state={{
+                        setState: setState("password"),
+                        state: formState.password,
+                    }}
+                    errorState={{
+                        setError: setErrorState("password"),
+                        error: formErrorState.password,
+                    }}
+                    validationOptions={{
+                        runOnComplete: true,
+                        runOnInput: true,
+                        validatorFn: handlePasswordChange("password"),
+                    }}
+                    type="password"
+                    autoComplete="new-password"
+                    name="password"
+                    placeholder="password"
+                    required
+                />
+                <Input
+                    state={{
+                        setState: setState("confirm_password"),
+                        state: formState.confirm_password,
+                    }}
+                    autoComplete="new-password"
+                    errorState={{
+                        setError: setErrorState("confirm_password"),
+                        error: formErrorState.confirm_password,
+                    }}
+                    validationOptions={{
+                        runOnComplete: true,
+                        runOnInput: true,
+                        validatorFn: handlePasswordChange("confirm_password"),
+                    }}
+                    type="password"
+                    name="confirm_password"
+                    placeholder="confirm password"
+                    required
+                />
+            </fieldset>
+            <fieldset>
+                <legend>Business</legend>
+                <Input
+                    state={{
+                        setState: setState("name"),
+                        state: formState.name,
+                    }}
+                    errorState={{
+                        setError: setErrorState("name"),
+                        error: formErrorState.name,
+                    }}
+                    type="text"
+                    name="name"
+                    placeholder="name"
+                    required
+                />
+                <Input
+                    state={{
+                        setState: setState("address"),
+                        state: formState.address,
+                    }}
+                    errorState={{
+                        setError: setErrorState("address"),
+                        error: formErrorState.address,
+                    }}
+                    autoComplete="street-address"
+                    type="text"
+                    name="address"
+                    placeholder="address"
+                    required
+                />
+                <Input
+                    state={{
+                        setState: setState("city"),
+                        state: formState.city,
+                    }}
+                    errorState={{
+                        setError: setErrorState("city"),
+                        error: formErrorState.city,
+                    }}
+                    autoComplete="address-level2"
+                    type="text"
+                    name="city"
+                    placeholder="city"
+                    required
+                />
+                <Input
+                    state={{
+                        setState: setState("postal_code"),
+                        state: formState.postal_code,
+                    }}
+                    errorState={{
+                        setError: setErrorState("postal_code"),
+                        error: formErrorState.postal_code,
+                    }}
+                    type="text"
+                    name="postal_code"
+                    placeholder="postal code"
+                    autoComplete="postal-code"
+                    required
+                />
+                <Select
+                    items={provinces}
+                    name="province"
+                    placeholder="province"
+                    required
+                    state={{
+                        setState: (val) => setState("province")(val.value),
+                        state: provinces.find(
+                            (val) => val.value === formState.province
+                        ) ?? { id: -1, value: "" },
                     }}
                 />
-            )}
+            </fieldset>
+
             <Notification
-                error
+                error={
+                    notificationError !== "" && notificationError.trim() !== ""
+                }
                 message={notificationError}
                 hide={() => setNotificationError("")}
                 display={

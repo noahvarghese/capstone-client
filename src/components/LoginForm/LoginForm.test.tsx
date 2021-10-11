@@ -1,9 +1,9 @@
 import React from "react";
 import { store } from "../../store";
-import { submitForm } from "../../test/helpers";
-import { render, cleanup } from "../../test/test-utils";
+import { submitForm } from "../../../test/helpers";
+import { render, cleanup } from "../../../test/test-utils";
 import DefaultState from "../../types/state";
-import LoginAttributes from "../../test/attributes/LoginForm";
+import LoginAttributes from "../../../test/attributes/LoginForm";
 import { createMemoryHistory } from "history";
 import App from "../../App";
 

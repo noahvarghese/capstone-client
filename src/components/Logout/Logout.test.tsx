@@ -2,7 +2,7 @@ import React from "react";
 import { createMemoryHistory } from "history";
 import App from "../../App";
 import { store } from "../../store";
-import { cleanup, render, screen, waitFor } from "../../test/test-utils";
+import { cleanup, render, screen, waitFor } from "../../../test/test-utils";
 import DefaultState from "../../types/state";
 import userEvent from "@testing-library/user-event";
 
