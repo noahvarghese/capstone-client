@@ -1,50 +1,50 @@
 import React from "react";
-import { createMemoryHistory } from "history";
+import { createMemoryHistory, MemoryHistory } from "history";
 import App from "../../App";
-import { store } from "../../store";
-import { cleanup, render, screen, waitFor } from "../../../test/test-utils";
-import DefaultState from "../../types/state";
-import userEvent from "@testing-library/user-event";
+import {
+    act,
+    cleanup,
+    render,
+    screen,
+    waitFor,
+} from "../../../test/test-utils";
 
 let unmount: () => void;
+let history: MemoryHistory<unknown>;
 global.fetch = jest.fn(() => Promise.resolve(new Response()));
 
-beforeAll(() => {
+beforeEach(async () => {
     (fetch as jest.Mock<Promise<Response>>).mockClear();
 
     // Allows user to be logged in
-    (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
+    (fetch as jest.Mock<Promise<Response>>).mockImplementation(() =>
         Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
     );
 
-    const history = createMemoryHistory();
+    history = createMemoryHistory();
 
-    unmount = render(
-        <App />,
-        { preloadedState: DefaultState, currentStore: store },
-        history
-    ).unmount;
+    await act(async () => {
+        unmount = render(<App />, history).unmount;
+    });
 });
 
 test("Logged in user can logout to login screen", async () => {
     (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
         Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
     );
-    (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
-        Promise.resolve(new Response(JSON.stringify({}), { status: 400 }))
-    );
 
-    const logout = await screen.findByText(/logout/i);
-
-    userEvent.click(logout);
+    history.push("/logout");
 
     await waitFor(async () => {
-        const h1 = await screen.findByText(/welcome onboard/i);
-        expect(h1).toBeInTheDocument();
+        expect(await screen.findByText(/welcome onboard/i)).toBeInTheDocument();
     });
 });
 
-afterEach(() => {
-    unmount();
-    cleanup();
+afterEach(async () => {
+    await act(async () => {
+        unmount();
+    });
+    await act(async () => {
+        cleanup();
+    });
 });

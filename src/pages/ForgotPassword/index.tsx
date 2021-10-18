@@ -1,114 +1,85 @@
 import {
+    Alert,
     Button,
-    Form,
-    Input,
-    Notification,
-} from "@noahvarghese/react-components";
-import React, { useCallback, useState } from "react";
-import { Link } from "react-router-dom";
-import { setStateFactory } from "../../lib/helpers";
-import { server } from "../../lib/permalink";
-import { requestResetPassword } from "../../network-calls/resetPassword";
-import "./ForgotPassword.scss";
+    CircularProgress,
+    TextField,
+    Link,
+} from "@mui/material";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import SingleFormPage from "src/components/SingleFormPage";
+import usePost from "src/hooks/post";
+import validator from "validator";
 
-const ForgotPassword = () => {
-    const [formState, setFormState] = useState({ email: "" });
-    const [formErrorState, setFormErrorState] = useState({ email: "" });
-    const [submitted, setSubmitted] = useState(false);
-    const [notification, setNotification] = useState("");
+const ForgotPassword: React.FC = () => {
+    const {
+        watch,
+        register,
+        formState: { errors, isSubmitting },
+        handleSubmit,
+    } = useForm({ mode: "all" });
 
-    const setState = setStateFactory<{ email: string }>(
-        setFormState,
-        formState
-    );
+    const { submit } = usePost("auth/forgotPassword");
+    const [alert, setAlert] = useState<{
+        message: string;
+        severity?: "error" | "warning" | "info" | "success";
+    }>({ message: "", severity: undefined });
 
-    const setErrorState = setStateFactory<{ email: string }>(
-        setFormErrorState,
-        formErrorState
-    );
+    const onSubmit = (data: unknown) => {
+        submit(data)
+            .then(() =>
+                setAlert({
+                    message: "instructions were emailed to you",
+                    severity: "success",
+                })
+            )
+            .catch((err) => {
+                console.error(err);
+                setAlert({
+                    message: "failed to send instructions",
+                    severity: "error",
+                });
+            });
+    };
 
-    const submitForm = useCallback(
-        async (e: React.SyntheticEvent<Element, Event>) => {
-            e.preventDefault();
-            e.stopPropagation();
-
-            let preventSubmit = false;
-
-            for (const val of Object.values(formState)) {
-                if (val === "" || val.trim() === "") {
-                    preventSubmit = true;
-                    break;
-                }
-            }
-            if (!preventSubmit) {
-                for (const val of Object.values(formErrorState)) {
-                    if (val !== "" || val.trim() !== "") {
-                        preventSubmit = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!preventSubmit) {
-                try {
-                    await requestResetPassword(formState);
-                    setNotification("Email sent");
-                    setSubmitted(true);
-                } catch (e) {
-                    const { message } = e;
-                    setNotification(message);
-                    setFormErrorState({ email: message });
-                }
-            }
-        },
-        [formErrorState, formState]
-    );
     return (
-        <div className="ForgotPassword">
-            <Form
-                buttons={[
-                    <Button
-                        key="Submit"
-                        text="Submit"
-                        primary
-                        size="small"
-                        type="submit"
-                        disabled={submitted}
-                    />,
-                ]}
-                title="Forgot Password"
-                type="card"
-                method="POST"
-                submitFunction={submitForm}
-                url={server("/auth/requestResetPassword")}
-            >
-                <Input
-                    type="email"
-                    readonly={submitted}
-                    required
-                    name="email"
-                    autoComplete="email"
-                    placeholder="email"
-                    state={{
-                        setState: setState("email"),
-                        state: formState.email,
-                    }}
-                    errorState={{
-                        setError: setErrorState("email"),
-                        error: formErrorState.email,
-                    }}
-                />
-                <div className="back-to-login">
-                    <Link to="/">Go back to login</Link>
-                </div>
-                <Notification
-                    error={formErrorState.email !== ""}
-                    message={notification}
-                    display={submitted}
-                    hide={() => setSubmitted(false)}
-                />
-            </Form>
-        </div>
+        <SingleFormPage
+            title="Forgot Password"
+            onSubmit={handleSubmit(onSubmit)}
+            buttons={[
+                <Button
+                    variant="contained"
+                    type="submit"
+                    key="submit"
+                    disabled={isSubmitting}
+                >
+                    Submit
+                </Button>,
+            ]}
+        >
+            <TextField
+                type="email"
+                required
+                autoComplete="email"
+                value={watch("email", "")}
+                id="email"
+                error={Boolean(errors.email)}
+                helperText={errors.email?.message}
+                placeholder="email"
+                label="email"
+                disabled={isSubmitting}
+                {...register("email", {
+                    required: "email cannot be empty",
+                    validate: (val: string) =>
+                        validator.isEmail(val) || "invalid email",
+                })}
+            />
+            <Link href="/">Go back to login</Link>
+            {isSubmitting && <CircularProgress />}
+            {alert.severity && (
+                <Alert severity={alert.severity}>{alert.message}</Alert>
+            )}
+        </SingleFormPage>
     );
 };
 

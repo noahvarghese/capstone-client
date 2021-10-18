@@ -1,16 +1,16 @@
 export const validInputs = {
     password: "testtest",
-    confirmPassword: "testtest",
+    confirm_password: "testtest",
 };
 
 export const invalidInputs = {
     password: "test4568",
-    confirmPassword: "test123123",
+    confirm_password: "test123123",
 };
 
 export const formLabels = {
-    password: /^\* password$/i,
-    confirmPassword: /confirm password/i,
+    password: /^password$/i,
+    confirm_password: /confirm password/i,
 };
 
 export const errors = {

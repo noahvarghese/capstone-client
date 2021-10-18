@@ -13,7 +13,7 @@ const validInputs = {
     province: "ON",
     phone: "9053393294",
     password: "testtest",
-    name: "Oakville Windows & Doors",
+    business_name: "Oakville Windows & Doors",
     confirm_password: "testtest",
 };
 

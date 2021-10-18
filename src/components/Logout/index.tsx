@@ -1,43 +1,32 @@
 import React, { useEffect } from "react";
-import { connect } from "react-redux";
 import { Redirect, useHistory } from "react-router";
-import { fetchWithCredentials } from "../../lib/fetchHelper";
-import { server } from "../../lib/permalink";
-import { CustomAction } from "../../types/customAction";
-import { State } from "../../types/state";
+import usePost from "src/hooks/post";
+import Loading from "../Loading";
 
 const Logout: React.FC<{
     auth: boolean;
-    setAuth: (auth: boolean) => CustomAction;
+    setAuth: (auth: boolean) => void;
 }> = ({ auth, setAuth }) => {
     const history = useHistory();
+    const { submit } = usePost("auth/logout");
 
     useEffect(() => {
-        (async () => {
-            try {
-                await fetchWithCredentials(server("auth/logout"), {
-                    method: "POST",
-                });
-                history.push("/");
+        submit({})
+            .then(() => {
                 setAuth(false);
-            } catch (_) {
+            })
+            .catch((e) => {
+                console.error(e);
                 history.goBack();
                 alert("Error logging out");
-            }
-        })();
-    });
+            });
+    }, [history, setAuth, submit]);
 
     if (!auth) {
         return <Redirect to="/" />;
     } else {
-        return <div></div>;
+        return <Loading />;
     }
 };
 
-export default connect(
-    (state: State) => ({ auth: state.auth.authentication }),
-    (dispatch) => ({
-        setAuth: (authenticated: boolean) =>
-            dispatch({ type: "SET_AUTHENTICATION", payload: authenticated }),
-    })
-)(Logout);
+export default Logout;

@@ -1,27 +1,65 @@
 import React from "react";
-import Login from ".";
-import { fireEvent, render, screen } from "../../../test/test-utils";
+import { render, cleanup, act } from "../../../test/test-utils";
 
-test("login form is displayed", () => {
-    render(<Login />);
-    const loginEls = screen.getAllByText(/login/i);
+import { submitForm } from "../../../test/helpers";
+import LoginAttributes from "../../../test/attributes/LoginForm";
+import { createMemoryHistory } from "history";
+import App from "../../App";
 
-    expect(loginEls.length).toBe(2);
-    expect(loginEls[0]).toBeInstanceOf(HTMLHeadingElement);
-    expect(loginEls[0]).toBeInTheDocument();
-    expect(loginEls[1]).toBeInstanceOf(HTMLButtonElement);
-    expect(loginEls[1]).toBeInTheDocument();
+let unmount: () => void;
+global.fetch = jest.fn(() => Promise.resolve(new Response()));
+
+beforeEach(async () => {
+    (fetch as jest.Mock<Promise<Response>>).mockClear();
+    (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
+        Promise.resolve(new Response(JSON.stringify({}), { status: 400 }))
+    );
+
+    const history = createMemoryHistory();
+
+    await act(async () => {
+        unmount = render(<App />, history).unmount;
+    });
 });
 
-test("can change between login and register", () => {
-    render(<Login />);
+test("Invalid login should display error", async () => {
+    (fetch as jest.Mock<Promise<Response>>).mockImplementation(() =>
+        Promise.resolve(new Response(JSON.stringify({}), { status: 400 }))
+    );
 
-    const registerBtn = screen.getByText(/register/i);
+    try {
+        await submitForm(
+            /login/i,
+            {
+                email: LoginAttributes.invalidAttributes.invalidEmail,
+                password: LoginAttributes.validAttributes.password,
+            },
+            /logout/i
+        );
+        throw new Error("Should not be succesful");
+    } catch (e) {
+        // eslint-disable-next-line jest/no-conditional-expect
+        expect(e.message).toContain(
+            "Unable to find an element with the text: /logout/i"
+        );
+    }
+});
 
-    fireEvent.click(registerBtn);
+// need to make sure that the user is created
+// and apply cleanup
+test("Successful login should redirect to the dashboard", async () => {
+    (fetch as jest.Mock<Promise<Response>>).mockImplementation(() =>
+        Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
+    );
 
-    const registerEls = screen.getAllByText(/register/i);
-    expect(registerEls.length).toBe(2);
-    expect(registerEls[0]).toBeInstanceOf(HTMLHeadingElement);
-    expect(registerEls[0]).toBeInTheDocument();
+    await submitForm(/login/i, LoginAttributes.validAttributes, /logout/i);
+});
+
+afterEach(async () => {
+    await act(async () => {
+        unmount();
+    });
+    await act(async () => {
+        cleanup();
+    });
 });

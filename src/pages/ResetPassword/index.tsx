@@ -1,146 +1,93 @@
-import {
-    Button,
-    Form,
-    Input,
-    Notification,
-} from "@noahvarghese/react-components";
-import React, { useCallback, useState } from "react";
+import { Alert, Button, CircularProgress, TextField } from "@mui/material";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import { useParams } from "react-router";
-import { setStateFactory } from "../../lib/helpers";
-import { server } from "../../lib/permalink";
-import { passwordValidator } from "../../lib/validators";
-import "./ResetPassword.scss";
-import { submitNewPassword } from "../../network-calls/resetPassword";
+import SingleFormPage from "src/components/SingleFormPage";
+import usePost from "src/hooks/post";
 
-export const DefaultResetPasswordFormState = {
-    password: "",
-    confirm_password: "",
-};
-const ResetPassword = () => {
+const ResetPassword: React.FC<{ setAuth: (auth: boolean) => void }> = ({
+    setAuth,
+}) => {
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+        trigger,
+        watch,
+    } = useForm({ mode: "all" });
     const { token } = useParams<{ token: string }>();
-    const [formState, setFormState] = useState(DefaultResetPasswordFormState);
-    const [formErrorState, setFormErrorState] = useState<
-        typeof DefaultResetPasswordFormState
-    >(DefaultResetPasswordFormState);
-    const [notification, setNotification] = useState("");
+    const { submit } = usePost(`auth/resetPassword/${token}`);
 
-    const setState = setStateFactory<typeof formState>(setFormState, formState);
-    const setErrorState = setStateFactory<typeof formErrorState>(
-        setFormErrorState,
-        formErrorState
-    );
-    const [error, setError] = useState(false);
+    const [alert, setAlert] = useState<{
+        message: string;
+        severity?: "warning" | "error" | "info" | "success";
+    }>({ message: "" });
 
-    const hasError = useCallback(() => {
-        let error = false;
+    const watchPassword = watch("password", "");
+    const watchConfirmPassword = watch("confirm_password", "");
 
-        for (const val of Object.values(formErrorState)) {
-            if (val !== "" || val.trim() !== "") {
-                error = true;
-                break;
-            }
-        }
-
-        return error;
-    }, [formErrorState]);
-
-    // we know that none of the functions or parameters within will change except for the state
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const handlePasswordChange = useCallback(
-        passwordValidator<typeof formState>(formState),
-        [formState]
-    );
-
-    const submitForm = useCallback(
-        async (e: React.SyntheticEvent<Element, Event>) => {
-            e.preventDefault();
-            e.stopPropagation();
-
-            try {
-                await submitNewPassword(token, formState);
-                setError(false);
-                setNotification("Password reset");
-            } catch (e) {
-                setError(true);
-                if (e.field && e.message) {
-                    setErrorState(e.field)(e.message);
-                } else if (e.message) {
-                    setNotification(e.message);
-                } else {
-                    setNotification("An unexpected error occurred");
-                }
-            }
-        },
-        [formState, setErrorState, token]
-    );
+    const onSubmit = (data: unknown) => {
+        submit(data)
+            .then(() => setAuth(true))
+            .catch(({ message }) => setAlert({ message, severity: "error" }));
+    };
 
     return (
-        <div className="ResetPassword">
-            <Form
-                url={server("auth/resetPassword")}
-                buttons={[
-                    <Button
-                        key="Submit"
-                        text="Submit"
-                        primary
-                        size="small"
-                        type="submit"
-                        disabled={notification !== ""}
-                    />,
-                ]}
-                title="Reset Password"
-                type="card"
-                method="POST"
-                submitFunction={submitForm}
-            >
-                <Input
-                    type="password"
-                    name="password"
-                    placeholder="password"
-                    autoComplete="new-password"
-                    required
-                    state={{
-                        state: formState.password,
-                        setState: setState("password"),
-                    }}
-                    errorState={{
-                        error: formErrorState.password,
-                        setError: setErrorState("password"),
-                    }}
-                    validationOptions={{
-                        runOnComplete: true,
-                        runOnInput: true,
-                        validatorFn: handlePasswordChange("password"),
-                    }}
-                />
-                <Input
-                    type="password"
-                    name="confirm_password"
-                    autoComplete="new-password"
-                    required
-                    state={{
-                        state: formState.confirm_password,
-                        setState: setState("confirm_password"),
-                    }}
-                    errorState={{
-                        error: formErrorState.confirm_password,
-                        setError: setErrorState("confirm_password"),
-                    }}
-                    placeholder="confirm password"
-                    validationOptions={{
-                        runOnComplete: true,
-                        runOnInput: true,
-                        validatorFn: handlePasswordChange("confirm_password"),
-                    }}
-                />
-                <Notification
-                    message={notification}
-                    error={hasError() || error}
-                    hide={() => setNotification("")}
-                    display={notification !== ""}
-                />
-            </Form>
-        </div>
+        <SingleFormPage
+            onSubmit={handleSubmit(onSubmit)}
+            title="Reset Password"
+            buttons={[
+                <Button
+                    key="submit"
+                    type="submit"
+                    variant="contained"
+                    disabled={isSubmitting}
+                >
+                    Submit
+                </Button>,
+            ]}
+        >
+            <TextField
+                {...register("password", {
+                    required: "password cannot be empty",
+                    validate: async (_) => {
+                        await trigger("confirm_password");
+                        return true;
+                    },
+                    min: 8,
+                })}
+                id="password"
+                error={Boolean(errors.password)}
+                helperText={errors.password?.message}
+                type="password"
+                label="password"
+                value={watchPassword}
+                placeholder="password"
+                autoComplete="new-password"
+                required
+                disabled={isSubmitting}
+            />
+            <TextField
+                type="password"
+                id="confirm_password"
+                autoComplete="new-password"
+                label="confirm password"
+                placeholder="confirm password"
+                {...register("confirm_password", {
+                    required: "confirm password cannot be empty",
+                    validate: (val: string) =>
+                        val === watchPassword || "passwords do not match",
+                })}
+                value={watchConfirmPassword}
+                error={Boolean(errors.confirm_password)}
+                helperText={errors.confirm_password?.message}
+                disabled={isSubmitting}
+            />
+            {isSubmitting && <CircularProgress />}
+            {alert.severity && (
+                <Alert severity={alert.severity}>{alert.message}</Alert>
+            )}
+        </SingleFormPage>
     );
 };
 

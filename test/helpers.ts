@@ -1,6 +1,5 @@
-import { Matcher, waitFor } from "@testing-library/react";
-import { act } from "react-dom/test-utils";
-import { screen } from "./test-utils";
+import { fireEvent, Matcher, waitFor } from "@testing-library/react";
+import { screen, act, within } from "./test-utils";
 import userEvent from "@testing-library/user-event";
 
 export const fireEmptyChangeEvent = (_element: HTMLElement, value: any) => {
@@ -13,24 +12,46 @@ export const fireEmptyChangeEvent = (_element: HTMLElement, value: any) => {
     });
 };
 
-export const fillOutForm = (options: {}): void => {
+export const fillOutForm = async (options: {}): Promise<void> => {
     for (let [key, value] of Object.entries(options)) {
-        const inputEl = screen.getByLabelText("* " + key.split("_").join(" "));
+        const inputEl = screen.getByPlaceholderText(key.split("_").join(" "));
 
         // this accounts for my custom select
         // not for regular HTML select elemtns
         // because it needs to be set visually I need to go and
         // make this more accesible for those who wouldn't operate this with a mouse/touchscreen
-        if (inputEl instanceof HTMLSelectElement) {
-            userEvent.click(inputEl.parentElement!);
-            userEvent.click(getElementByText("div", value as string)!);
-            // inputEl.selectedIndex = value as number;
-        } else {
-            if (value instanceof Date) {
-                value = `${value.getFullYear()}-0${value.getMonth()}-0${value.getDay()}`;
-            }
+        try {
+            if (inputEl instanceof HTMLSelectElement) {
+                await act(async () => {
+                    userEvent.click(inputEl.parentElement!);
+                });
+                await act(async () => {
+                    userEvent.click(getElementByText("div", value as string)!);
+                });
+                // inputEl.selectedIndex = value as number;
+            } else {
+                if (value instanceof Date) {
+                    value = `${value.getFullYear()}-0${value.getMonth()}-0${value.getDay()}`;
+                }
 
-            userEvent.type(inputEl, value as string);
+                await act(async () => {
+                    await userEvent.type(inputEl, value as string, {
+                        delay: 2,
+                    });
+                });
+            }
+        } catch (_) {
+            const triggerEl = document.getElementById(key);
+            if (!triggerEl) throw new Error("No trigger found");
+            fireEvent.mouseDown(triggerEl);
+
+            const listBoxes = screen.getAllByRole("listbox");
+            const listBox = listBoxes.find((l) =>
+                l.getAttribute("aria-labelledby")?.startsWith(key)
+            );
+
+            if (!listBox) throw new Error("No listbox found");
+            fireEvent.click(within(listBox).getByText(value as string));
         }
     }
 };
@@ -63,18 +84,19 @@ export const submitForm = async (
     formValues: {},
     expectedElementText: Matcher
 ) => {
-    if (screen.getAllByText(formName).length === 1) {
-        const goToFormButton = getElementByText("button", formName);
-        if (!goToFormButton) throw new Error(`${formName} button not found`);
-        userEvent.click(goToFormButton);
+    await fillOutForm(formValues);
+
+    let submitButton: Element | undefined;
+
+    try {
+        submitButton = getElementByText("button", formName);
+        if (!submitButton) throw new Error("submit button not found");
+    } catch (_) {
+        submitButton = getElementByText("button", /submit/i);
     }
 
-    fillOutForm(formValues);
-
-    const submitButton = getElementByText("button", formName);
-
+    await act(async () => {});
     if (!submitButton) throw new Error("submit button not found");
-
     userEvent.click(submitButton);
 
     await waitFor(() => {

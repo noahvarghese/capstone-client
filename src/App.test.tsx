@@ -1,22 +1,17 @@
 import React from "react";
-import { render, screen, cleanup } from "../test/test-utils";
+import { render, screen, cleanup, act } from "../test/test-utils";
 import App from "./App";
-import { createMemoryHistory } from "history";
-import DefaultState from "./types/state";
-import { store } from "./store";
+import { createMemoryHistory, MemoryHistory } from "history";
 
 let unmount: () => void;
-let history;
+let history: MemoryHistory<unknown> | undefined;
+global.fetch = jest.fn(() => Promise.resolve(new Response()));
 
-beforeEach(() => {
+beforeEach(async () => {
     jest.resetModules();
     jest.resetModuleRegistry();
     history = createMemoryHistory();
-    unmount = render(
-        <App />,
-        { preloadedState: DefaultState, currentStore: store },
-        history
-    ).unmount;
+    (fetch as jest.Mock<Promise<Response>>).mockClear();
 });
 
 afterEach(() => {
@@ -25,7 +20,28 @@ afterEach(() => {
     cleanup();
 });
 
-test("renders to public page", () => {
+test("unauthorized access renders to public page", async () => {
+    (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
+        Promise.resolve(new Response(JSON.stringify({}), { status: 400 }))
+    );
+    (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
+        Promise.resolve(new Response(JSON.stringify({}), { status: 400 }))
+    );
+    await act(async () => {
+        unmount = render(<App />, history).unmount;
+    });
     const h1El = screen.getByText(/welcome onboard/i);
+    expect(h1El).toBeInTheDocument();
+});
+
+test("authorized access renders to dashboard", async () => {
+    (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
+        Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
+    );
+
+    await act(async () => {
+        unmount = render(<App />, history).unmount;
+    });
+    const h1El = screen.getByText(/home/i);
     expect(h1El).toBeInTheDocument();
 });

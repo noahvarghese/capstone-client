@@ -1,38 +1,26 @@
 import React from "react";
-import { act, cleanup, render, screen, waitFor } from "../../../test/test-utils";
+import { act, cleanup, render } from "../../../test/test-utils";
 import ForgotPassword from ".";
 import ForgotPasswordAttributes from "../../../test/attributes/ForgotPassword";
-import userEvent from "@testing-library/user-event";
+import { submitForm } from "../../../test/helpers";
 
 let unmount: any;
 global.fetch = jest.fn(() => Promise.resolve(new Response()));
 
-beforeEach(() => {
+beforeEach(async () => {
     (fetch as jest.Mock<Promise<Response>>).mockClear();
-    act(() => {
+    await act(async () => {
         unmount = render(<ForgotPassword />).unmount;
     });
 });
 
-afterEach(() => {
-    unmount();
-    cleanup();
-});
-
-test("Notification doesn't display when email is empty", () => {
-    const emailEl = screen.getByLabelText(
-        ForgotPasswordAttributes.formLabels.email
-    );
-
-    userEvent.type(emailEl, ForgotPasswordAttributes.validAttributes.email);
-    userEvent.clear(emailEl);
-
-    const submitBtn = screen.getByText(/submit/i);
-    userEvent.click(submitBtn);
-
-    const notification = document.getElementsByClassName("Notification");
-    expect(notification.length).toBe(1);
-    expect(notification[0].classList).not.toContain("show");
+afterEach(async () => {
+    await act(async () => {
+        unmount();
+    });
+    await act(async () => {
+        cleanup();
+    });
 });
 
 test("Notification displays on submit", async () => {
@@ -40,17 +28,9 @@ test("Notification displays on submit", async () => {
         Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
     );
 
-    const emailEl = screen.getByLabelText(
-        ForgotPasswordAttributes.formLabels.email
+    await submitForm(
+        /forgot password/i,
+        ForgotPasswordAttributes.validAttributes,
+        /instructions were emailed to you/i
     );
-    userEvent.type(emailEl, ForgotPasswordAttributes.validAttributes.email);
-
-    const submitBtn = screen.getByText(/submit/i);
-    userEvent.click(submitBtn);
-
-    await waitFor(() => {
-        const notification = document.getElementsByClassName("Notification");
-        expect(notification.length).toBe(1);
-        expect(notification[0].classList).toContain("show");
-    });
 });
