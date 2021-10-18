@@ -24,7 +24,7 @@ const Register: React.FC<{
         trigger,
     } = useForm({ mode: "all" });
 
-    const { submit } = usePost("auth/signup");
+    const { submit } = usePost("auth/register");
 
     const [alert, setAlert] = useState<{
         message: string;
