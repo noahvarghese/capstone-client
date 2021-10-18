@@ -1,4 +1,3 @@
-import React from "react";
 import { cleanup, render } from "../../../test/test-utils";
 import ResetPasswordAttributes from "../../../test/attributes/ResetPassword";
 import { act } from "react-dom/test-utils";

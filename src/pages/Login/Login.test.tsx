@@ -1,4 +1,3 @@
-import React from "react";
 import { render, cleanup, act } from "../../../test/test-utils";
 
 import { submitForm } from "../../../test/helpers";

@@ -1,4 +1,3 @@
-import React from "react";
 import { render, screen, cleanup, act } from "../test/test-utils";
 import App from "./App";
 import { createMemoryHistory, MemoryHistory } from "history";

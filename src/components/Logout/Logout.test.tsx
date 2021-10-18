@@ -1,4 +1,3 @@
-import React from "react";
 import { createMemoryHistory, MemoryHistory } from "history";
 import App from "../../App";
 import {
