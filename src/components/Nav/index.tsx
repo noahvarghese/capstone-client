@@ -21,7 +21,7 @@ const Nav: React.FC<{
                         style={{ height: "3rem", overflow: "hidden" }}
                     >
                         <img
-                            src="/logo_1.png"
+                            src="/logo.png"
                             alt="logo"
                             style={{ height: "100%" }}
                         />
