@@ -17,7 +17,6 @@ const usePost = (url: string) => {
                 }
             } else {
                 const status = `Status: ${res.status} ${res.statusText}`;
-                console.error(status);
                 const data = await res.json();
                 throw new Error(data?.message ?? status);
             }
