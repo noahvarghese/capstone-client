@@ -16,6 +16,16 @@ const Nav: React.FC<{
         <ThemeProvider theme={navTheme}>
             <AppBar style={{ height: "4rem" }} position="static">
                 <Toolbar>
+                    <div
+                        className="imgContainer"
+                        style={{ height: "3rem", overflow: "hidden" }}
+                    >
+                        <img
+                            src="/logo_1.png"
+                            alt="logo"
+                            style={{ height: "100%" }}
+                        />
+                    </div>
                     {!auth && (
                         <Typography variant="h1">Welcome OnBoard</Typography>
                     )}

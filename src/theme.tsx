@@ -57,7 +57,7 @@ export const navTheme = createTheme({
         MuiToolbar: {
             styleOverrides: {
                 root: {
-                    justifyContent: "flex-end",
+                    justifyContent: "space-between",
                 },
             },
         },
