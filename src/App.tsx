@@ -15,6 +15,7 @@ import theme from "./theme";
 import Loading from "./components/Loading";
 import useNav from "./hooks/useNav";
 import Members from "./pages/Members";
+import MemberEdit from "./pages/Members/Edit";
 
 abstract class AbstractApp extends React.Component<{
     auth: boolean;
@@ -44,6 +45,7 @@ class LoggedInApp extends AbstractApp {
         this.routes = [
             { path: "/", exact: true, component: Home },
             { path: "/members", exact: true, component: Members },
+            { path: "/member/edit/:id", exact: true, component: MemberEdit },
             {
                 path: "/logout",
                 exact: true,
