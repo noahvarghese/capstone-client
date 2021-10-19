@@ -10,8 +10,7 @@ import { navTheme } from "src/theme";
 
 const Nav: React.FC<{
     links: { name: string; path: string }[];
-    auth: boolean;
-}> = ({ links, auth }) => {
+}> = ({ links }) => {
     return (
         <ThemeProvider theme={navTheme}>
             <AppBar style={{ height: "4rem" }} position="static">
@@ -26,17 +25,16 @@ const Nav: React.FC<{
                             style={{ height: "100%" }}
                         />
                     </div>
-                    {!auth && (
-                        <Typography variant="h1">Welcome OnBoard</Typography>
-                    )}
-                    {auth && (
+                    {links.length > 0 ? (
                         <div className="links">
-                            {links?.map((link) => (
+                            {links.map((link) => (
                                 <Link key={link.name} href={link.path}>
                                     {link.name}
                                 </Link>
                             ))}
                         </div>
+                    ) : (
+                        <Typography variant="h1">Welcome OnBoard</Typography>
                     )}
                 </Toolbar>
             </AppBar>

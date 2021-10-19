@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router";
 import SingleFormPage from "src/components/SingleFormPage";
-import usePost from "src/hooks/post";
+import { usePost } from "src/hooks";
 
 const ResetPassword: React.FC<{ setAuth: (auth: boolean) => void }> = ({
     setAuth,

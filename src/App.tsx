@@ -8,34 +8,27 @@ import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
 import Logout from "./components/Logout";
 import Register from "./pages/Register";
-import useCheckAuth from "./hooks/checkAuthenticated";
+import useCheckAuth from "./hooks/useCheckAuthenticated";
 import Nav from "./components/Nav";
 import { ThemeProvider } from "@emotion/react";
 import theme from "./theme";
 import Loading from "./components/Loading";
+import useNav from "./hooks/useNav";
+import Members from "./pages/Members";
 
 abstract class AbstractApp extends React.Component<{
     auth: boolean;
     setAuth: (auth: boolean) => void;
 }> {
     protected routes?: RouteProps[];
-    protected navLinks: { name: string; path: string }[] = [];
 
     render() {
         return (
-            <ThemeProvider theme={theme}>
-                <div className="App">
-                    <Nav auth={this.props.auth} links={this.navLinks} />
-                    <Switch>
-                        {this.routes?.map((route) => {
-                            return (
-                                <Route key={JSON.stringify(route)} {...route} />
-                            );
-                        })}
-                    </Switch>
-                    <footer></footer>
-                </div>
-            </ThemeProvider>
+            <Switch>
+                {this.routes?.map((route) => {
+                    return <Route key={JSON.stringify(route)} {...route} />;
+                })}
+            </Switch>
         );
     }
 }
@@ -50,6 +43,7 @@ class LoggedInApp extends AbstractApp {
         super(props);
         this.routes = [
             { path: "/", exact: true, component: Home },
+            { path: "/members", exact: true, component: Members },
             {
                 path: "/logout",
                 exact: true,
@@ -62,33 +56,6 @@ class LoggedInApp extends AbstractApp {
             },
             { path: "*", component: NotFound },
         ];
-
-        this.navLinks = [
-            {
-                name: "handbooks",
-                path: "/handbooks",
-            },
-            {
-                name: "quizzes",
-                path: "/quizzes",
-            },
-            {
-                name: "scores",
-                path: "/scores",
-            },
-        ];
-
-        // check if authorized
-        if (true) {
-            this.navLinks.concat([
-                { name: "employees", path: "/employees" },
-                { name: "roles", path: "/roles" },
-                { name: "departments", path: "/departments" },
-                { name: "reports", path: "/reports" },
-            ]);
-        }
-
-        this.navLinks.push({ name: "logout", path: "/logout" });
     }
 }
 
@@ -129,25 +96,37 @@ class LoggedOutApp extends AbstractApp {
 const App = () => {
     const { authenticated, setAuthenticated, loading } = useCheckAuth();
     const history = useHistory();
-
+    const { links } = useNav(authenticated);
     const redirectOnAuthChange = useCallback(
         (auth: boolean) => {
             setAuthenticated(auth);
 
-            if (history.location.pathname !== "/") history.push("/");
+            if (history.location.pathname !== "/") history.push("");
         },
         [history, setAuthenticated]
     );
 
     if (loading) {
         return <Loading />;
-    } else if (authenticated) {
-        return (
-            <LoggedInApp setAuth={redirectOnAuthChange} auth={authenticated} />
-        );
     } else {
         return (
-            <LoggedOutApp setAuth={redirectOnAuthChange} auth={authenticated} />
+            <ThemeProvider theme={theme}>
+                <div className="App">
+                    <Nav links={links} />
+                    {authenticated ? (
+                        <LoggedInApp
+                            setAuth={redirectOnAuthChange}
+                            auth={authenticated}
+                        />
+                    ) : (
+                        <LoggedOutApp
+                            setAuth={redirectOnAuthChange}
+                            auth={authenticated}
+                        />
+                    )}
+                    <footer></footer>
+                </div>
+            </ThemeProvider>
         );
     }
 };

@@ -1,9 +1,10 @@
+import { Typography } from "@mui/material";
 import React from "react";
 
 const NotFound: React.FC = () => {
     return (
         <div className="NotFound">
-            <h1>404 File Not Found</h1>
+            <Typography variant="h1">404 File Not Found</Typography>
         </div>
     );
 };
