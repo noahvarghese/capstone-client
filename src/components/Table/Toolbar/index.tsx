@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
+import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import React from "react";
 
 const CustomToolbar: React.FC<{
@@ -60,6 +61,17 @@ const CustomToolbar: React.FC<{
                 <Tooltip title="Filter list">
                     <IconButton>
                         <FilterListIcon />
+                    </IconButton>
+                </Tooltip>
+            )}
+            {numSelected === 1 && (
+                <Tooltip title="Edit">
+                    <IconButton
+                        onClick={() => {
+                            return;
+                        }}
+                    >
+                        <ModeEditIcon />
                     </IconButton>
                 </Tooltip>
             )}
