@@ -1,7 +1,16 @@
-import { Button, CircularProgress, Typography } from "@mui/material";
-import React from "react";
+import {
+    Alert,
+    AlertColor,
+    Button,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+} from "@mui/material";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import SingleFormModal from "src/components/SingleFormModal";
 import { useDelete } from "src/hooks";
 import { MemberData } from "..";
 
@@ -17,17 +26,46 @@ const MemberDelete: React.FC<{
         formState: { isSubmitting },
     } = useForm({ mode: "all" });
 
+    const [alert, setAlert] = useState<{
+        message: string;
+        severity?: AlertColor;
+    }>({ message: "" });
+
     const { deleteFn } = useDelete("/member");
 
+    const onSubmit = (e: React.BaseSyntheticEvent) => {
+        handleSubmit(deleteFn)(e)
+            .then(() => {
+                setAlert({ message: "Invite sent", severity: "success" });
+                reset();
+            })
+            .catch(({ message }) => setAlert({ message, severity: "error" }));
+    };
     return (
-        <SingleFormModal
-            reset={reset}
-            {...props}
-            title="Delete"
-            buttons={[
+        <Dialog {...props} keepMounted={false}>
+            <DialogTitle>Delete</DialogTitle>
+            <DialogContent>
+                <DialogContentText>
+                    Are you sure you want to delete member
+                    {selected.length > 1 ? "s" : ""}{" "}
+                    {selected.map((s) => (
+                        <span key={JSON.stringify(s)}>
+                            <br />
+                            {s.name} &lt;{s.email}&gt;&nbsp;
+                        </span>
+                    ))}
+                    ?
+                </DialogContentText>
+                {isSubmitting && (
+                    <CircularProgress style={{ alignSelf: "center" }} />
+                )}
+                {alert.severity && (
+                    <Alert severity={alert.severity}>{alert.message}</Alert>
+                )}
+            </DialogContent>
+            <DialogActions>
                 <Button
                     key="cancel"
-                    variant="outlined"
                     type="reset"
                     onClick={() => {
                         reset();
@@ -35,45 +73,12 @@ const MemberDelete: React.FC<{
                     }}
                 >
                     Cancel
-                </Button>,
-                <Button key="submit" variant="contained" type="submit">
+                </Button>
+                <Button key="submit" type="submit" onClick={onSubmit}>
                     Delete
-                </Button>,
-            ]}
-            onSubmit={handleSubmit(deleteFn)}
-        >
-            <Typography
-                variant="body1"
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                }}
-            >
-                <span style={{ alignSelf: "center" }}>
-                    Are you sure you want to delete member
-                    {selected.length > 1 ? "s" : ""}
-                </span>
-                <span
-                    style={{
-                        display: "flex",
-                        padding: "0.5rem 0",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                    }}
-                >
-                    {selected.map((s) => (
-                        <span key={JSON.stringify(s)}>
-                            {s.name} &lt;{s.email}&gt;
-                        </span>
-                    ))}
-                </span>
-                <span style={{ alignSelf: "center" }}>?</span>
-            </Typography>
-            {isSubmitting && (
-                <CircularProgress style={{ alignSelf: "center" }} />
-            )}
-        </SingleFormModal>
+                </Button>
+            </DialogActions>
+        </Dialog>
     );
 };
 

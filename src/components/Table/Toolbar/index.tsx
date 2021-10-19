@@ -9,14 +9,24 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import React from "react";
 
 const CustomToolbar: React.FC<{
     numSelected: number;
+    handleRefresh: () => void;
     onDelete: () => void;
+    onEdit: () => void;
     title: string;
     toolBarItems: React.ReactElement[];
-}> = ({ title, numSelected, toolBarItems, onDelete }) => {
+}> = ({
+    title,
+    numSelected,
+    toolBarItems,
+    onDelete,
+    onEdit,
+    handleRefresh,
+}) => {
     return (
         <Toolbar
             sx={{
@@ -66,12 +76,15 @@ const CustomToolbar: React.FC<{
             )}
             {numSelected === 1 && (
                 <Tooltip title="Edit">
-                    <IconButton
-                        onClick={() => {
-                            return;
-                        }}
-                    >
+                    <IconButton onClick={onEdit}>
                         <ModeEditIcon />
+                    </IconButton>
+                </Tooltip>
+            )}
+            {numSelected === 0 && (
+                <Tooltip title="Refresh">
+                    <IconButton onClick={handleRefresh}>
+                        <RefreshIcon />
                     </IconButton>
                 </Tooltip>
             )}

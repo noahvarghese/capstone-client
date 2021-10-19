@@ -23,6 +23,8 @@ interface TableProps<T> {
     toolBarItems: React.ReactElement[];
     columnOrder: (keyof T)[];
     onDelete: (selected: readonly T[keyof T][]) => void;
+    onEdit: (selected: T[keyof T]) => void;
+    handleRefresh: () => void;
 }
 
 const EnhancedTable = <T,>({
@@ -33,6 +35,8 @@ const EnhancedTable = <T,>({
     toolBarItems,
     columnOrder,
     onDelete,
+    onEdit,
+    handleRefresh,
 }: TableProps<T>) => {
     const [order, setOrder] = React.useState<"asc" | "desc">("asc");
     const [orderBy, setOrderBy] = React.useState<keyof T>(columnOrder[0]);
@@ -105,6 +109,8 @@ const EnhancedTable = <T,>({
         <Box style={style}>
             <Paper elevation={3}>
                 <Toolbar
+                    handleRefresh={handleRefresh}
+                    onEdit={() => onEdit(selected[0])}
                     onDelete={() => onDelete(selected)}
                     toolBarItems={toolBarItems}
                     numSelected={selected.length}

@@ -5,22 +5,37 @@ const useFetch = <T,>(
     url: string,
     init?: RequestInit | undefined,
     key?: string
-): T[] => {
+): { data: T[]; handleRefresh: () => void; refreshing: boolean } => {
+    const [fetching, setFetching] = useState(false);
+    const [refresh, setRefresh] = useState(false);
     const [data, setData] = useState<T[]>([]);
 
     useEffect(() => {
-        if (data.length === 0) {
-            const dataWrapper = (d: any) => {
-                setData(d[key as keyof typeof d]);
-            };
+        if (!fetching) {
+            setFetching(true);
 
-            fetch(server(url), init)
-                .then((res) => res.json())
-                .then(dataWrapper);
+            if (data.length === 0 || refresh) {
+                const dataWrapper = (d: any) => {
+                    setData(d[key as keyof typeof d]);
+                };
+
+                fetch(server(url), init)
+                    .then((res) => res.json())
+                    .then(dataWrapper);
+            }
+            if (refresh) setRefresh(false);
+            setFetching(false);
         }
-    }, [data.length, init, key, url]);
+    }, [data.length, fetching, init, key, refresh, url]);
 
-    return data;
+    console.log(data);
+    return {
+        data,
+        handleRefresh() {
+            if (!refresh) setRefresh(true);
+        },
+        refreshing: refresh,
+    };
 };
 
 export default useFetch;

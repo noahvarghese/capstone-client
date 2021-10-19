@@ -7,15 +7,19 @@ const View: React.FC<{
     toolBarItems: React.ReactElement[];
     data: MemberData[];
     onDelete: (selected: readonly MemberData[keyof MemberData][]) => void;
-}> = ({ style, toolBarItems, data, onDelete }) => {
+    onEdit: (selected: MemberData[keyof MemberData]) => void;
+    handleRefresh: () => void;
+}> = ({ style, toolBarItems, data, onDelete, onEdit, handleRefresh }) => {
     return (
         <Table
+            handleRefresh={handleRefresh}
             style={style}
             title="Members"
             rows={data !== undefined ? data : []}
             toolBarItems={toolBarItems}
             columnOrder={["email", "name", "birthday", "phone"]}
             onDelete={onDelete}
+            onEdit={onEdit}
             columns={[
                 {
                     id: "email",

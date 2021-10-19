@@ -4,16 +4,18 @@ import MemberInvite from "./Invite";
 import View from "./View";
 import { useFetch } from "src/hooks";
 import MemberDelete from "./Delete";
+import { useHistory } from "react-router";
 
 export interface MemberData {
     name: string;
     email: string;
     phone: string;
-    birthday: Date | null;
+    birthday: Date | string | null;
     id: number;
 }
 
 const Members: React.FC = () => {
+    const history = useHistory();
     const [toBeDeleted, setToBeDeleted] = useState<MemberData[]>([]);
     const [openDeleteModal, setDeleteModalOpen] = useState(false);
 
@@ -21,7 +23,7 @@ const Members: React.FC = () => {
     const handleOpenInvite = () => setInviteModalOpen(true);
     const handleCloseInvite = () => setInviteModalOpen(false);
 
-    const handleSelectedChanged = (
+    const handleDelete = (
         selected: readonly MemberData[keyof MemberData][]
     ): void => {
         const newSelected: MemberData[] = [];
@@ -35,7 +37,7 @@ const Members: React.FC = () => {
         setToBeDeleted(newSelected);
     };
 
-    const data = useFetch<MemberData>(
+    const { data, handleRefresh } = useFetch<MemberData>(
         "member",
         {
             method: "GET",
@@ -43,6 +45,11 @@ const Members: React.FC = () => {
         },
         "data"
     );
+
+    const handleEdit = (selected: MemberData[keyof MemberData]): void => {
+        const found = data.find((d) => d.email === selected);
+        if (found) history.push("/member/edit/" + found.id);
+    };
 
     useEffect(() => {
         const handleOpenDelete = () => setDeleteModalOpen(true);
@@ -64,7 +71,9 @@ const Members: React.FC = () => {
             }}
         >
             <View
-                onDelete={handleSelectedChanged}
+                handleRefresh={handleRefresh}
+                onDelete={handleDelete}
+                onEdit={handleEdit}
                 data={data}
                 style={{
                     maxWidth: "95vw",
