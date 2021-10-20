@@ -39,7 +39,7 @@ test("Invalid login should display error", async () => {
     } catch (e) {
         // eslint-disable-next-line jest/no-conditional-expect
         expect(e.message).toContain(
-            "Unable to find an element with the text: /logout/i"
+            "Unable to find an element with the text: /home/i"
         );
     }
 });
@@ -51,7 +51,7 @@ test("Successful login should redirect to the dashboard", async () => {
         Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
     );
 
-    await submitForm(/login/i, LoginAttributes.validAttributes, /logout/i);
+    await submitForm(/login/i, LoginAttributes.validAttributes, /home/i);
 });
 
 afterEach(async () => {
