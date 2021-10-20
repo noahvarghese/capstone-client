@@ -14,11 +14,12 @@ import React from "react";
 
 const CustomToolbar: React.FC<{
     numSelected: number;
-    handleRefresh: () => void;
-    onDelete: () => void;
-    onEdit: () => void;
+    handleRefresh?: () => void;
+    onDelete?: () => void;
+    onEdit?: () => void;
+    onCreate?: () => void;
     title: string;
-    toolBarItems: React.ReactElement[];
+    toolBarItems?: React.ReactElement[];
 }> = ({
     title,
     numSelected,
@@ -61,7 +62,7 @@ const CustomToolbar: React.FC<{
                     {title}
                 </Typography>
             )}
-            {numSelected > 0 ? (
+            {numSelected > 0 && onDelete ? (
                 <Tooltip title="Delete">
                     <IconButton onClick={onDelete}>
                         <DeleteIcon />
@@ -74,14 +75,14 @@ const CustomToolbar: React.FC<{
                     </IconButton>
                 </Tooltip>
             )}
-            {numSelected === 1 && (
+            {numSelected === 1 && onEdit && (
                 <Tooltip title="Edit">
                     <IconButton onClick={onEdit}>
                         <ModeEditIcon />
                     </IconButton>
                 </Tooltip>
             )}
-            {numSelected === 0 && (
+            {numSelected === 0 && handleRefresh && (
                 <Tooltip title="Refresh">
                     <IconButton onClick={handleRefresh}>
                         <RefreshIcon />

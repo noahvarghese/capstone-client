@@ -17,14 +17,14 @@ import {
 
 interface TableProps<T> {
     title: string;
-    style: React.CSSProperties;
+    style?: React.CSSProperties;
     rows: T[];
     columns: Column<T>[];
-    toolBarItems: React.ReactElement[];
+    toolBarItems?: React.ReactElement[];
     columnOrder: (keyof T)[];
-    onDelete: (selected: readonly T[keyof T][]) => void;
-    onEdit: (selected: T[keyof T]) => void;
-    handleRefresh: () => void;
+    onDelete?: (selected: readonly T[keyof T][]) => void;
+    onEdit?: (selected: T[keyof T]) => void;
+    handleRefresh?: () => void;
 }
 
 const EnhancedTable = <T,>({
@@ -110,8 +110,8 @@ const EnhancedTable = <T,>({
             <Paper elevation={3}>
                 <Toolbar
                     handleRefresh={handleRefresh}
-                    onEdit={() => onEdit(selected[0])}
-                    onDelete={() => onDelete(selected)}
+                    onEdit={onEdit ? () => onEdit(selected[0]) : undefined}
+                    onDelete={onDelete ? () => onDelete(selected) : undefined}
                     toolBarItems={toolBarItems}
                     numSelected={selected.length}
                     title={title}

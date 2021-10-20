@@ -11,8 +11,6 @@ import React from "react";
 
 export interface Column<T> {
     id: keyof T;
-    numeric: boolean;
-    disablePadding: boolean;
     label: string;
 }
 
@@ -61,8 +59,8 @@ const Head = <T,>({
                 {columns.map((col) => (
                     <TableCell
                         key={col.id as string}
-                        align={col.numeric ? "right" : "left"}
-                        padding={col.disablePadding ? "none" : "normal"}
+                        align="left"
+                        padding="normal"
                         sortDirection={orderBy === col.id ? order : false}
                     >
                         <TableSortLabel

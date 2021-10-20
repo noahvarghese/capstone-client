@@ -1,20 +1,11 @@
+import Table from "../../components/Table";
 import React from "react";
-import Table from "src/components/Table";
-import { useFetch } from "src/hooks";
+import { useFetch } from "../../hooks";
 
-const Department: React.FC = () => {
+const Role: React.FC = () => {
     const { data } = useFetch<
-        { name: string; numMembers: number; numRoles: number }[]
-    >(
-        "department",
-        [],
-        {
-            method: "GET",
-            credentials: "include",
-        },
-        "data"
-    );
-
+        { name: string; department: string; numMembers: number }[]
+    >("role", [], { method: "GET", credentials: "include" }, "data");
     return (
         <div
             style={{
@@ -32,26 +23,22 @@ const Department: React.FC = () => {
                     width: "75rem",
                 }}
                 rows={data}
-                title="Departments"
+                title="Role"
                 columns={[
                     {
                         id: "name",
                         label: "name",
                     },
                     {
-                        id: "numMembers",
-                        label: "number of members",
+                        id: "department",
+                        label: "department",
                     },
-                    {
-                        id: "numRoles",
-                        label: "number of roles",
-                    },
+                    { id: "numMembers", label: "number of members" },
                 ]}
-                columnOrder={["name", "numMembers", "numRoles"]}
+                columnOrder={["name", "department", "numMembers"]}
             />
-            ?? <div></div>
         </div>
     );
 };
 
-export default Department;
+export default Role;

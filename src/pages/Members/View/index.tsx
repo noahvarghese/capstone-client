@@ -23,26 +23,18 @@ const View: React.FC<{
             columns={[
                 {
                     id: "email",
-                    numeric: false,
-                    disablePadding: false,
                     label: "email",
                 },
                 {
                     id: "name",
-                    numeric: false,
-                    disablePadding: false,
                     label: "name",
                 },
                 {
                     id: "birthday",
-                    numeric: false,
-                    disablePadding: false,
                     label: "birthday",
                 },
                 {
                     id: "phone",
-                    numeric: false,
-                    disablePadding: false,
                     label: "phone",
                 },
             ]}
