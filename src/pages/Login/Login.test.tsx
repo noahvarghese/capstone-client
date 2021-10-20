@@ -33,7 +33,7 @@ test("Invalid login should display error", async () => {
                 email: LoginAttributes.invalidAttributes.invalidEmail,
                 password: LoginAttributes.validAttributes.password,
             },
-            /logout/i
+            /home/i
         );
         throw new Error("Should not be succesful");
     } catch (e) {
