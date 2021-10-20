@@ -4,7 +4,7 @@ import { useFetch } from "src/hooks";
 import CreateDepartment from "./Create";
 
 const Department: React.FC = () => {
-    const { data } = useFetch<
+    const { data, handleRefresh } = useFetch<
         { id: number; name: string; numMembers: number; numRoles: number }[]
     >(
         "department",
@@ -29,6 +29,7 @@ const Department: React.FC = () => {
         >
             <CreateDepartment />
             <Table
+                handleRefresh={handleRefresh}
                 style={{
                     maxWidth: "95vw",
                     width: "75rem",

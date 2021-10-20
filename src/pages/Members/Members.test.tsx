@@ -80,18 +80,6 @@ global.fetch = jest.fn(() => Promise.resolve(new Response()));
 
 beforeEach(async () => {
     (fetch as jest.Mock<Promise<Response>>).mockClear();
-    // checks if logged in only needed for app
-    // (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
-    //     Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
-    // );
-    // nav call
-    // (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
-    //     Promise.resolve(
-    //         new Response(JSON.stringify([{ name: "home", link: "/" }]), {
-    //             status: 200,
-    //         })
-    //     )
-    // );
 
     (fetch as jest.Mock<Promise<Response>>).mockImplementation(() =>
         Promise.resolve(

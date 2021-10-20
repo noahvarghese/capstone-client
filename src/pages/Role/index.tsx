@@ -4,8 +4,8 @@ import { useFetch } from "../../hooks";
 import CreateRole from "./Create";
 
 const Role: React.FC = () => {
-    const { data } = useFetch<
-        { name: string; department: string; numMembers: number }[]
+    const { data, handleRefresh } = useFetch<
+        { id: number; name: string; department: string; numMembers: number }[]
     >("role", [], { method: "GET", credentials: "include" }, "data");
 
     return (
@@ -21,6 +21,7 @@ const Role: React.FC = () => {
         >
             <CreateRole />
             <Table
+                handleRefresh={handleRefresh}
                 style={{
                     maxWidth: "95vw",
                     width: "75rem",
