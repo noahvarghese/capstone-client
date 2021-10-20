@@ -14,7 +14,16 @@ const MemberInvite: React.FC<{ open: boolean; onClose: () => void }> = (
         reset,
         handleSubmit,
         formState: { errors, isSubmitting },
-    } = useForm({ mode: "all" });
+    } = useForm({
+        mode: "all",
+        // need to set default values for dialog, something to do with the asynchronous loading
+        defaultValues: {
+            first_name: "",
+            last_name: "",
+            email: "",
+            phone: "",
+        },
+    });
 
     const { submit } = usePost("member/invite");
 
@@ -23,7 +32,7 @@ const MemberInvite: React.FC<{ open: boolean; onClose: () => void }> = (
             {...props}
             onSubmit={handleSubmit(submit)}
             isSubmitting={isSubmitting}
-            reset={reset}
+            cleanup={reset}
             successMessage="Invite sent"
             title="Invite"
             text="The user will be notified by email"

@@ -6,31 +6,31 @@ import {
     DialogContentText,
     DialogTitle,
     CircularProgress,
+    Button,
 } from "@mui/material";
 import React, { useState } from "react";
-import { FieldValues, UseFormReset } from "react-hook-form";
 
 interface ModalProps {
-    open: boolean;
-    onClose: () => void;
     title: string;
     onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
-    buttons: JSX.Element[];
-    reset: UseFormReset<FieldValues>;
     text?: string | React.ReactElement | React.ReactElement[];
     isSubmitting: boolean;
     successMessage: string;
+    buttons: [React.ReactElement, React.ReactElement] | [string, string];
+    cleanup: () => void;
 }
 
-const DialogForm: React.FC<ModalProps> = ({
+const DialogForm: React.FC<
+    ModalProps & { onClose: () => void; open: boolean }
+> = ({
     open,
     onClose,
     children,
     title,
-    reset,
     onSubmit,
-    buttons,
     text,
+    buttons,
+    cleanup,
     isSubmitting,
     successMessage,
 }) => {
@@ -43,16 +43,17 @@ const DialogForm: React.FC<ModalProps> = ({
         try {
             await onSubmit(e);
             setAlert({ message: successMessage, severity: "success" });
-            reset();
+            cleanup();
         } catch (e) {
             setAlert({ message: e.message, severity: "error" });
         }
     };
+
     return (
         <Dialog
             open={open}
             onClose={() => {
-                reset();
+                cleanup();
                 onClose();
                 setAlert({ message: "" });
             }}
@@ -76,9 +77,50 @@ const DialogForm: React.FC<ModalProps> = ({
                         <Alert severity={alert.severity}>{alert.message}</Alert>
                     )}
                 </DialogContent>
-                <DialogActions>{buttons}</DialogActions>
+                <DialogActions>
+                    {buttons.map((btn: any, index: number) =>
+                        typeof btn === "string" ? (
+                            <Button
+                                key={btn}
+                                type={index === 0 ? "reset" : "submit"}
+                                onClick={
+                                    index === 0
+                                        ? () => {
+                                              cleanup();
+                                              onClose();
+                                              setAlert({ message: "" });
+                                          }
+                                        : undefined
+                                }
+                            >
+                                {btn}
+                            </Button>
+                        ) : (
+                            (btn as React.ReactElement)
+                        )
+                    )}
+                </DialogActions>
             </form>
         </Dialog>
+    );
+};
+
+export const DialogFormWithTrigger: React.FC<
+    ModalProps & {
+        triggerText: string;
+    }
+> = ({ triggerText, ...props }) => {
+    const [open, setModalOpen] = useState(false);
+    const handleOpen = () => setModalOpen(true);
+    const handleClose = () => setModalOpen(false);
+
+    return (
+        <>
+            <Button type="button" onClick={handleOpen}>
+                {triggerText}
+            </Button>
+            <DialogForm {...props} onClose={handleClose} open={open} />
+        </>
     );
 };
 

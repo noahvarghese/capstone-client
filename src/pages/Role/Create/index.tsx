@@ -1,26 +1,36 @@
-import {
-    Button,
-    Checkbox,
-    FormControlLabel,
-    MenuItem,
-    TextField,
-} from "@mui/material";
+import { Checkbox, FormControlLabel, MenuItem, TextField } from "@mui/material";
 import React from "react";
 import { useForm } from "react-hook-form";
-import DialogForm from "src/components/DialogForm";
+import { DialogFormWithTrigger } from "src/components/DialogForm";
 import { useFetch, usePost } from "src/hooks";
 
-const CreateRole: React.FC<{ onClose: () => void; open: boolean }> = ({
-    onClose,
-    open,
-}) => {
+const CreateRole: React.FC = () => {
     const {
         register,
         reset,
         formState: { isSubmitting, errors },
         handleSubmit,
         watch,
-    } = useForm({ mode: "all" });
+    } = useForm({
+        mode: "all",
+        defaultValues: {
+            department_id: 0,
+            name: "",
+            global_crud_users: false,
+            global_crud_departments: false,
+            global_crud_roles: false,
+            global_crud_resources: false,
+            global_assign_users_to_departments: false,
+            global_assign_users_to_roles: false,
+            global_assign_resources_to_departments: false,
+            global_assign_resources_to_roles: false,
+            global_view_reports: false,
+            dept_crud_roles: false,
+            dept_crud_resources: false,
+            dept_assign_users_to_roles: false,
+            dept_assign_resources_to_roles: false,
+        },
+    });
 
     const { submit } = usePost("role");
 
@@ -37,31 +47,14 @@ const CreateRole: React.FC<{ onClose: () => void; open: boolean }> = ({
     );
 
     return (
-        <DialogForm
-            reset={reset}
+        <DialogFormWithTrigger
+            triggerText="Create Role"
             isSubmitting={isSubmitting}
             onSubmit={handleSubmit(submit)}
             title="Create Role"
-            open={open}
-            onClose={() => {
-                reset({ department_id: "", name: "" });
-                onClose();
-            }}
+            cleanup={reset}
             successMessage="Role created"
-            buttons={[
-                <Button
-                    key="reset"
-                    onClick={() => {
-                        reset({ department_id: "", name: "" });
-                        onClose();
-                    }}
-                >
-                    Cancel
-                </Button>,
-                <Button key="submit" type="submit">
-                    Create
-                </Button>,
-            ]}
+            buttons={["Cancel", "Create"]}
         >
             <TextField
                 {...register("name", { required: "name cannot be empty" })}
@@ -81,7 +74,8 @@ const CreateRole: React.FC<{ onClose: () => void; open: boolean }> = ({
                 id="department_id"
                 label="department"
                 placeholder="department"
-                value={watch("department_id", "")}
+                value={watch("department_id", 0) ?? 0}
+                defaultValue={watch("department_id", 0) ?? 0}
                 error={Boolean(errors.department_id)}
                 helperText={errors.department_id?.message}
                 required
@@ -94,7 +88,7 @@ const CreateRole: React.FC<{ onClose: () => void; open: boolean }> = ({
                             {d.name}
                         </MenuItem>
                     ))
-                    .concat([<MenuItem value="" key="default"></MenuItem>])}
+                    .concat([<MenuItem value={0} key="default"></MenuItem>])}
             </TextField>
             <fieldset
                 style={{
@@ -112,12 +106,12 @@ const CreateRole: React.FC<{ onClose: () => void; open: boolean }> = ({
                 <FormControlLabel
                     label="CRUD department"
                     control={
-                        <Checkbox {...register("global_crud_department")} />
+                        <Checkbox {...register("global_crud_departments")} />
                     }
                 />
                 <FormControlLabel
                     label="CRUD role"
-                    control={<Checkbox {...register("global_crud_role")} />}
+                    control={<Checkbox {...register("global_crud_roles")} />}
                 />
                 <FormControlLabel
                     label="CRUD resources"
@@ -126,46 +120,46 @@ const CreateRole: React.FC<{ onClose: () => void; open: boolean }> = ({
                     }
                 />
                 <FormControlLabel
-                    label="assign users to department"
+                    label="Assign users to department"
                     control={
                         <Checkbox
-                            {...register("global_assign_users_to_department")}
+                            {...register("global_assign_users_to_departments")}
                         />
                     }
                 />
                 <FormControlLabel
-                    label="assign users to role"
+                    label="Assign users to role"
                     control={
                         <Checkbox
-                            {...register("global_assign_users_to_role")}
+                            {...register("global_assign_users_to_roles")}
                         />
                     }
                 />
                 <FormControlLabel
-                    label="assign resources to department"
+                    label="Assign resources to department"
                     control={
                         <Checkbox
                             {...register(
-                                "global_assign_resources_to_department"
+                                "global_assign_resources_to_departments"
                             )}
                         />
                     }
                 />
                 <FormControlLabel
-                    label="assign resources to role"
+                    label="Assign resources to role"
                     control={
                         <Checkbox
-                            {...register("global_assign_resources_to_role")}
+                            {...register("global_assign_resources_to_roles")}
                         />
                     }
                 />
                 <FormControlLabel
-                    label="view reports"
+                    label="View reports"
                     control={<Checkbox {...register("global_view_reports")} />}
                 />
                 <FormControlLabel
                     label="Create role within department"
-                    control={<Checkbox {...register("dept_crud_role")} />}
+                    control={<Checkbox {...register("dept_crud_roles")} />}
                 />
                 <FormControlLabel
                     label="Create resources within department"
@@ -174,19 +168,19 @@ const CreateRole: React.FC<{ onClose: () => void; open: boolean }> = ({
                 <FormControlLabel
                     label="Assign users within department"
                     control={
-                        <Checkbox {...register("dept_assign_users_to_role")} />
+                        <Checkbox {...register("dept_assign_users_to_roles")} />
                     }
                 />
                 <FormControlLabel
                     label="Assign resources within department"
                     control={
                         <Checkbox
-                            {...register("dept_assign_resources_to_role")}
+                            {...register("dept_assign_resources_to_roles")}
                         />
                     }
                 />
             </fieldset>
-        </DialogForm>
+        </DialogFormWithTrigger>
     );
 };
 

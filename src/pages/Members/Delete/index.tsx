@@ -24,18 +24,22 @@ const MemberDelete: React.FC<{
             {...props}
             onSubmit={handleSubmit(deleteFn)}
             isSubmitting={isSubmitting}
-            reset={reset}
+            cleanup={reset}
             successMessage="Member removed"
             title="Delete"
-            text={`Are you sure you want to delete member
-                    ${selected.length > 1 ? "s" : ""}${" "}
-                    ${selected.map((s) => (
+            text={
+                <span>
+                    Are you sure you want to delete member
+                    {selected.length > 1 ? "s" : ""}{" "}
+                    {selected.map((s) => (
                         <span key={JSON.stringify(s)}>
                             <br />
                             {s.name} &lt;{s.email}&gt;&nbsp;
                         </span>
                     ))}
-                    ?`}
+                    ?
+                </span>
+            }
             buttons={[
                 <Button
                     key="cancel"

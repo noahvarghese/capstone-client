@@ -1,6 +1,7 @@
 import React from "react";
 import Table from "src/components/Table";
 import { useFetch } from "src/hooks";
+import CreateDepartment from "./Create";
 
 const Department: React.FC = () => {
     const { data } = useFetch<
@@ -26,6 +27,7 @@ const Department: React.FC = () => {
                 marginTop: "5rem",
             }}
         >
+            <CreateDepartment />
             <Table
                 style={{
                     maxWidth: "95vw",
@@ -49,7 +51,6 @@ const Department: React.FC = () => {
                 ]}
                 columnOrder={["name", "numMembers", "numRoles"]}
             />
-            ?? <div></div>
         </div>
     );
 };
