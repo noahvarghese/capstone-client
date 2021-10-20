@@ -38,6 +38,13 @@ test("reset notification displays on submit", async () => {
             })
         )
     );
+    (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
+        Promise.resolve(
+            new Response(JSON.stringify([{ name: "test", path: "test" }]), {
+                status: 200,
+            })
+        )
+    );
 
     await submitForm(
         /reset password/i,
