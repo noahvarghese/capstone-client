@@ -49,6 +49,6 @@ test("reset notification displays on submit", async () => {
     await submitForm(
         /reset password/i,
         ResetPasswordAttributes.validInputs,
-        /logout/i
+        /home/i
     );
 });
