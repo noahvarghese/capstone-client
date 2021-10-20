@@ -3,20 +3,22 @@ import { server } from "src/lib/permalink";
 
 const useFetch = <T,>(
     url: string,
+    defaultState: T,
     init?: RequestInit | undefined,
     key?: string
-): { data: T[]; handleRefresh: () => void; refreshing: boolean } => {
+): { data: T; handleRefresh: () => void; refreshing: boolean } => {
     const [fetching, setFetching] = useState(false);
     const [refresh, setRefresh] = useState(false);
-    const [data, setData] = useState<T[]>([]);
+    const [data, setData] = useState<T>(defaultState);
 
     useEffect(() => {
         if (!fetching) {
             setFetching(true);
 
-            if (data.length === 0 || refresh) {
+            if (data === defaultState || refresh) {
                 const dataWrapper = (d: any) => {
-                    setData(d[key as keyof typeof d]);
+                    console.log(d);
+                    setData(key ? d[key as keyof typeof d] : d);
                 };
 
                 fetch(server(url), init)
@@ -26,9 +28,8 @@ const useFetch = <T,>(
             if (refresh) setRefresh(false);
             setFetching(false);
         }
-    }, [data.length, fetching, init, key, refresh, url]);
+    }, [data, defaultState, fetching, init, key, refresh, url]);
 
-    console.log(data);
     return {
         data,
         handleRefresh() {

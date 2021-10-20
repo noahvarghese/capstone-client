@@ -7,10 +7,15 @@ const EditMember: React.FC = () => {
     const params = useParams<{ id?: string | undefined }>();
     const id = Number(params.id);
 
-    const { data, handleRefresh, refreshing } = useFetch("member/" + id, {
-        method: "GET",
-        credentials: "include",
-    });
+    const res = useFetch(
+        "member/" + id,
+        {},
+        {
+            method: "GET",
+            credentials: "include",
+        }
+    );
+    console.log(res);
 
     return (
         <Box>

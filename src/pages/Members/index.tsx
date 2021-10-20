@@ -37,8 +37,9 @@ const Members: React.FC = () => {
         setToBeDeleted(newSelected);
     };
 
-    const { data, handleRefresh } = useFetch<MemberData>(
+    const { data, handleRefresh } = useFetch<MemberData[]>(
         "member",
+        [],
         {
             method: "GET",
             credentials: "include",
@@ -48,7 +49,7 @@ const Members: React.FC = () => {
 
     const handleEdit = (selected: MemberData[keyof MemberData]): void => {
         const found = data.find((d) => d.email === selected);
-        if (found) history.push("/member/edit/" + found.id);
+        if (found) history.push("/member/" + found.id);
     };
 
     useEffect(() => {
