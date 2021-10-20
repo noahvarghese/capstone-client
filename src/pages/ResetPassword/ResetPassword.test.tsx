@@ -1,6 +1,5 @@
-import { cleanup, render } from "../../../test/test-utils";
+import { cleanup, render, act } from "../../../test/test-utils";
 import ResetPasswordAttributes from "../../../test/attributes/ResetPassword";
-import { act } from "react-dom/test-utils";
 import { submitForm } from "../../../test/helpers";
 import App from "src/App";
 import { createMemoryHistory } from "history";
@@ -10,7 +9,6 @@ let unmount: any;
 global.fetch = jest.fn(() => Promise.resolve(new Response()));
 
 beforeEach(async () => {
-    global.fetch = jest.fn(() => Promise.resolve(new Response()));
     (fetch as jest.Mock<Promise<Response>>).mockClear();
 
     (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>

@@ -26,7 +26,7 @@ const MemberDelete: React.FC<{
             isSubmitting={isSubmitting}
             cleanup={reset}
             successMessage="Member removed"
-            title="Delete"
+            title="Delete Member"
             text={
                 <span>
                     Are you sure you want to delete member

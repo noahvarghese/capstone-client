@@ -65,27 +65,27 @@ const CustomToolbar: React.FC<{
             {numSelected > 0 && onDelete ? (
                 <Tooltip title="Delete">
                     <IconButton onClick={onDelete}>
-                        <DeleteIcon />
+                        <DeleteIcon id="TableDelete" />
                     </IconButton>
                 </Tooltip>
             ) : (
                 <Tooltip title="Filter list">
                     <IconButton>
-                        <FilterListIcon />
+                        <FilterListIcon id="TableFilter" />
                     </IconButton>
                 </Tooltip>
             )}
             {numSelected === 1 && onEdit && (
                 <Tooltip title="Edit">
                     <IconButton onClick={onEdit}>
-                        <ModeEditIcon />
+                        <ModeEditIcon id="TableEdit" />
                     </IconButton>
                 </Tooltip>
             )}
             {numSelected === 0 && handleRefresh && (
                 <Tooltip title="Refresh">
                     <IconButton onClick={handleRefresh}>
-                        <RefreshIcon />
+                        <RefreshIcon id="TableRefresh" />
                     </IconButton>
                 </Tooltip>
             )}
