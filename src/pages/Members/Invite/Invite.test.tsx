@@ -1,8 +1,9 @@
-import { cleanup, render, act } from "../../../../test/test-utils";
+import { cleanup, render, act, screen } from "../../../../test/test-utils";
 import Invite from "./";
 import InviteAttributes from "../../../../test/attributes/InviteAttributes";
 import { createMemoryHistory } from "history";
 import { submitForm } from "../../../../test/helpers";
+import userEvent from "@testing-library/user-event";
 
 let unmount: any;
 global.fetch = jest.fn(() => Promise.resolve(new Response()));
@@ -24,16 +25,10 @@ beforeEach(async () => {
 
     const history = createMemoryHistory();
     await act(async () => {
-        let open = true;
-        unmount = render(
-            <Invite
-                open={open}
-                onClose={() => {
-                    open = false;
-                }}
-            />,
-            history
-        ).unmount;
+        unmount = render(<Invite />, history).unmount;
+    });
+    await act(async () => {
+        userEvent.click(screen.getByText(/invite/i));
     });
 });
 
@@ -45,7 +40,10 @@ test("Valid parameters show success notification", async () => {
             })
         )
     );
-    await submitForm(/invite/i, InviteAttributes.validInputs, "Invite sent");
+    await submitForm(InviteAttributes.validInputs, {
+        success: /Invite sent/i,
+        submitBtn: /Send Invite/i,
+    });
 });
 
 test("Invalid parameters show error notification", async () => {
@@ -57,7 +55,10 @@ test("Invalid parameters show error notification", async () => {
             })
         )
     );
-    await submitForm(/invite/i, InviteAttributes.validInputs, errorMessage);
+    await submitForm(InviteAttributes.validInputs, {
+        success: errorMessage,
+        submitBtn: /send invite/i,
+    });
 });
 
 afterEach(() => {

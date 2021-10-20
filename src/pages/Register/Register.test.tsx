@@ -24,7 +24,10 @@ test("Succesful register should redirect to Dashboard", async () => {
         Promise.resolve(new Response(JSON.stringify({}), { status: 201 }))
     );
 
-    await submitForm(/register/i, RegisterAttributes.validInputs, /home/i);
+    await submitForm(RegisterAttributes.validInputs, {
+        success: /home/i,
+        submitBtn: /register/i,
+    });
 
     if (unmount) unmount();
     cleanup();

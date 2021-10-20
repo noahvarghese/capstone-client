@@ -132,7 +132,8 @@ test("create opens dialog", async () => {
         screen.getByText(
             (_, element) =>
                 /button/i.test(element?.tagName ?? "") &&
-                /create role/i.test(element?.textContent ?? "")
+                /create/i.test(element?.textContent ?? "") &&
+                (element?.className.includes("contained") ?? false)
         )
     ).toBeInTheDocument();
 });

@@ -1,12 +1,27 @@
 import Table from "../../components/Table";
 import React from "react";
-import { useFetch } from "../../hooks";
+import { useFetch, useModalWithProps } from "../../hooks";
 import CreateRole from "./Create";
+import DeleteRole from "./Delete";
+
+export interface RoleData {
+    id: number;
+    name: string;
+    department: string;
+    numMembers: number;
+}
 
 const Role: React.FC = () => {
-    const { data, handleRefresh } = useFetch<
-        { id: number; name: string; department: string; numMembers: number }[]
-    >("role", [], { method: "GET", credentials: "include" }, "data");
+    const { data, handleRefresh } = useFetch<RoleData[]>(
+        "role",
+        [],
+        { method: "GET", credentials: "include" },
+        "data"
+    );
+    const { open, handleOpen, selected, handleClose } =
+        // the field needs to be changed so it is unique
+        // or fix table so it passes the id instead
+        useModalWithProps<RoleData>("name", data);
 
     return (
         <div
@@ -19,8 +34,14 @@ const Role: React.FC = () => {
                 marginTop: "5rem",
             }}
         >
-            <CreateRole />
+            <DeleteRole
+                selected={selected}
+                open={open}
+                onCancel={handleClose}
+                onClose={handleClose}
+            />
             <Table
+                onDelete={handleOpen}
                 handleRefresh={handleRefresh}
                 style={{
                     maxWidth: "95vw",
@@ -28,6 +49,7 @@ const Role: React.FC = () => {
                 }}
                 rows={data}
                 title="Role"
+                toolBarItems={[<CreateRole key="create" />]}
                 columns={[
                     {
                         id: "name",

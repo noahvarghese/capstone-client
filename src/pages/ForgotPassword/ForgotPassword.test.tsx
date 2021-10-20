@@ -27,9 +27,8 @@ test("Notification displays on submit", async () => {
         Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
     );
 
-    await submitForm(
-        /forgot password/i,
-        ForgotPasswordAttributes.validAttributes,
-        /instructions were emailed to you/i
-    );
+    await submitForm(ForgotPasswordAttributes.validAttributes, {
+        submitBtn: /forgot password/i,
+        success: /instructions were emailed to you/i,
+    });
 });

@@ -55,7 +55,7 @@ const DialogForm: React.FC<
             onClose={() => {
                 cleanup();
                 onClose();
-                setAlert({ message: "" });
+                setAlert({ message: "", severity: undefined });
             }}
             keepMounted={false}
         >
@@ -83,12 +83,16 @@ const DialogForm: React.FC<
                             <Button
                                 key={btn}
                                 type={index === 0 ? "reset" : "submit"}
+                                disabled={isSubmitting}
                                 onClick={
                                     index === 0
                                         ? () => {
                                               cleanup();
+                                              setAlert({
+                                                  message: "",
+                                                  severity: undefined,
+                                              });
                                               onClose();
-                                              setAlert({ message: "" });
                                           }
                                         : undefined
                                 }
@@ -108,15 +112,16 @@ const DialogForm: React.FC<
 export const DialogFormWithTrigger: React.FC<
     ModalProps & {
         triggerText: string;
+        variant?: "text" | "outlined" | "contained" | undefined;
     }
-> = ({ triggerText, ...props }) => {
+> = ({ triggerText, variant, ...props }) => {
     const [open, setModalOpen] = useState(false);
     const handleOpen = () => setModalOpen(true);
     const handleClose = () => setModalOpen(false);
 
     return (
         <>
-            <Button type="button" onClick={handleOpen}>
+            <Button type="button" variant={variant} onClick={handleOpen}>
                 {triggerText}
             </Button>
             <DialogForm {...props} onClose={handleClose} open={open} />

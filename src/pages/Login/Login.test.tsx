@@ -28,12 +28,14 @@ test("Invalid login should display error", async () => {
 
     try {
         await submitForm(
-            /login/i,
             {
                 email: LoginAttributes.invalidAttributes.invalidEmail,
                 password: LoginAttributes.validAttributes.password,
             },
-            /home/i
+            {
+                success: /home/i,
+                submitBtn: /login/i,
+            }
         );
         throw new Error("Should not be succesful");
     } catch (e) {
@@ -51,7 +53,10 @@ test("Successful login should redirect to the dashboard", async () => {
         Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
     );
 
-    await submitForm(/login/i, LoginAttributes.validAttributes, /home/i);
+    await submitForm(LoginAttributes.validAttributes, {
+        success: /home/i,
+        submitBtn: /login/i,
+    });
 });
 
 afterEach(async () => {

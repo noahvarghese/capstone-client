@@ -1,8 +1,8 @@
-import { Box, Button } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { Box } from "@mui/material";
+import React from "react";
 import MemberInvite from "./Invite";
 import View from "./View";
-import { useFetch } from "src/hooks";
+import { useFetch, useModalWithProps } from "src/hooks";
 import MemberDelete from "./Delete";
 import { useHistory } from "react-router";
 
@@ -16,27 +16,6 @@ export interface MemberData {
 
 const Members: React.FC = () => {
     const history = useHistory();
-    const [toBeDeleted, setToBeDeleted] = useState<MemberData[]>([]);
-    const [openDeleteModal, setDeleteModalOpen] = useState(false);
-
-    const [openInviteModal, setInviteModalOpen] = useState(false);
-    const handleOpenInvite = () => setInviteModalOpen(true);
-    const handleCloseInvite = () => setInviteModalOpen(false);
-
-    const handleDelete = (
-        selected: readonly MemberData[keyof MemberData][]
-    ): void => {
-        const newSelected: MemberData[] = [];
-
-        for (const email of selected) {
-            const found = data.find((d) => d.email === email);
-            if (found) newSelected.push(found);
-            else console.error(email + " not found");
-        }
-
-        setToBeDeleted(newSelected);
-    };
-
     const { data, handleRefresh } = useFetch<MemberData[]>(
         "member",
         [],
@@ -46,18 +25,13 @@ const Members: React.FC = () => {
         },
         "data"
     );
+    const { open, handleClose, handleOpen, selected } =
+        useModalWithProps<MemberData>("email", data);
 
     const handleEdit = (selected: MemberData[keyof MemberData]): void => {
         const found = data.find((d) => d.email === selected);
         if (found) history.push("/member/" + found.id);
     };
-
-    useEffect(() => {
-        const handleOpenDelete = () => setDeleteModalOpen(true);
-        const handleCloseDelete = () => setDeleteModalOpen(false);
-        if (toBeDeleted.length > 0) handleOpenDelete();
-        else handleCloseDelete();
-    }, [toBeDeleted]);
 
     return (
         <Box
@@ -73,35 +47,21 @@ const Members: React.FC = () => {
         >
             <View
                 handleRefresh={handleRefresh}
-                onDelete={handleDelete}
+                onDelete={handleOpen}
                 onEdit={handleEdit}
                 data={data}
                 style={{
                     maxWidth: "95vw",
                     width: "75rem",
                 }}
-                toolBarItems={[
-                    <Button
-                        key="invite"
-                        type="button"
-                        variant="contained"
-                        onClick={handleOpenInvite}
-                    >
-                        Invite
-                    </Button>,
-                ]}
+                toolBarItems={[<MemberInvite key="invite" />]}
             />
             <MemberDelete
-                selected={toBeDeleted}
-                open={openDeleteModal}
-                onClose={() => {
-                    setToBeDeleted([]);
-                }}
-                onCancel={() => {
-                    setToBeDeleted([]);
-                }}
+                selected={selected}
+                open={open}
+                onClose={handleClose}
+                onCancel={handleClose}
             />
-            <MemberInvite open={openInviteModal} onClose={handleCloseInvite} />
         </Box>
     );
 };

@@ -1,13 +1,11 @@
-import { Button, TextField } from "@mui/material";
+import { TextField } from "@mui/material";
 import React from "react";
 import { useForm } from "react-hook-form";
-import DialogForm from "src/components/DialogForm";
+import { DialogFormWithTrigger } from "src/components/DialogForm";
 import { usePost } from "src/hooks";
 import { emailValidator, phoneValidator } from "src/util/validators";
 
-const MemberInvite: React.FC<{ open: boolean; onClose: () => void }> = (
-    props
-) => {
+const MemberInvite: React.FC = () => {
     const {
         register,
         watch,
@@ -28,29 +26,16 @@ const MemberInvite: React.FC<{ open: boolean; onClose: () => void }> = (
     const { submit } = usePost("member/invite");
 
     return (
-        <DialogForm
-            {...props}
+        <DialogFormWithTrigger
+            variant="contained"
+            triggerText="invite"
             onSubmit={handleSubmit(submit)}
             isSubmitting={isSubmitting}
             cleanup={reset}
             successMessage="Invite sent"
             title="Invite"
             text="The user will be notified by email"
-            buttons={[
-                <Button
-                    key="reset"
-                    onClick={() => {
-                        reset();
-                        props.onClose();
-                    }}
-                    disabled={isSubmitting}
-                >
-                    No Thanks
-                </Button>,
-                <Button type="submit" key="invite" disabled={isSubmitting}>
-                    Send Invite
-                </Button>,
-            ]}
+            buttons={["No Thanks", "Send Invite"]}
         >
             <TextField
                 {...register("first_name", {
@@ -115,7 +100,7 @@ const MemberInvite: React.FC<{ open: boolean; onClose: () => void }> = (
                 placeholder="phone"
                 disabled={isSubmitting}
             />
-        </DialogForm>
+        </DialogFormWithTrigger>
     );
 };
 

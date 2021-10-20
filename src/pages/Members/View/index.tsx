@@ -6,7 +6,7 @@ const View: React.FC<{
     style: React.CSSProperties;
     toolBarItems: React.ReactElement[];
     data: MemberData[];
-    onDelete: (selected: readonly MemberData[keyof MemberData][]) => void;
+    onDelete: (selected: MemberData[keyof MemberData][]) => void;
     onEdit: (selected: MemberData[keyof MemberData]) => void;
     handleRefresh: () => void;
 }> = ({ style, toolBarItems, data, onDelete, onEdit, handleRefresh }) => {

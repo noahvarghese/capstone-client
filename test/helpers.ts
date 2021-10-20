@@ -80,16 +80,15 @@ export const getElementByText = (
 // its expected that the button name is the same as the formName (title)
 // the expectedElementText is the text that is expected to appear as a result of the form bein submitted
 export const submitForm = async (
-    formName: Matcher,
     formValues: {},
-    expectedElementText: Matcher
+    settings: { success: Matcher; submitBtn: Matcher }
 ) => {
     await fillOutForm(formValues);
 
     let submitButton: Element | undefined;
 
     try {
-        submitButton = getElementByText("button", formName);
+        submitButton = getElementByText("button", settings.submitBtn);
         if (!submitButton) throw new Error("submit button not found");
     } catch (_) {
         submitButton = getElementByText("button", /submit/i);
@@ -100,6 +99,6 @@ export const submitForm = async (
     userEvent.click(submitButton);
 
     await waitFor(() => {
-        expect(screen.getByText(expectedElementText)).toBeInTheDocument();
+        expect(screen.getByText(settings.success)).toBeInTheDocument();
     });
 };

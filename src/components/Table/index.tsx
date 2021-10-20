@@ -22,7 +22,7 @@ interface TableProps<T> {
     columns: Column<T>[];
     toolBarItems?: React.ReactElement[];
     columnOrder: (keyof T)[];
-    onDelete?: (selected: readonly T[keyof T][]) => void;
+    onDelete?: (selected: T[keyof T][]) => void;
     onEdit?: (selected: T[keyof T]) => void;
     handleRefresh?: () => void;
 }
@@ -40,14 +40,14 @@ const EnhancedTable = <T,>({
 }: TableProps<T>) => {
     const [order, setOrder] = React.useState<"asc" | "desc">("asc");
     const [orderBy, setOrderBy] = React.useState<keyof T>(columnOrder[0]);
-    const [selected, setSelected] = useState<readonly T[keyof T][]>([]);
+    const [selected, setSelected] = useState<T[keyof T][]>([]);
     const [page, setPage] = React.useState(0);
     const [dense, setDense] = React.useState(false);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
     const handleClick = (_: React.MouseEvent<unknown>, name: T[keyof T]) => {
         const selectedIndex = selected.indexOf(name);
-        let newSelected: readonly T[keyof T][] = [];
+        let newSelected: T[keyof T][] = [];
 
         if (selectedIndex === -1) {
             newSelected = newSelected.concat(selected, name);
