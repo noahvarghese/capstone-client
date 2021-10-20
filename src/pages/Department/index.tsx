@@ -4,7 +4,7 @@ import { useFetch } from "src/hooks";
 
 const Department: React.FC = () => {
     const { data } = useFetch<
-        { name: string; numMembers: number; numRoles: number }[]
+        { id: number; name: string; numMembers: number; numRoles: number }[]
     >(
         "department",
         [],

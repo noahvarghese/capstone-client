@@ -238,6 +238,7 @@ const Register: React.FC<{
                 id="province"
                 label="province"
                 placeholder="province"
+                required
                 value={watch("province", "")}
                 error={Boolean(errors.province)}
                 helperText={errors.province?.message}

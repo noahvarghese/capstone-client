@@ -1,8 +1,13 @@
 import Table from "../../components/Table";
-import React from "react";
+import React, { useState } from "react";
 import { useFetch } from "../../hooks";
+import CreateRole from "./Create";
+import { Button } from "@mui/material";
 
 const Role: React.FC = () => {
+    const [openCreateModal, setCreateModalOpen] = useState(false);
+    const handleOpenCreate = () => setCreateModalOpen(true);
+    const handleCloseCreate = () => setCreateModalOpen(false);
     const { data } = useFetch<
         { name: string; department: string; numMembers: number }[]
     >("role", [], { method: "GET", credentials: "include" }, "data");
@@ -17,6 +22,10 @@ const Role: React.FC = () => {
                 marginTop: "5rem",
             }}
         >
+            <Button type="button" onClick={handleOpenCreate}>
+                Create Role
+            </Button>
+            <CreateRole open={openCreateModal} onClose={handleCloseCreate} />
             <Table
                 style={{
                     maxWidth: "95vw",

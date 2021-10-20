@@ -17,7 +17,6 @@ const useFetch = <T,>(
 
             if (data === defaultState || refresh) {
                 const dataWrapper = (d: any) => {
-                    console.log(d);
                     setData(key ? d[key as keyof typeof d] : d);
                 };
 
