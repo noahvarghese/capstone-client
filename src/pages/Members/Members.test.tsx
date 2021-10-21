@@ -9,6 +9,8 @@ import { createMemoryHistory } from "history";
 import Members from ".";
 import { members } from "../../../test/attributes/Members";
 import userEvent from "@testing-library/user-event";
+import InviteAttributes from "../../../test/attributes/InviteAttributes";
+import { submitForm } from "../../../test/helpers";
 
 let unmount: any;
 global.fetch = jest.fn(() => Promise.resolve(new Response()));
@@ -86,6 +88,44 @@ test("refreshing table", async () => {
         for (const item of newMembers) {
             expect(screen.getByText(item.name)).toBeInTheDocument();
         }
+    });
+});
+
+describe("test invite", () => {
+    beforeEach(async () => {
+        await act(async () => {
+            userEvent.click(
+                screen.getByText(/^invite$/i, { selector: "button" })
+            );
+        });
+    });
+    test("Valid parameters show success notification", async () => {
+        (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
+            Promise.resolve(
+                new Response(JSON.stringify({}), {
+                    status: 200,
+                })
+            )
+        );
+        await submitForm(InviteAttributes.validInputs, {
+            success: /Invite sent/i,
+            submitBtn: /Send Invite/i,
+        });
+    });
+
+    test("Invalid parameters show error notification", async () => {
+        const errorMessage = "this sucks";
+        (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
+            Promise.resolve(
+                new Response(JSON.stringify({ message: errorMessage }), {
+                    status: 400,
+                })
+            )
+        );
+        await submitForm(InviteAttributes.validInputs, {
+            success: errorMessage,
+            submitBtn: /send invite/i,
+        });
     });
 });
 
