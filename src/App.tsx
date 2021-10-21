@@ -15,9 +15,8 @@ import theme from "./theme";
 import Loading from "./components/Loading";
 import useNav from "./hooks/useNav";
 import Members from "./pages/Members";
-// import MemberEdit from "./pages/Members/Edit";
 import Department from "./pages/Department";
-// import Role from "./pages/Role";
+import Role from "./pages/Role";
 
 abstract class AbstractApp extends React.Component<{
     auth: boolean;
@@ -48,7 +47,7 @@ class LoggedInApp extends AbstractApp {
             { path: "/", exact: true, component: Home },
             { path: "/members", exact: true, component: Members },
             { path: "/departments", exact: true, component: Department },
-            // { path: "/roles", exact: true, component: Role },
+            { path: "/roles", exact: true, component: Role },
             // { path: "/member/:id", exact: true, component: MemberEdit },
             {
                 path: "/logout",

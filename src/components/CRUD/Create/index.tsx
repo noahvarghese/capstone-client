@@ -1,7 +1,22 @@
+import { FormControlLabel } from "@mui/material";
 import React from "react";
 import { RegisterOptions, useForm } from "react-hook-form";
 import { DialogFormWithTrigger } from "src/components/DialogForm";
 import { usePost } from "src/hooks";
+
+export interface IFormElement {
+    params: {
+        name: string;
+        options?: RegisterOptions;
+    };
+    label?: string;
+    component: React.ReactElement;
+}
+
+export type IFormElementGroup = (
+    | IFormElement
+    | { legend: string; formElements: IFormElement[] }
+)[];
 
 export interface CreateProps {
     url: string;
@@ -9,13 +24,7 @@ export interface CreateProps {
     text?: string;
     title: string;
     successMessage: string;
-    formElements: {
-        params: {
-            name: string;
-            options?: RegisterOptions;
-        };
-        component: React.ReactElement;
-    }[];
+    formElements: IFormElementGroup;
     trigger: string | React.ReactElement;
     buttons: [string, string] | [React.ReactElement, React.ReactElement];
 }
@@ -51,24 +60,63 @@ const Create = ({
             text={text}
             buttons={buttons}
         >
-            {formElements.map(({ params, component }) => {
-                const el = React.cloneElement(component, {
-                    ...register(params.name, params.options),
-                    value: watch(params.name, defaultValues[params.name]),
-                    // only apply default value by hand
-                    // defaultValue: defaultValues[params.name],
-                    error: Boolean(errors[params.name]),
-                    helperText: (errors[params.name] as { message?: string })
-                        ?.message,
-                    disabled: isSubmitting,
-                    id: params.name,
-                    placeholder: params.name.split("_").join(" "),
-                    label: params.name.split("_").join(" "),
-                    key: params.name,
-                    required: Boolean(params.options?.required),
-                });
+            {formElements.map((item) => {
+                const cb = ({ component, params, label }: IFormElement) => {
+                    if (label) {
+                        const el = (
+                            <FormControlLabel
+                                label={label}
+                                key={label}
+                                control={React.cloneElement(component, {
+                                    ...register(params.name, params.options),
+                                })}
+                            />
+                        );
+                        return el;
+                    } else {
+                        const el = React.cloneElement(component, {
+                            ...register(params.name, params.options),
+                            value: watch(
+                                params.name,
+                                defaultValues[params.name]
+                            ),
+                            // only apply default value by hand
+                            // defaultValue: component.props.select
+                            //     ? defaultValues[params.name]
+                            //     : undefined,
+                            error: Boolean(errors[params.name]),
+                            helperText: (
+                                errors[params.name] as { message?: string }
+                            )?.message,
+                            disabled: isSubmitting,
+                            id: params.name,
+                            placeholder: params.name.split("_").join(" "),
+                            label: params.name.split("_").join(" "),
+                            key: params.name,
+                            required: Boolean(params.options?.required),
+                        });
+                        return el;
+                    }
+                };
 
-                return el;
+                if (Object.keys(item).includes("formElements")) {
+                    const el = item as {
+                        legend: string;
+                        formElements: IFormElement[];
+                    };
+                    return (
+                        <fieldset
+                            key={`fieldset${el.legend}`}
+                            style={{ display: "flex", flexDirection: "column" }}
+                        >
+                            <legend>{el.legend}</legend>
+                            {el.formElements.map((i) => cb(i))}
+                        </fieldset>
+                    );
+                } else {
+                    const el = cb(item as IFormElement);
+                    return el;
+                }
             })}
         </DialogFormWithTrigger>
     );

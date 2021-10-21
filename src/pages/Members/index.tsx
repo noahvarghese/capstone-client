@@ -4,6 +4,7 @@ import React from "react";
 import CRUD from "src/components/CRUD";
 import { emailValidator, phoneValidator } from "src/util/validators";
 import { Column } from "src/components/Table/Head";
+import { IFormElement } from "src/components/CRUD/Create";
 
 const NAME = "members";
 const URL = `/${NAME}`;
@@ -41,7 +42,7 @@ const columnOrder: (keyof MemberData)[] = [
     "phone",
 ];
 
-const createFormElements = [
+const createFormElements: IFormElement[] = [
     {
         component: (
             <TextField autoFocus autoComplete="given-name" type="text" />

@@ -3,6 +3,7 @@ import CRUD from "src/components/CRUD";
 import { Column } from "src/components/Table/Head";
 import { IconButton, TextField, Tooltip } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { IFormElement } from "src/components/CRUD/Create";
 
 export interface DepartmentData {
     id: number;
@@ -32,7 +33,7 @@ const columnOrder: (keyof DepartmentData)[] = [
     "numRoles",
 ];
 
-const createFormElements = [
+const createFormElements: IFormElement[] = [
     {
         component: <TextField autoFocus type="text" />,
         params: { name: "name", options: { required: "name is required" } },
