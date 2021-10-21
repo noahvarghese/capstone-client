@@ -103,7 +103,7 @@ const Member: React.FC = () => {
                 },
                 formElements: createFormElements,
                 successMessage: "invite sent",
-                title: "Invite",
+                title: "Invite User",
                 trigger: "invite",
                 url: "member/invite",
                 text: "The user will be notified by email",

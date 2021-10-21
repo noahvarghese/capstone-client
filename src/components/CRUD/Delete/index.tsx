@@ -32,8 +32,8 @@ const Delete = <T extends Partial<{ id: number }>>({
             )}
             isSubmitting={isSubmitting}
             cleanup={reset}
-            successMessage="Member removed"
-            title="Delete Member"
+            successMessage={`${name} removed`}
+            title={`delete ${name}`}
             text={
                 <span>
                     Are you sure you want to delete {name.toLowerCase()}

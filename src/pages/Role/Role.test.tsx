@@ -6,7 +6,7 @@ import {
     waitFor,
 } from "../../../test/test-utils";
 import { createMemoryHistory } from "history";
-import Role from ".";
+import Role from "./";
 import userEvent from "@testing-library/user-event";
 
 const roles = [
@@ -121,7 +121,9 @@ test("Delete opens dialog", async () => {
     await act(async () => {
         userEvent.click(screen.getByRole("button", { name: /delete/i }));
     });
-    expect(screen.getByText("Delete Role")).toBeInTheDocument();
+    expect(
+        screen.getByText(/delete role/i, { selector: "h2" })
+    ).toBeInTheDocument();
 });
 
 test("create opens dialog", async () => {

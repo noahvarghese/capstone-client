@@ -114,20 +114,16 @@ test("Delete opens dialog", async () => {
     await act(async () => {
         userEvent.click(screen.getByRole("button", { name: /delete/i }));
     });
-    expect(screen.getByText("Delete Department")).toBeInTheDocument();
+    expect(
+        screen.getByText(/delete department/i, { selector: "h2" })
+    ).toBeInTheDocument();
 });
 
 test("create opens dialog", async () => {
     await act(async () => {
         userEvent.click(screen.getByText(/create/i));
     });
-    expect(
-        screen.getByText(
-            (_, element) =>
-                /button/i.test(element?.tagName ?? "") &&
-                /create department/i.test(element?.textContent ?? "")
-        )
-    ).toBeInTheDocument();
+    expect(screen.getByText(/create department/i)).toBeInTheDocument();
 });
 
 test("refreshing table", async () => {
