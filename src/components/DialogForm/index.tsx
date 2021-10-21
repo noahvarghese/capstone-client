@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 
-interface ModalProps {
+interface DialogFormProps {
     title: string;
     onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
     text?: string | React.ReactElement | React.ReactElement[];
@@ -21,7 +21,7 @@ interface ModalProps {
 }
 
 const DialogForm: React.FC<
-    ModalProps & { onClose: () => void; open: boolean }
+    DialogFormProps & { onClose: () => void; open: boolean }
 > = ({
     open,
     onClose,
@@ -78,30 +78,49 @@ const DialogForm: React.FC<
                     )}
                 </DialogContent>
                 <DialogActions>
-                    {buttons.map((btn: any, index: number) =>
-                        typeof btn === "string" ? (
-                            <Button
-                                key={btn}
-                                type={index === 0 ? "reset" : "submit"}
-                                disabled={isSubmitting}
-                                onClick={
-                                    index === 0
-                                        ? () => {
-                                              cleanup();
-                                              setAlert({
-                                                  message: "",
-                                                  severity: undefined,
-                                              });
-                                              onClose();
-                                          }
-                                        : undefined
-                                }
-                            >
-                                {btn}
-                            </Button>
-                        ) : (
-                            (btn as React.ReactElement)
-                        )
+                    {buttons.map(
+                        (btn: React.ReactElement | string, index: number) =>
+                            typeof btn === "string" ? (
+                                <Button
+                                    key={btn}
+                                    type={index === 0 ? "reset" : "submit"}
+                                    disabled={isSubmitting}
+                                    onClick={
+                                        index === 0
+                                            ? () => {
+                                                  cleanup();
+                                                  setAlert({
+                                                      message: "",
+                                                      severity: undefined,
+                                                  });
+                                                  onClose();
+                                              }
+                                            : undefined
+                                    }
+                                >
+                                    {btn}
+                                </Button>
+                            ) : (
+                                React.cloneElement(btn, {
+                                    key: index + "Button",
+                                    type:
+                                        index === 0 && !btn.type
+                                            ? "reset"
+                                            : "submit",
+                                    disabled: isSubmitting,
+                                    onClick:
+                                        index === 0
+                                            ? () => {
+                                                  cleanup();
+                                                  setAlert({
+                                                      message: "",
+                                                      severity: undefined,
+                                                  });
+                                                  onClose();
+                                              }
+                                            : undefined,
+                                })
+                            )
                     )}
                 </DialogActions>
             </form>
@@ -110,20 +129,24 @@ const DialogForm: React.FC<
 };
 
 export const DialogFormWithTrigger: React.FC<
-    ModalProps & {
-        triggerText: string;
+    DialogFormProps & {
+        trigger: string | React.ReactElement;
         variant?: "text" | "outlined" | "contained" | undefined;
     }
-> = ({ triggerText, variant, ...props }) => {
+> = ({ trigger, variant, ...props }) => {
     const [open, setModalOpen] = useState(false);
     const handleOpen = () => setModalOpen(true);
     const handleClose = () => setModalOpen(false);
 
     return (
         <>
-            <Button type="button" variant={variant} onClick={handleOpen}>
-                {triggerText}
-            </Button>
+            {typeof trigger === "string" ? (
+                <Button type="button" variant={variant} onClick={handleOpen}>
+                    {trigger}
+                </Button>
+            ) : (
+                React.cloneElement(trigger, { onClick: handleOpen })
+            )}
             <DialogForm {...props} onClose={handleClose} open={open} />
         </>
     );

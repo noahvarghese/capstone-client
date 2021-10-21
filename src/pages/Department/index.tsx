@@ -1,8 +1,8 @@
 import React from "react";
-import Table from "src/components/Table";
-import { useFetch, useModalWithProps } from "src/hooks";
-import CreateDepartment from "./Create";
-import DeleteDepartment from "./Delete";
+// import Table from "src/components/Table";
+// import { useFetch, useModalWithProps } from "src/hooks";
+// import CreateDepartment from "./Create";
+// import DeleteDepartment from "./Delete";
 
 export interface DepartmentData {
     id: number;
@@ -11,17 +11,17 @@ export interface DepartmentData {
     numRoles: number;
 }
 const Department: React.FC = () => {
-    const { data, handleRefresh } = useFetch<DepartmentData[]>(
-        "department",
-        [],
-        {
-            method: "GET",
-            credentials: "include",
-        },
-        "data"
-    );
-    const { open, handleOpen, handleClose, selected } =
-        useModalWithProps<DepartmentData>("name", data);
+    // const { data, handleRefresh } = useFetch<DepartmentData[]>(
+    //     "department",
+    //     [],
+    //     {
+    //         method: "GET",
+    //         credentials: "include",
+    //     },
+    //     "data"
+    // );
+    // const { open, handleOpen, handleClose, selected } =
+    //     useModalWithProps<DepartmentData>("name", data);
 
     return (
         <div
@@ -34,7 +34,7 @@ const Department: React.FC = () => {
                 marginTop: "5rem",
             }}
         >
-            <CreateDepartment />
+            {/* <CreateDepartment />
             <DeleteDepartment
                 selected={selected}
                 open={open}
@@ -65,7 +65,7 @@ const Department: React.FC = () => {
                     },
                 ]}
                 columnOrder={["name", "numMembers", "numRoles"]}
-            />
+            /> */}
         </div>
     );
 };

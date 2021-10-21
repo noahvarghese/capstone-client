@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useEffect, useState } from "react";
 
-const useModalWithProps = <T,>(primaryField: string, data?: any) => {
+const useModalWithProps = <T,>(primaryField: keyof T, data?: T[]) => {
     const [state, setState] = useState<T[]>([]);
     const [openModal, setModalOpen] = useState(false);
 
@@ -21,9 +21,14 @@ const useModalWithProps = <T,>(primaryField: string, data?: any) => {
             const newSelected = [];
 
             for (const field of selected) {
-                const found = data.find(
-                    (d: any) => (d as any)[primaryField] === field
-                );
+                // forces false if no value
+                // does checks since object is possibly undefined
+                const found = data
+                    ? data.find(
+                          (d: any) => (d as any)[primaryField] === field
+                      ) ?? false
+                    : false;
+
                 if (found) newSelected.push(found);
                 else console.error(field + " not found");
             }

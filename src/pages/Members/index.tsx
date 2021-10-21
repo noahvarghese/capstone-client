@@ -1,10 +1,12 @@
-import { Box } from "@mui/material";
+import { IconButton, TextField, Tooltip } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 import React from "react";
-import MemberInvite from "./Invite";
-import View from "./View";
-import { useFetch, useModalWithProps } from "src/hooks";
-import MemberDelete from "./Delete";
-import { useHistory } from "react-router";
+import CRUD from "src/components/CRUD";
+import { emailValidator, phoneValidator } from "src/util/validators";
+import { Column } from "src/components/Table/Head";
+
+const NAME = "members";
+const URL = `/${NAME}`;
 
 export interface MemberData {
     name: string;
@@ -14,56 +16,115 @@ export interface MemberData {
     id: number;
 }
 
-const Members: React.FC = () => {
-    const history = useHistory();
-    const { data, handleRefresh } = useFetch<MemberData[]>(
-        "member",
-        [],
-        {
-            method: "GET",
-            credentials: "include",
+const columns: Column<MemberData>[] = [
+    {
+        id: "email",
+        label: "email",
+    },
+    {
+        id: "name",
+        label: "name",
+    },
+    {
+        id: "birthday",
+        label: "birthday",
+    },
+    {
+        id: "phone",
+        label: "phone",
+    },
+];
+const columnOrder = ["email", "name", "birthday", "phone"];
+
+const createFormElements = [
+    {
+        component: (
+            <TextField
+                autoFocus
+                required
+                autoComplete="given-name"
+                type="text"
+            />
+        ),
+        params: {
+            name: "first_name",
+            options: { required: "first name cannot be empty" },
         },
-        "data"
-    );
-    const { open, handleClose, handleOpen, selected } =
-        useModalWithProps<MemberData>("email", data);
+    },
+    {
+        component: (
+            <TextField required autoComplete="family-name" type="text" />
+        ),
+        params: {
+            name: "last_name",
+            options: {
+                required: "last name cannot be empty",
+            },
+        },
+    },
+    {
+        component: <TextField required autoComplete="email" type="email" />,
+        params: {
+            name: "email",
+            options: {
+                required: "email cannot be empty",
+                validate: emailValidator,
+            },
+        },
+    },
+    {
+        component: <TextField required autoComplete="tel" type="tel" />,
+        params: {
+            name: "phone",
+            options: {
+                required: "phone cannot be empty",
+                validate: phoneValidator,
+            },
+        },
+    },
+];
 
-    const handleEdit = (selected: MemberData[keyof MemberData]): void => {
-        const found = data.find((d) => d.email === selected);
-        if (found) history.push("/member/" + found.id);
-    };
-
+const Member: React.FC = () => {
     return (
-        <Box
-            className="Members"
-            style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "4rem",
-                marginTop: "5rem",
+        <CRUD
+            primaryField="id"
+            name={NAME}
+            url={URL}
+            readProps={{
+                columns: columns,
+                columnOrder: columnOrder as (keyof MemberData)[],
             }}
-        >
-            <View
-                handleRefresh={handleRefresh}
-                onDelete={handleOpen}
-                onEdit={handleEdit}
-                data={data}
-                style={{
-                    maxWidth: "95vw",
-                    width: "75rem",
-                }}
-                toolBarItems={[<MemberInvite key="invite" />]}
-            />
-            <MemberDelete
-                selected={selected}
-                open={open}
-                onClose={handleClose}
-                onCancel={handleClose}
-            />
-        </Box>
+            createProps={{
+                buttons: ["No thanks", "Send Invite"],
+                defaultValues: {
+                    first_name: "",
+                    last_name: "",
+                    email: "",
+                    phone: "",
+                },
+                formElements: createFormElements,
+                successMessage: "invite sent",
+                title: "Invite",
+                trigger: "invite",
+                url: "member/invite",
+                text: "The user will be notified by email",
+            }}
+            deleteProps={{
+                trigger: (
+                    <Tooltip title="Delete">
+                        <IconButton>
+                            <DeleteIcon />
+                        </IconButton>
+                    </Tooltip>
+                ),
+                formatter: (s: MemberData) => (
+                    <>
+                        {s.name} &lt;{s.email}&gt;&nbsp;
+                    </>
+                ),
+            }}
+        />
     );
 };
 
-export default Members;
+export default Member;

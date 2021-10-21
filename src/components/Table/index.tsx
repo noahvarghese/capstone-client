@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Toolbar from "./Toolbar";
 import Head, { Column } from "./Head";
 import { Box } from "@mui/system";
@@ -19,51 +19,43 @@ interface TableProps<T> {
     title: string;
     style?: React.CSSProperties;
     rows: T[];
-    columns: Column<T>[];
-    toolBarItems?: React.ReactElement[];
     columnOrder: (keyof T)[];
-    onDelete?: (selected: T[keyof T][]) => void;
-    onEdit?: (selected: T[keyof T]) => void;
+    columns: Column<T>[];
+    handleSelect: (e: React.MouseEvent<unknown>, name: T[keyof T]) => void;
+    handleSelectAll: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    isSelected: (t: T[keyof T]) => boolean;
+    toolBarItems?: React.ReactElement[];
     handleRefresh?: () => void;
+    primaryField: keyof T;
+    selected: T[];
+    _delete: React.ReactElement;
+    _edit: React.ReactElement;
+    _create: React.ReactElement;
 }
 
-const EnhancedTable = <T,>({
+const EnhancedTable = <T extends Partial<{ id: number }>>({
     rows,
     columns,
     title,
     style,
+    selected,
+    handleSelect,
+    handleSelectAll,
+    isSelected,
     toolBarItems,
     columnOrder,
-    onDelete,
-    onEdit,
+    primaryField,
     handleRefresh,
+    _delete,
+    _create,
+    _edit,
 }: TableProps<T>) => {
     const [order, setOrder] = React.useState<"asc" | "desc">("asc");
     const [orderBy, setOrderBy] = React.useState<keyof T>(columnOrder[0]);
-    const [selected, setSelected] = useState<T[keyof T][]>([]);
+    // needs to be managed by the component above
     const [page, setPage] = React.useState(0);
     const [dense, setDense] = React.useState(false);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
-
-    const handleClick = (_: React.MouseEvent<unknown>, name: T[keyof T]) => {
-        const selectedIndex = selected.indexOf(name);
-        let newSelected: T[keyof T][] = [];
-
-        if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, name);
-        } else if (selectedIndex === 0) {
-            newSelected = newSelected.concat(selected.slice(1));
-        } else if (selectedIndex === selected.length - 1) {
-            newSelected = newSelected.concat(selected.slice(0, -1));
-        } else if (selectedIndex > 0) {
-            newSelected = newSelected.concat(
-                selected.slice(0, selectedIndex),
-                selected.slice(selectedIndex + 1)
-            );
-        }
-
-        setSelected(newSelected);
-    };
 
     const handleChangePage = (_: unknown, newPage: number) => {
         setPage(newPage);
@@ -89,19 +81,6 @@ const EnhancedTable = <T,>({
         setOrderBy(property);
     };
 
-    const handleSelectAllClick = (
-        event: React.ChangeEvent<HTMLInputElement>
-    ) => {
-        if (event.target.checked && rows) {
-            const newSelecteds = rows.map((n) => n[columnOrder[0]]);
-            setSelected(newSelecteds);
-            return;
-        }
-        setSelected([]);
-    };
-
-    const isSelected = (prop: T[keyof T]) => selected.indexOf(prop) !== -1;
-
     const emptyRows =
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
@@ -110,8 +89,9 @@ const EnhancedTable = <T,>({
             <Paper elevation={3}>
                 <Toolbar
                     handleRefresh={handleRefresh}
-                    onEdit={onEdit ? () => onEdit(selected[0]) : undefined}
-                    onDelete={onDelete ? () => onDelete(selected) : undefined}
+                    _delete={_delete}
+                    _create={_create}
+                    _edit={_edit}
                     toolBarItems={toolBarItems}
                     numSelected={selected.length}
                     title={title}
@@ -126,7 +106,7 @@ const EnhancedTable = <T,>({
                             numSelected={selected.length}
                             order={order}
                             orderBy={orderBy as string}
-                            onSelectAllClick={handleSelectAllClick}
+                            onSelectAllClick={handleSelectAll}
                             onRequestSort={handleRequestSort}
                             rowCount={rows?.length ?? 0}
                             columns={columns}
@@ -134,7 +114,7 @@ const EnhancedTable = <T,>({
                         <TableBody>
                             {rows.map((row, index) => {
                                 const isItemSelected = isSelected(
-                                    row[columnOrder[0]]
+                                    row[primaryField]
                                 );
                                 const labelId = `enhanced-table-checkbox-${index}`;
 
@@ -142,7 +122,7 @@ const EnhancedTable = <T,>({
                                     <TableRow
                                         hover
                                         onClick={(e: any) =>
-                                            handleClick(e, row[columnOrder[0]])
+                                            handleSelect(e, row[primaryField])
                                         }
                                         role="checkbox"
                                         aria-checked={isItemSelected}

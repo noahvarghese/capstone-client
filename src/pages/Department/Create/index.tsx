@@ -17,7 +17,7 @@ const CreateDepartment: React.FC = () => {
 
     return (
         <DialogFormWithTrigger
-            triggerText="Create Department"
+            trigger="Create Department"
             isSubmitting={isSubmitting}
             onSubmit={handleSubmit(submit)}
             title="Create Department"

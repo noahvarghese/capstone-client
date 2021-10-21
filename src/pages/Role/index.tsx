@@ -1,8 +1,8 @@
-import Table from "../../components/Table";
+// import Table from "../../components/Table";
 import React from "react";
-import { useFetch, useModalWithProps } from "../../hooks";
-import CreateRole from "./Create";
-import DeleteRole from "./Delete";
+// import { useFetch, useModalWithProps } from "../../hooks";
+// import CreateRole from "./Create";
+// import DeleteRole from "./Delete";
 
 export interface RoleData {
     id: number;
@@ -12,16 +12,16 @@ export interface RoleData {
 }
 
 const Role: React.FC = () => {
-    const { data, handleRefresh } = useFetch<RoleData[]>(
-        "role",
-        [],
-        { method: "GET", credentials: "include" },
-        "data"
-    );
-    const { open, handleOpen, selected, handleClose } =
-        // the field needs to be changed so it is unique
-        // or fix table so it passes the id instead
-        useModalWithProps<RoleData>("name", data);
+    // const { data, handleRefresh } = useFetch<RoleData[]>(
+    //     "role",
+    //     [],
+    //     { method: "GET", credentials: "include" },
+    //     "data"
+    // );
+    // const { open, handleOpen, selected, handleClose } =
+    //     // the field needs to be changed so it is unique
+    //     // or fix table so it passes the id instead
+    //     useModalWithProps<RoleData>("name", data);
 
     return (
         <div
@@ -34,7 +34,7 @@ const Role: React.FC = () => {
                 marginTop: "5rem",
             }}
         >
-            <DeleteRole
+            {/* <DeleteRole
                 selected={selected}
                 open={open}
                 onCancel={handleClose}
@@ -62,7 +62,7 @@ const Role: React.FC = () => {
                     { id: "numMembers", label: "number of members" },
                 ]}
                 columnOrder={["name", "department", "numMembers"]}
-            />
+            /> */}
         </div>
     );
 };

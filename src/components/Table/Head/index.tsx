@@ -56,30 +56,32 @@ const Head = <T,>({
                         }}
                     />
                 </TableCell>
-                {columns.map((col) => (
-                    <TableCell
-                        key={col.id as string}
-                        align="left"
-                        padding="normal"
-                        sortDirection={orderBy === col.id ? order : false}
-                    >
-                        <TableSortLabel
-                            active={orderBy === col.id}
-                            direction={orderBy === col.id ? order : "asc"}
-                            onClick={createSortHandler(col.id)}
+                {columns.map((col) => {
+                    return (
+                        <TableCell
+                            key={col.id as string}
+                            align="left"
+                            padding="normal"
+                            sortDirection={orderBy === col.id ? order : false}
                         >
-                            {col.label}
+                            <TableSortLabel
+                                active={orderBy === col.id}
+                                direction={orderBy === col.id ? order : "asc"}
+                                onClick={createSortHandler(col.id as keyof T)}
+                            >
+                                {col.label}
 
-                            {orderBy === col.id ? (
-                                <Box component="span" sx={visuallyHidden}>
-                                    {order === "desc"
-                                        ? "sorted descending"
-                                        : "sorted ascending"}
-                                </Box>
-                            ) : null}
-                        </TableSortLabel>
-                    </TableCell>
-                ))}
+                                {orderBy === col.id ? (
+                                    <Box component="span" sx={visuallyHidden}>
+                                        {order === "desc"
+                                            ? "sorted descending"
+                                            : "sorted ascending"}
+                                    </Box>
+                                ) : null}
+                            </TableSortLabel>
+                        </TableCell>
+                    );
+                })}
             </TableRow>
         </TableHead>
     );

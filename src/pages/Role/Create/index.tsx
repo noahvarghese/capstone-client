@@ -49,7 +49,7 @@ const CreateRole: React.FC = () => {
     return (
         <DialogFormWithTrigger
             variant="contained"
-            triggerText="create"
+            trigger="create"
             isSubmitting={isSubmitting}
             onSubmit={handleSubmit(submit)}
             title="Create Role"

@@ -6,26 +6,26 @@ import {
     Theme,
     Toolbar,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import ModeEditIcon from "@mui/icons-material/ModeEdit";
+// import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import React from "react";
 
 const CustomToolbar: React.FC<{
+    title: string;
     numSelected: number;
     handleRefresh?: () => void;
-    onDelete?: () => void;
-    onEdit?: () => void;
-    onCreate?: () => void;
-    title: string;
+    _delete: React.ReactElement;
+    _edit: React.ReactElement;
+    _create: React.ReactElement;
     toolBarItems?: React.ReactElement[];
 }> = ({
     title,
     numSelected,
     toolBarItems,
-    onDelete,
-    onEdit,
+    _delete,
+    _edit,
+    _create,
     handleRefresh,
 }) => {
     return (
@@ -42,6 +42,7 @@ const CustomToolbar: React.FC<{
                 }),
             }}
         >
+            {_create}
             {toolBarItems}
             {numSelected > 0 ? (
                 <Typography
@@ -62,12 +63,8 @@ const CustomToolbar: React.FC<{
                     {title}
                 </Typography>
             )}
-            {numSelected > 0 && onDelete ? (
-                <Tooltip title="Delete">
-                    <IconButton onClick={onDelete}>
-                        <DeleteIcon id="TableDelete" />
-                    </IconButton>
-                </Tooltip>
+            {numSelected > 0 ? (
+                _delete
             ) : (
                 <Tooltip title="Filter list">
                     <IconButton>
@@ -75,13 +72,15 @@ const CustomToolbar: React.FC<{
                     </IconButton>
                 </Tooltip>
             )}
-            {numSelected === 1 && onEdit && (
-                <Tooltip title="Edit">
-                    <IconButton onClick={onEdit}>
-                        <ModeEditIcon id="TableEdit" />
-                    </IconButton>
-                </Tooltip>
-            )}
+            {
+                // numSelected === 1 && { _edit }
+                numSelected === 1 && _edit
+                // <Tooltip title="Edit">
+                //     <IconButton onClick={onEdit}>
+                //         <ModeEditIcon id="TableEdit" />
+                //     </IconButton>
+                // </Tooltip>
+            }
             {numSelected === 0 && handleRefresh && (
                 <Tooltip title="Refresh">
                     <IconButton onClick={handleRefresh}>

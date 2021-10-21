@@ -6,3 +6,4 @@ export { default as useDelete } from "./useDelete";
 export { default as useCleanup } from "./useCleanup";
 export { default as useModalWithProps } from "./useModalWithProps";
 export { default as useModal } from "./useModal";
+export { default as useSelect } from "./useSelect";

@@ -1,8 +1,8 @@
-import { cleanup, render, act, screen } from "../../../../test/test-utils";
+import { cleanup, render, act, screen } from "../../../test/test-utils";
 import Invite from "./";
-import InviteAttributes from "../../../../test/attributes/InviteAttributes";
+import InviteAttributes from "../../../test/attributes/InviteAttributes";
 import { createMemoryHistory } from "history";
-import { submitForm } from "../../../../test/helpers";
+import { submitForm } from "../../../test/helpers";
 import userEvent from "@testing-library/user-event";
 
 let unmount: any;
