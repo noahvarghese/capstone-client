@@ -127,11 +127,7 @@ const EnhancedTable = <T extends Partial<{ id: number }>>({
                                         role="checkbox"
                                         aria-checked={isItemSelected}
                                         tabIndex={-1}
-                                        key={
-                                            (row[
-                                                columnOrder[0]
-                                            ] as unknown as string) + index
-                                        }
+                                        key={JSON.stringify(row)}
                                         selected={isItemSelected}
                                     >
                                         <TableCell padding="checkbox">

@@ -8,6 +8,8 @@ import {
 import { createMemoryHistory } from "history";
 import Role from "./";
 import userEvent from "@testing-library/user-event";
+import CreateRoleAttributes from "../../../test/attributes/CreateRole";
+import { submitForm } from "../../../test/helpers";
 
 const roles = [
     {
@@ -84,9 +86,16 @@ global.fetch = jest.fn(() => Promise.resolve(new Response()));
 beforeEach(async () => {
     (fetch as jest.Mock<Promise<Response>>).mockClear();
 
-    (fetch as jest.Mock<Promise<Response>>).mockImplementation(() =>
+    (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
         Promise.resolve(
             new Response(JSON.stringify({ data: roles }), {
+                status: 200,
+            })
+        )
+    );
+    (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
+        Promise.resolve(
+            new Response(JSON.stringify({ data: [{ id: 1, name: "Admin" }] }), {
                 status: 200,
             })
         )
@@ -178,6 +187,43 @@ test("refreshing table", async () => {
     });
 });
 
+describe("test create", () => {
+    beforeEach(async () => {
+        await act(async () => {
+            userEvent.click(
+                screen.getByText(/^create$/i, { selector: "button" })
+            );
+        });
+    });
+    test("Valid parameters show success notification", async () => {
+        (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
+            Promise.resolve(
+                new Response(JSON.stringify({}), {
+                    status: 200,
+                })
+            )
+        );
+        await submitForm(CreateRoleAttributes.validInputs, {
+            success: /role created/i,
+            submitBtn: /submit/i,
+        });
+    });
+
+    test("Invalid parameters show error notification", async () => {
+        const errorMessage = "this sucks";
+        (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
+            Promise.resolve(
+                new Response(JSON.stringify({ message: errorMessage }), {
+                    status: 400,
+                })
+            )
+        );
+        await submitForm(CreateRoleAttributes.validInputs, {
+            success: errorMessage,
+            submitBtn: /submit/i,
+        });
+    });
+});
 test.todo("sorting table");
 test.todo("filtering table");
 test.todo("paginating table");

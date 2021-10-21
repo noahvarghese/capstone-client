@@ -8,6 +8,8 @@ import {
 import { createMemoryHistory } from "history";
 import Department from ".";
 import userEvent from "@testing-library/user-event";
+import CreateDepartmentAttributes from "../../../test/attributes/CreateDepartment";
+import { submitForm } from "../../../test/helpers";
 
 const departments = [
     {
@@ -160,6 +162,43 @@ test("refreshing table", async () => {
     });
 });
 
+describe("test create", () => {
+    beforeEach(async () => {
+        await act(async () => {
+            userEvent.click(
+                screen.getByText(/^create$/i, { selector: "button" })
+            );
+        });
+    });
+    test("Valid parameters show success notification", async () => {
+        (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
+            Promise.resolve(
+                new Response(JSON.stringify({}), {
+                    status: 200,
+                })
+            )
+        );
+        await submitForm(CreateDepartmentAttributes.validInputs, {
+            success: /department created/i,
+            submitBtn: /submit/i,
+        });
+    });
+
+    test("Invalid parameters show error notification", async () => {
+        const errorMessage = "this sucks";
+        (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
+            Promise.resolve(
+                new Response(JSON.stringify({ message: errorMessage }), {
+                    status: 400,
+                })
+            )
+        );
+        await submitForm(CreateDepartmentAttributes.validInputs, {
+            success: errorMessage,
+            submitBtn: /submit/i,
+        });
+    });
+});
 test.todo("sorting table");
 test.todo("filtering table");
 test.todo("paginating table");

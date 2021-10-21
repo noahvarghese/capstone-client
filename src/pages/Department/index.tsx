@@ -51,7 +51,7 @@ const Department: React.FC = () => {
             url={URL}
             readProps={{ columns, columnOrder }}
             createProps={{
-                buttons: ["Cancel", "Create"],
+                buttons: ["Cancel", "Submit"],
                 defaultValues: { name: "" },
                 formElements: createFormElements,
                 successMessage: "department created",

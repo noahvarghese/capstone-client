@@ -70,7 +70,7 @@ const Role: React.FC = () => {
                 <TextField select>
                     {departments
                         .map((d) => (
-                            <MenuItem value={d.id} key={d.name}>
+                            <MenuItem value={d.id} key={JSON.stringify(d)}>
                                 {d.name}
                             </MenuItem>
                         ))
@@ -173,7 +173,7 @@ const Role: React.FC = () => {
             url={URL}
             readProps={{ columns, columnOrder }}
             createProps={{
-                buttons: ["Cancel", "Create"],
+                buttons: ["Cancel", "submit"],
                 defaultValues: {
                     department: 0,
                     name: "",
