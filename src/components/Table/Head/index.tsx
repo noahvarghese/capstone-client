@@ -70,7 +70,6 @@ const Head = <T,>({
                                 onClick={createSortHandler(col.id as keyof T)}
                             >
                                 {col.label}
-
                                 {orderBy === col.id ? (
                                     <Box component="span" sx={visuallyHidden}>
                                         {order === "desc"

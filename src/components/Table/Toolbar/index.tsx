@@ -7,7 +7,6 @@ import {
     Toolbar,
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
-// import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import React from "react";
 
@@ -68,23 +67,15 @@ const CustomToolbar: React.FC<{
             ) : (
                 <Tooltip title="Filter list">
                     <IconButton>
-                        <FilterListIcon id="TableFilter" />
+                        <FilterListIcon />
                     </IconButton>
                 </Tooltip>
             )}
-            {
-                // numSelected === 1 && { _edit }
-                numSelected === 1 && _edit
-                // <Tooltip title="Edit">
-                //     <IconButton onClick={onEdit}>
-                //         <ModeEditIcon id="TableEdit" />
-                //     </IconButton>
-                // </Tooltip>
-            }
+            {numSelected === 1 && _edit}
             {numSelected === 0 && handleRefresh && (
                 <Tooltip title="Refresh">
                     <IconButton onClick={handleRefresh}>
-                        <RefreshIcon id="TableRefresh" />
+                        <RefreshIcon />
                     </IconButton>
                 </Tooltip>
             )}
