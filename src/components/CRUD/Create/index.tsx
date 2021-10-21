@@ -65,6 +65,7 @@ const Create = ({
                     placeholder: params.name.split("_").join(" "),
                     label: params.name.split("_").join(" "),
                     key: params.name,
+                    required: Boolean(params.options?.required),
                 });
 
                 return el;

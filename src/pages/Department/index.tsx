@@ -1,8 +1,8 @@
 import React from "react";
-// import Table from "src/components/Table";
-// import { useFetch, useModalWithProps } from "src/hooks";
-// import CreateDepartment from "./Create";
-// import DeleteDepartment from "./Delete";
+import CRUD from "src/components/CRUD";
+import { Column } from "src/components/Table/Head";
+import { IconButton, TextField, Tooltip } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export interface DepartmentData {
     id: number;
@@ -10,63 +10,65 @@ export interface DepartmentData {
     numMembers: number;
     numRoles: number;
 }
-const Department: React.FC = () => {
-    // const { data, handleRefresh } = useFetch<DepartmentData[]>(
-    //     "department",
-    //     [],
-    //     {
-    //         method: "GET",
-    //         credentials: "include",
-    //     },
-    //     "data"
-    // );
-    // const { open, handleOpen, handleClose, selected } =
-    //     useModalWithProps<DepartmentData>("name", data);
 
+const columns: Column<DepartmentData>[] = [
+    {
+        id: "name",
+        label: "name",
+    },
+    {
+        id: "numMembers",
+        label: "number of members",
+    },
+    {
+        id: "numRoles",
+        label: "number of roles",
+    },
+];
+
+const columnOrder: (keyof DepartmentData)[] = [
+    "name",
+    "numMembers",
+    "numRoles",
+];
+
+const createFormElements = [
+    {
+        component: <TextField autoFocus type="text" />,
+        params: { name: "name", options: { required: "name is required" } },
+    },
+];
+
+const NAME = "departments";
+const URL = `/${NAME}`;
+
+const Department: React.FC = () => {
     return (
-        <div
-            style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "4rem",
-                marginTop: "5rem",
+        <CRUD
+            primaryField="id"
+            name={NAME}
+            url={URL}
+            readProps={{ columns, columnOrder }}
+            createProps={{
+                buttons: ["Cancel", "Create"],
+                defaultValues: { name: "" },
+                formElements: createFormElements,
+                successMessage: "department created",
+                title: "create department",
+                trigger: "create",
+                url: URL,
             }}
-        >
-            {/* <CreateDepartment />
-            <DeleteDepartment
-                selected={selected}
-                open={open}
-                onClose={handleClose}
-                onCancel={handleClose}
-            />
-            <Table
-                onDelete={handleOpen}
-                handleRefresh={handleRefresh}
-                style={{
-                    maxWidth: "95vw",
-                    width: "75rem",
-                }}
-                rows={data}
-                title="Departments"
-                columns={[
-                    {
-                        id: "name",
-                        label: "name",
-                    },
-                    {
-                        id: "numMembers",
-                        label: "number of members",
-                    },
-                    {
-                        id: "numRoles",
-                        label: "number of roles",
-                    },
-                ]}
-                columnOrder={["name", "numMembers", "numRoles"]}
-            /> */}
-        </div>
+            deleteProps={{
+                trigger: (
+                    <Tooltip title="Delete">
+                        <IconButton>
+                            <DeleteIcon />
+                        </IconButton>
+                    </Tooltip>
+                ),
+                formatter: (s: DepartmentData) => <>{s.name}&nbsp;</>,
+            }}
+        />
     );
 };
 

@@ -34,17 +34,17 @@ const columns: Column<MemberData>[] = [
         label: "phone",
     },
 ];
-const columnOrder = ["email", "name", "birthday", "phone"];
+const columnOrder: (keyof MemberData)[] = [
+    "email",
+    "name",
+    "birthday",
+    "phone",
+];
 
 const createFormElements = [
     {
         component: (
-            <TextField
-                autoFocus
-                required
-                autoComplete="given-name"
-                type="text"
-            />
+            <TextField autoFocus autoComplete="given-name" type="text" />
         ),
         params: {
             name: "first_name",
@@ -52,9 +52,7 @@ const createFormElements = [
         },
     },
     {
-        component: (
-            <TextField required autoComplete="family-name" type="text" />
-        ),
+        component: <TextField autoComplete="family-name" type="text" />,
         params: {
             name: "last_name",
             options: {
@@ -63,7 +61,7 @@ const createFormElements = [
         },
     },
     {
-        component: <TextField required autoComplete="email" type="email" />,
+        component: <TextField autoComplete="email" type="email" />,
         params: {
             name: "email",
             options: {
@@ -73,7 +71,7 @@ const createFormElements = [
         },
     },
     {
-        component: <TextField required autoComplete="tel" type="tel" />,
+        component: <TextField autoComplete="tel" type="tel" />,
         params: {
             name: "phone",
             options: {
@@ -91,8 +89,8 @@ const Member: React.FC = () => {
             name={NAME}
             url={URL}
             readProps={{
-                columns: columns,
-                columnOrder: columnOrder as (keyof MemberData)[],
+                columns,
+                columnOrder,
             }}
             createProps={{
                 buttons: ["No thanks", "Send Invite"],

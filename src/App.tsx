@@ -16,7 +16,7 @@ import Loading from "./components/Loading";
 import useNav from "./hooks/useNav";
 import Members from "./pages/Members";
 // import MemberEdit from "./pages/Members/Edit";
-// import Department from "./pages/Department";
+import Department from "./pages/Department";
 // import Role from "./pages/Role";
 
 abstract class AbstractApp extends React.Component<{
@@ -47,7 +47,7 @@ class LoggedInApp extends AbstractApp {
         this.routes = [
             { path: "/", exact: true, component: Home },
             { path: "/members", exact: true, component: Members },
-            // { path: "/departments", exact: true, component: Department },
+            { path: "/departments", exact: true, component: Department },
             // { path: "/roles", exact: true, component: Role },
             // { path: "/member/:id", exact: true, component: MemberEdit },
             {
