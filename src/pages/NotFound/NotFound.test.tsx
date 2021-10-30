@@ -4,7 +4,7 @@ import {
     cleanup,
     act,
     waitFor,
-} from "../../../test/test-utils";
+} from "../../../__test__/test-utils";
 import App from "../../App";
 import { createMemoryHistory } from "history";
 

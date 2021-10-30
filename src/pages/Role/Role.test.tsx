@@ -4,12 +4,12 @@ import {
     act,
     screen,
     waitFor,
-} from "../../../test/test-utils";
+} from "../../../__test__/test-utils";
 import { createMemoryHistory } from "history";
 import Role from "./";
 import userEvent from "@testing-library/user-event";
-import CreateRoleAttributes from "../../../test/attributes/CreateRole";
-import { submitForm } from "../../../test/helpers";
+import CreateRoleAttributes from "../../../__test__/attributes/CreateRole";
+import { submitForm } from "../../../__test__/helpers";
 
 const roles = [
     {

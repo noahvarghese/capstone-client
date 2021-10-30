@@ -1,6 +1,6 @@
-import { cleanup, render, act } from "../../../test/test-utils";
-import ResetPasswordAttributes from "../../../test/attributes/ResetPassword";
-import { submitForm } from "../../../test/helpers";
+import { cleanup, render, act } from "../../../__test__/test-utils";
+import ResetPasswordAttributes from "../../../__test__/attributes/ResetPassword";
+import { submitForm } from "../../../__test__/helpers";
 import App from "src/App";
 import { createMemoryHistory } from "history";
 

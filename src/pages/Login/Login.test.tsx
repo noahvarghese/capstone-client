@@ -1,7 +1,7 @@
-import { render, cleanup, act } from "../../../test/test-utils";
+import { render, cleanup, act } from "../../../__test__/test-utils";
 
-import { submitForm } from "../../../test/helpers";
-import LoginAttributes from "../../../test/attributes/LoginForm";
+import { submitForm } from "../../../__test__/helpers";
+import LoginAttributes from "../../../__test__/attributes/LoginForm";
 import { createMemoryHistory } from "history";
 import App from "../../App";
 

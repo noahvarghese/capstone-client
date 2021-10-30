@@ -1,7 +1,7 @@
 import App from "../../App";
-import { submitForm } from "../../../test/helpers";
-import { render, cleanup, act } from "../../../test/test-utils";
-import RegisterAttributes from "../../../test/attributes/RegisterForm";
+import { submitForm } from "../../../__test__/helpers";
+import { render, cleanup, act } from "../../../__test__/test-utils";
+import RegisterAttributes from "../../../__test__/attributes/RegisterForm";
 import { createMemoryHistory } from "history";
 
 let unmount: () => void;

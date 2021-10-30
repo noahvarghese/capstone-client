@@ -4,12 +4,12 @@ import {
     act,
     screen,
     waitFor,
-} from "../../../test/test-utils";
+} from "../../../__test__/test-utils";
 import { createMemoryHistory } from "history";
 import Department from ".";
 import userEvent from "@testing-library/user-event";
-import CreateDepartmentAttributes from "../../../test/attributes/CreateDepartment";
-import { submitForm } from "../../../test/helpers";
+import CreateDepartmentAttributes from "../../../__test__/attributes/CreateDepartment";
+import { submitForm } from "../../../__test__/helpers";
 
 const departments = [
     {

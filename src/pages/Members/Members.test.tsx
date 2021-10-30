@@ -4,13 +4,13 @@ import {
     act,
     screen,
     waitFor,
-} from "../../../test/test-utils";
+} from "../../../__test__/test-utils";
 import { createMemoryHistory } from "history";
 import Members from ".";
-import { members } from "../../../test/attributes/Members";
+import { members } from "../../../__test__/attributes/Members";
 import userEvent from "@testing-library/user-event";
-import InviteAttributes from "../../../test/attributes/InviteAttributes";
-import { submitForm } from "../../../test/helpers";
+import InviteAttributes from "../../../__test__/attributes/InviteAttributes";
+import { submitForm } from "../../../__test__/helpers";
 
 let unmount: any;
 global.fetch = jest.fn(() => Promise.resolve(new Response()));
