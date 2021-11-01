@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { server } from "src/lib/permalink";
+import { server } from "src/util/permalink";
 
 const usePost = (url: string) => {
     const submit = useCallback(

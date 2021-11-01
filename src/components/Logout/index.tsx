@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Redirect, useHistory } from "react-router";
 // import { usePost } from "src/hooks/";
-import { server } from "src/lib/permalink";
+import { server } from "src/util/permalink";
 import Loading from "../Loading";
 
 const Logout: React.FC<{

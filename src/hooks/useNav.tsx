@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { server } from "src/lib/permalink";
+import { server } from "src/util/permalink";
 
 const useNav = (auth: boolean) => {
     const [links, setLinks] = useState<{ name: string; path: string }[]>([]);

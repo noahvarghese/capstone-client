@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { server } from "src/lib/permalink";
+import { server } from "src/util/permalink";
 
 const useCheckAuth = () => {
     const [auth, setAuth] = useState(false);
