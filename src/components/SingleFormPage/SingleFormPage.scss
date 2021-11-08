@@ -1,0 +1,45 @@
+.single-form-page {
+    position: absolute;
+    display: flex;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    & > .MuiPaper-root {
+        max-width: 95vw;
+        width: 30rem;
+        padding: 1rem;
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem 5rem;
+
+            .btn-container {
+                display: flex;
+                flex-direction: row;
+                width: 100%;
+                align-items: center;
+
+                &.multiple {
+                    justify-content: space-between;
+                }
+
+                &:not(.multiple) {
+                    * {
+                        width: 100%;
+                    }
+                }
+            }
+
+            .MuiCircularProgress-root {
+                align-self: center;
+            }
+        }
+    }
+}

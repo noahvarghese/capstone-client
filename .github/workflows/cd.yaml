@@ -1,0 +1,55 @@
+name: Continuous Deployment
+
+on:
+    push:
+        branches: [main]
+
+jobs:
+  format-files:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+      - name: cache node modules
+        uses: ./.github/actions/cache-node-modules
+      - name: format files
+        run: npm run format
+      - name: Check if there are changes
+        id: changes
+        uses: UnicornGlobal/has-changes-action@v1.0.11
+      - name: Commit & Push changes
+        if: steps.changes.outputs.changed == 1
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          message: bump version ${{ env.VERSION }} [skip ci]
+  continuous-integration:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+      - name: cache node modules
+        uses: ./.github/actions/cache-node-modules
+      - name: test
+        run: npm test
+  continuous-deployment:
+    needs: [continuous-integration]
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      # Needed to set the region in order for the aws cli not to fail
+      AWS_REGION: "ca-central-1"
+      AWS_DEFAULT_REGION: "ca-central-1"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+      - name: cache node modules
+        uses: ./.github/actions/cache-node-modules
+      - name: build
+        run: npm run build
+      - name: deploy
+        run: aws s3 sync ./build/ ${{ secrets.AWS_BUCKET_PATH }}
+      - name: invalidate cache
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} --paths "/*"

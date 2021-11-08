@@ -1,0 +1,45 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - "*"
+      - "!main"
+  pull_request:
+    branches: 
+      - "*"
+
+jobs:
+  check-formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+      - name: cache node modules
+        uses: ./.github/actions/cache-node-modules
+      - name: check formatting
+        run: npm run format-check
+  continuous-integration:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v2
+      - id: changed
+        name: "Get changed"
+        uses: "./.github/actions/changed"
+      - name: cache node modules
+        uses: ./.github/actions/cache-node-modules
+      - name: test
+        run: npm run test:ci -- -- --changedSince "${{ steps.changed.outputs.CHANGED }}"
+      - name: Publish npm log
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: "npm-log"
+          path: "/home/runner/.npm/_logs"
+      - name: Publish test results
+        if: always()
+        uses: ./.github/actions/publish

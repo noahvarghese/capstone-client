@@ -1,0 +1,15 @@
+export const provinces: { id: number; label: string }[] = [
+    { id: 1, label: "AB" },
+    { id: 2, label: "BC" },
+    { id: 3, label: "MB" },
+    { id: 4, label: "NB" },
+    { id: 5, label: "NL" },
+    { id: 6, label: "NT" },
+    { id: 7, label: "NS" },
+    { id: 8, label: "NU" },
+    { id: 9, label: "ON" },
+    { id: 10, label: "PE" },
+    { id: 11, label: "QC" },
+    { id: 12, label: "SK" },
+    { id: 13, label: "YT" },
+];
