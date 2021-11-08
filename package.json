@@ -25,10 +25,10 @@
         "badges": "istanbul-badges-readme --coverageDir='./coverage'",
         "build": "react-scripts build",
         "test": "react-scripts test --env=jsdom --coverage",
-        "test:ci": "CI=true npm test",
+        "test:ci": "CI=true npm test -- --reporters=\"jest-html-reporter\"",
         "test:recent": "npm run test:ci -- -o",
         "eject": "react-scripts eject",
-        "format": "prettier --write **/*.ts",
+        "format": "prettier --write **/*.ts **/*.json *.json",
         "format-check": "prettier --check **/*.ts"
     },
     "eslintConfig": {
@@ -65,6 +65,8 @@
         "@types/react-table": "^7.7.7",
         "@types/validator": "^13.6.3",
         "istanbul-badges-readme": "^1.6.0",
+        "jest-html-reporter": "^3.4.1",
+        "jest-junit": "^13.0.0",
         "prettier": "^2.4.1",
         "sass": "^1.43.4",
         "typescript": "^4.2.4"

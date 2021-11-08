@@ -12,6 +12,7 @@ vscode
 
 # testing
 /coverage
+test-report.html
 
 # production
 /build
