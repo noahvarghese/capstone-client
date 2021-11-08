@@ -25,7 +25,7 @@
         "badges": "istanbul-badges-readme --coverageDir='./coverage'",
         "build": "react-scripts build",
         "test": "react-scripts test --env=jsdom --coverage",
-        "test:ci": "CI=true npm test -- --reporters=\"jest-html-reporter\"",
+        "test:ci": "CI=true npm test -- --reporters=\"jest-html-reporter\" --reporters=\"default\"",
         "test:recent": "npm run test:ci -- -o",
         "eject": "react-scripts eject",
         "format": "prettier --write **/*.ts **/*.json *.json",
