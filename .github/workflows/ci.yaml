@@ -21,6 +21,8 @@ jobs:
         run: npm run format-check
   continuous-integration:
     runs-on: ubuntu-latest
+    env:
+      REACT_APP_TIMEOUT_MULTIPLIER: ${{ secrets.REACT_APP_TIMEOUT_MULTIPLIER }}
     if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
     steps:
       - uses: actions/checkout@v2

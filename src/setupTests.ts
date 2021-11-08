@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const { TIMEOUT_MULTIPLIER } = process.env;
+const { REACT_APP_TIMEOUT_MULTIPLIER: TIMEOUT_MULTIPLIER } = process.env;
 
 const DEFAULT_MULTIPLIER = 1;
 
