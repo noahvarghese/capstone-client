@@ -1,7 +1,7 @@
-import { render, cleanup, act } from "../../../test/test-utils";
+import { render, cleanup, act } from "../../../__test__/test-utils";
 
-import { submitForm } from "../../../test/helpers";
-import LoginAttributes from "../../../test/attributes/LoginForm";
+import { submitForm } from "../../../__test__/helpers";
+import LoginAttributes from "../../../__test__/attributes/LoginForm";
 import { createMemoryHistory } from "history";
 import App from "../../App";
 
@@ -28,18 +28,20 @@ test("Invalid login should display error", async () => {
 
     try {
         await submitForm(
-            /login/i,
             {
                 email: LoginAttributes.invalidAttributes.invalidEmail,
                 password: LoginAttributes.validAttributes.password,
             },
-            /logout/i
+            {
+                success: /home/i,
+                submitBtn: /login/i,
+            }
         );
         throw new Error("Should not be succesful");
     } catch (e) {
         // eslint-disable-next-line jest/no-conditional-expect
         expect(e.message).toContain(
-            "Unable to find an element with the text: /logout/i"
+            "Unable to find an element with the text: /home/i"
         );
     }
 });
@@ -51,7 +53,10 @@ test("Successful login should redirect to the dashboard", async () => {
         Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
     );
 
-    await submitForm(/login/i, LoginAttributes.validAttributes, /logout/i);
+    await submitForm(LoginAttributes.validAttributes, {
+        success: /home/i,
+        submitBtn: /login/i,
+    });
 });
 
 afterEach(async () => {

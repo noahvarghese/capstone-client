@@ -10,8 +10,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
-      - name: install dependencies
-        run: npm i
+      - name: cache node modules
+        uses: ./.github/actions/cache-node-modules
       - name: format files
         run: npm run format
       - name: Check if there are changes
@@ -29,10 +29,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
-        with:
-          node-version: "15"
-      - name: install dependencies
-        run: npm i
+      - name: cache node modules
+        uses: ./.github/actions/cache-node-modules
       - name: test
         run: npm test
   continuous-deployment:
@@ -47,10 +45,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
-        with:
-          node-version: "15"
-      - name: install dependencies
-        run: npm i
+      - name: cache node modules
+        uses: ./.github/actions/cache-node-modules
       - name: build
         run: npm run build
       - name: deploy

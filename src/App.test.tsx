@@ -1,4 +1,4 @@
-import { render, screen, cleanup, act } from "../test/test-utils";
+import { render, screen, cleanup, act } from "../__test__/test-utils";
 import App from "./App";
 import { createMemoryHistory, MemoryHistory } from "history";
 
@@ -36,6 +36,13 @@ test("unauthorized access renders to public page", async () => {
 test("authorized access renders to dashboard", async () => {
     (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
         Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
+    );
+    (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
+        Promise.resolve(
+            new Response(JSON.stringify([{ name: "test", path: "test" }]), {
+                status: 200,
+            })
+        )
     );
 
     await act(async () => {

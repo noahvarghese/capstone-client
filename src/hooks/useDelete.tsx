@@ -1,12 +1,12 @@
 import { useCallback } from "react";
-import { server } from "src/lib/permalink";
+import { server } from "src/util/permalink";
 
-const usePost = (url: string) => {
-    const submit = useCallback(
-        async (data: unknown): Promise<any> => {
+const useDelete = <T,>(url: string) => {
+    const deleteFn = useCallback(
+        async (data: T): Promise<void> => {
             const res = await fetch(server(url), {
                 body: JSON.stringify(data),
-                method: "POST",
+                method: "DELETE",
                 credentials: "include",
             });
             if (res.ok) {
@@ -24,7 +24,7 @@ const usePost = (url: string) => {
         [url]
     );
 
-    return { submit };
+    return { deleteFn };
 };
 
-export default usePost;
+export default useDelete;

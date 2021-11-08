@@ -1,7 +1,7 @@
 import App from "../../App";
-import { submitForm } from "../../../test/helpers";
-import { render, cleanup, act } from "../../../test/test-utils";
-import RegisterAttributes from "../../../test/attributes/RegisterForm";
+import { submitForm } from "../../../__test__/helpers";
+import { render, cleanup, act } from "../../../__test__/test-utils";
+import RegisterAttributes from "../../../__test__/attributes/RegisterForm";
 import { createMemoryHistory } from "history";
 
 let unmount: () => void;
@@ -24,7 +24,10 @@ test("Succesful register should redirect to Dashboard", async () => {
         Promise.resolve(new Response(JSON.stringify({}), { status: 201 }))
     );
 
-    await submitForm(/register/i, RegisterAttributes.validInputs, /logout/i);
+    await submitForm(RegisterAttributes.validInputs, {
+        success: /home/i,
+        submitBtn: /register/i,
+    });
 
     if (unmount) unmount();
     cleanup();

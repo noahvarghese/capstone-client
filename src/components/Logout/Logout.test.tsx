@@ -6,7 +6,7 @@ import {
     render,
     screen,
     waitFor,
-} from "../../../test/test-utils";
+} from "../../../__test__/test-utils";
 
 let unmount: () => void;
 let history: MemoryHistory<unknown>;

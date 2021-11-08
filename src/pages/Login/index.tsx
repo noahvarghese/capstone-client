@@ -8,15 +8,18 @@ import {
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import validator from "validator";
-import usePost from "src/hooks/post";
+import { usePost } from "src/hooks";
 import SingleFormPage from "src/components/SingleFormPage";
 
-const Login: React.FC<{ setAuth: (auth: boolean) => void }> = ({ setAuth }) => {
+export interface LoginProps {
+    setAuth: (auth: boolean) => void;
+}
+
+const Login: React.FC<LoginProps> = ({ setAuth }) => {
     const {
         register,
         handleSubmit,
         formState: { errors, isSubmitting },
-
         watch,
     } = useForm({ mode: "all" });
     const { submit } = usePost("auth/login");
@@ -39,7 +42,6 @@ const Login: React.FC<{ setAuth: (auth: boolean) => void }> = ({ setAuth }) => {
                 <Button
                     key="register"
                     href="/register"
-                    type="button"
                     variant="outlined"
                     disabled={isSubmitting}
                 >
@@ -63,7 +65,6 @@ const Login: React.FC<{ setAuth: (auth: boolean) => void }> = ({ setAuth }) => {
                 })}
                 value={watch("email", "")}
                 type="email"
-                aria-labelledby=""
                 autoComplete="email"
                 id="email"
                 label="email"

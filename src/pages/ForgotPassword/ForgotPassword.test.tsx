@@ -1,7 +1,7 @@
-import { act, cleanup, render } from "../../../test/test-utils";
+import { act, cleanup, render } from "../../../__test__/test-utils";
 import ForgotPassword from ".";
-import ForgotPasswordAttributes from "../../../test/attributes/ForgotPassword";
-import { submitForm } from "../../../test/helpers";
+import ForgotPasswordAttributes from "../../../__test__/attributes/ForgotPassword";
+import { submitForm } from "../../../__test__/helpers";
 
 let unmount: any;
 global.fetch = jest.fn(() => Promise.resolve(new Response()));
@@ -27,9 +27,8 @@ test("Notification displays on submit", async () => {
         Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
     );
 
-    await submitForm(
-        /forgot password/i,
-        ForgotPasswordAttributes.validAttributes,
-        /instructions were emailed to you/i
-    );
+    await submitForm(ForgotPasswordAttributes.validAttributes, {
+        submitBtn: /forgot password/i,
+        success: /instructions were emailed to you/i,
+    });
 });

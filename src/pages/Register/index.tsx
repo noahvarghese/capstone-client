@@ -9,9 +9,9 @@ import {
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import validator from "validator";
-import { PhoneNumberUtil } from "google-libphonenumber";
-import usePost from "src/hooks/post";
+import { usePost } from "src/hooks";
 import SingleFormPage from "src/components/SingleFormPage";
+import { passwordValidator, phoneValidator } from "src/util/validators";
 
 const Register: React.FC<{
     setAuth: (authenticated: boolean) => void;
@@ -118,17 +118,7 @@ const Register: React.FC<{
             <TextField
                 {...register("phone", {
                     required: "phone cannot be empty",
-                    validate: (val: string) => {
-                        const phoneUtil = new PhoneNumberUtil();
-                        try {
-                            const phone = phoneUtil.parseAndKeepRawInput(
-                                val,
-                                "CA"
-                            );
-                            if (phoneUtil.isValidNumber(phone)) return true;
-                        } catch (_) {}
-                        return "invalid phone number";
-                    },
+                    validate: phoneValidator,
                 })}
                 id="phone"
                 value={watch("phone", "")}
@@ -165,8 +155,7 @@ const Register: React.FC<{
                 {...register("confirm_password", {
                     required: "confirm password cannot be empty",
                     min: 8,
-                    validate: (val: string) =>
-                        val === watchPassword || "passwords do not match",
+                    validate: passwordValidator(watchPassword),
                 })}
                 autoComplete="new-password"
                 type="password"
@@ -249,6 +238,7 @@ const Register: React.FC<{
                 id="province"
                 label="province"
                 placeholder="province"
+                required
                 value={watch("province", "")}
                 error={Boolean(errors.province)}
                 helperText={errors.province?.message}

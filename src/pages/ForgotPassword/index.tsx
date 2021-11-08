@@ -8,7 +8,7 @@ import {
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import SingleFormPage from "src/components/SingleFormPage";
-import usePost from "src/hooks/post";
+import { usePost } from "src/hooks";
 import validator from "validator";
 
 const ForgotPassword: React.FC = () => {

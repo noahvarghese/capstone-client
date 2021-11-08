@@ -1,7 +1,6 @@
-import { cleanup, render } from "../../../test/test-utils";
-import ResetPasswordAttributes from "../../../test/attributes/ResetPassword";
-import { act } from "react-dom/test-utils";
-import { submitForm } from "../../../test/helpers";
+import { cleanup, render, act } from "../../../__test__/test-utils";
+import ResetPasswordAttributes from "../../../__test__/attributes/ResetPassword";
+import { submitForm } from "../../../__test__/helpers";
 import App from "src/App";
 import { createMemoryHistory } from "history";
 
@@ -10,7 +9,6 @@ let unmount: any;
 global.fetch = jest.fn(() => Promise.resolve(new Response()));
 
 beforeEach(async () => {
-    global.fetch = jest.fn(() => Promise.resolve(new Response()));
     (fetch as jest.Mock<Promise<Response>>).mockClear();
 
     (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
@@ -38,10 +36,16 @@ test("reset notification displays on submit", async () => {
             })
         )
     );
-
-    await submitForm(
-        /reset password/i,
-        ResetPasswordAttributes.validInputs,
-        /logout/i
+    (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
+        Promise.resolve(
+            new Response(JSON.stringify([{ name: "test", path: "test" }]), {
+                status: 200,
+            })
+        )
     );
+
+    await submitForm(ResetPasswordAttributes.validInputs, {
+        success: /home/i,
+        submitBtn: /reset password/i,
+    });
 });
