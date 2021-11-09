@@ -26,6 +26,7 @@ export interface CreateProps {
     successMessage: string;
     formElements: IFormElementGroup;
     trigger: string | React.ReactElement;
+    handleRefresh: () => void;
     buttons: [string, string] | [React.ReactElement, React.ReactElement];
 }
 
@@ -33,6 +34,7 @@ const Create = ({
     trigger,
     defaultValues,
     url,
+    handleRefresh,
     successMessage,
     title,
     text,
@@ -52,7 +54,10 @@ const Create = ({
         <DialogFormWithTrigger
             variant="contained"
             trigger={trigger}
-            onSubmit={handleSubmit(submit)}
+            onSubmit={async (e?: React.BaseSyntheticEvent) => {
+                await handleSubmit(submit)(e);
+                handleRefresh();
+            }}
             isSubmitting={isSubmitting}
             cleanup={reset}
             successMessage={successMessage}

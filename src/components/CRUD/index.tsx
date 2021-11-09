@@ -6,14 +6,20 @@ import Delete, { DeleteProps } from "./Delete";
 import Read, { ReadProps } from "./Read";
 import { UpdateProps } from "./Update";
 
+interface ReceivedCreateProps extends Omit<CreateProps, "handleRefresh"> {}
+interface ReceivedUpdateProps extends Omit<UpdateProps, "handleRefresh"> {}
+interface ReceivedReadProps<T> extends Omit<ReadProps<T>, "handleRefresh"> {}
+interface ReceivedDeleteProps<T>
+    extends Omit<DeleteProps<T>, "handleRefresh"> {}
+
 export interface CrudProps<T> {
     name: string;
     url: string;
     primaryField: keyof T;
-    createProps: CreateProps;
-    readProps: ReadProps<T>;
-    updateProps?: UpdateProps;
-    deleteProps: DeleteProps<T>;
+    createProps: ReceivedCreateProps;
+    readProps: ReceivedReadProps<T>;
+    updateProps?: ReceivedUpdateProps;
+    deleteProps: ReceivedDeleteProps<T>;
 }
 
 const CRUD = <T extends object>({
@@ -58,10 +64,13 @@ const CRUD = <T extends object>({
                 data={data}
                 handleRefresh={handleRefresh}
                 {...readProps}
-                _create={<Create {...createProps} />}
+                _create={
+                    <Create {...createProps} handleRefresh={handleRefresh} />
+                }
                 _edit={<></>}
                 _delete={
                     <Delete
+                        handleRefresh={handleRefresh}
                         selected={selected}
                         name={name}
                         url={url}

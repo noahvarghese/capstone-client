@@ -203,7 +203,7 @@ describe("test create", () => {
     test("Create role with valid parameters show success notification", async () => {
         (fetch as jest.Mock<Promise<Response>>).mockImplementation(() =>
             Promise.resolve(
-                new Response(JSON.stringify({}), {
+                new Response(JSON.stringify({ data: [] }), {
                     status: 200,
                 })
             )
