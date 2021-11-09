@@ -126,4 +126,4 @@ const Member: React.FC = () => {
     );
 };
 
-export default Member;
+export default React.memo(Member);

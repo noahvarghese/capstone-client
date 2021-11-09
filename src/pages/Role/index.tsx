@@ -6,7 +6,7 @@ import {
     Tooltip,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import React from "react";
+import React, { useMemo } from "react";
 import { Column } from "src/components/Table/Head";
 import { IFormElement } from "src/components/CRUD/Create";
 import { useFetch } from "src/hooks";
@@ -34,6 +34,87 @@ const columns: Column<RoleData>[] = [
     { id: "numMembers", label: "number of members" },
 ];
 
+const rolePermissions = {
+    legend: "Permissions",
+    formElements: [
+        {
+            component: <Checkbox />,
+            params: { name: "global_crud_users" },
+            label: "CRUD users",
+        },
+        {
+            component: <Checkbox />,
+            params: { name: "global_crud_departments" },
+            label: "CRUD departments",
+        },
+        {
+            component: <Checkbox />,
+            params: { name: "global_crud_roles" },
+            label: "CRUD roles",
+        },
+        {
+            component: <Checkbox />,
+            params: { name: "global_crud_resources" },
+            label: "CRUD resources",
+        },
+        {
+            component: <Checkbox />,
+            params: {
+                name: "global_assign_users_to_departments",
+            },
+            label: "Assign users to departments",
+        },
+        {
+            component: <Checkbox />,
+            params: {
+                name: "global_assign_users_to_roles",
+            },
+            label: "Assign users to roles",
+        },
+        {
+            component: <Checkbox />,
+            params: {
+                name: "global_assign_resources_to_departments",
+            },
+            label: "Assign resources to departments",
+        },
+        {
+            component: <Checkbox />,
+            params: {
+                name: "global_assign_resources_to_roles",
+            },
+            label: "Assign resources to roles",
+        },
+        {
+            component: <Checkbox />,
+            params: {
+                name: "view_reports",
+            },
+            label: "View reports",
+        },
+        {
+            component: <Checkbox />,
+            params: { name: "dept_crud_roles" },
+            label: "CRUD roles within department",
+        },
+        {
+            component: <Checkbox />,
+            params: { name: "dept_crud_resources" },
+            label: "CRUD resources within department",
+        },
+        {
+            component: <Checkbox />,
+            params: { name: "dept_assign_users_to_roles" },
+            label: "Assign users to roles within department",
+        },
+        {
+            component: <Checkbox />,
+            params: { name: "dept_assign_resources_to_roles" },
+            label: "Assign resources to roles within department",
+        },
+    ],
+};
+
 const columnOrder: (keyof RoleData)[] = ["name", "department", "numMembers"];
 
 const Role: React.FC = () => {
@@ -55,116 +136,40 @@ const Role: React.FC = () => {
               legend: string;
               formElements: IFormElement[];
           }
-    )[] = [
-        {
-            component: <TextField autoFocus />,
-            params: {
-                name: "name",
-                options: {
-                    required: "name cannot be empty",
+    )[] = useMemo(
+        () => [
+            {
+                component: <TextField autoFocus />,
+                params: {
+                    name: "name",
+                    options: {
+                        required: "name cannot be empty",
+                    },
                 },
             },
-        },
-        {
-            component: (
-                <TextField select>
-                    {departments
-                        .map((d) => (
-                            <MenuItem value={d.id} key={JSON.stringify(d)}>
-                                {d.name}
-                            </MenuItem>
-                        ))
-                        .concat([
-                            <MenuItem value={0} key="default"></MenuItem>,
-                        ])}
-                </TextField>
-            ),
-            params: {
-                name: "department",
-                options: { required: "department cannot be empty" },
+            {
+                component: (
+                    <TextField select>
+                        {departments
+                            .map((d) => (
+                                <MenuItem value={d.id} key={JSON.stringify(d)}>
+                                    {d.name}
+                                </MenuItem>
+                            ))
+                            .concat([
+                                <MenuItem value={0} key="default"></MenuItem>,
+                            ])}
+                    </TextField>
+                ),
+                params: {
+                    name: "department",
+                    options: { required: "department cannot be empty" },
+                },
             },
-        },
-        {
-            legend: "Permissions",
-            formElements: [
-                {
-                    component: <Checkbox />,
-                    params: { name: "global_crud_users" },
-                    label: "CRUD users",
-                },
-                {
-                    component: <Checkbox />,
-                    params: { name: "global_crud_departments" },
-                    label: "CRUD departments",
-                },
-                {
-                    component: <Checkbox />,
-                    params: { name: "global_crud_roles" },
-                    label: "CRUD roles",
-                },
-                {
-                    component: <Checkbox />,
-                    params: { name: "global_crud_resources" },
-                    label: "CRUD resources",
-                },
-                {
-                    component: <Checkbox />,
-                    params: {
-                        name: "global_assign_users_to_departments",
-                    },
-                    label: "Assign users to departments",
-                },
-                {
-                    component: <Checkbox />,
-                    params: {
-                        name: "global_assign_users_to_roles",
-                    },
-                    label: "Assign users to roles",
-                },
-                {
-                    component: <Checkbox />,
-                    params: {
-                        name: "global_assign_resources_to_departments",
-                    },
-                    label: "Assign resources to departments",
-                },
-                {
-                    component: <Checkbox />,
-                    params: {
-                        name: "global_assign_resources_to_roles",
-                    },
-                    label: "Assign resources to roles",
-                },
-                {
-                    component: <Checkbox />,
-                    params: {
-                        name: "view_reports",
-                    },
-                    label: "View reports",
-                },
-                {
-                    component: <Checkbox />,
-                    params: { name: "dept_crud_roles" },
-                    label: "CRUD roles within department",
-                },
-                {
-                    component: <Checkbox />,
-                    params: { name: "dept_crud_resources" },
-                    label: "CRUD resources within department",
-                },
-                {
-                    component: <Checkbox />,
-                    params: { name: "dept_assign_users_to_roles" },
-                    label: "Assign users to roles within department",
-                },
-                {
-                    component: <Checkbox />,
-                    params: { name: "dept_assign_resources_to_roles" },
-                    label: "Assign resources to roles within department",
-                },
-            ],
-        },
-    ];
+            { ...rolePermissions },
+        ],
+        [departments]
+    );
 
     return (
         <CRUD
@@ -211,4 +216,4 @@ const Role: React.FC = () => {
     );
 };
 
-export default Role;
+export default React.memo(Role);

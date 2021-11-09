@@ -44,8 +44,8 @@ class LoggedInApp extends AbstractApp {
     }) {
         super(props);
         this.routes = [
-            { path: "/", exact: true, component: Home },
-            { path: "/members", exact: true, component: Members },
+            { path: "/", exact: true, component: React.memo(Home) },
+            { path: "/members", exact: true, component: React.memo(Members) },
             { path: "/departments", exact: true, component: Department },
             { path: "/roles", exact: true, component: Role },
             // { path: "/member/:id", exact: true, component: MemberEdit },
@@ -136,4 +136,4 @@ const App = () => {
     }
 };
 
-export default App;
+export default React.memo(App);
