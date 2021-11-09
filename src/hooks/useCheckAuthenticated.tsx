@@ -1,9 +1,32 @@
-import { useEffect, useState } from "react";
+import { useEffect, useReducer } from "react";
 import { server } from "src/util/permalink";
 
+interface State {
+    auth: boolean;
+    loading: boolean;
+}
+
+const reducer = (
+    state: State,
+    action: "IS_AUTH" | "NO_AUTH" | "LOADING"
+): State => {
+    switch (action) {
+        case "IS_AUTH":
+            return { auth: true, loading: false };
+        case "NO_AUTH":
+            return { auth: false, loading: false };
+        case "LOADING":
+            return { auth: state.auth, loading: true };
+        default:
+            throw new Error();
+    }
+};
+
 const useCheckAuth = () => {
-    const [auth, setAuth] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [state, dispatch] = useReducer(reducer, {
+        auth: false,
+        loading: true,
+    });
 
     useEffect(() => {
         fetch(server("auth"), {
@@ -11,13 +34,21 @@ const useCheckAuth = () => {
             method: "POST",
         })
             .then((response) => {
-                if (response.ok) setAuth(true);
+                if (response.ok) dispatch("IS_AUTH");
+                else dispatch("NO_AUTH");
             })
-            .catch((e) => console.error(e))
-            .finally(() => setLoading(false));
+            .catch((_) => {
+                dispatch("NO_AUTH");
+            });
     }, []);
 
-    return { authenticated: auth, loading, setAuthenticated: setAuth };
+    return {
+        authenticated: state.auth,
+        loading: state.loading,
+        setAuthenticated: (auth: boolean) => {
+            dispatch(auth ? "IS_AUTH" : "NO_AUTH");
+        },
+    };
 };
 
 export default useCheckAuth;

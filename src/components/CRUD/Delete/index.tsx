@@ -5,6 +5,7 @@ import { useDelete } from "src/hooks";
 export interface DeleteProps<T extends Partial<{ id: number }>> {
     trigger: React.ReactElement | string;
     formatter: (s: T) => string | React.ReactElement;
+    handleRefresh: () => void;
 }
 
 const Delete = <T extends Partial<{ id: number }>>({
@@ -13,6 +14,7 @@ const Delete = <T extends Partial<{ id: number }>>({
     selected,
     formatter,
     trigger,
+    handleRefresh,
 }: DeleteProps<T> & {
     name: string;
     url: string;
@@ -27,9 +29,10 @@ const Delete = <T extends Partial<{ id: number }>>({
 
     return (
         <DialogFormWithTrigger
-            onSubmit={handleSubmit((_) =>
-                deleteFn({ ids: selected.map((s) => s.id) })
-            )}
+            onSubmit={handleSubmit(async (_) => {
+                await deleteFn({ ids: selected.map((s) => s.id) });
+                handleRefresh();
+            })}
             isSubmitting={isSubmitting}
             cleanup={reset}
             successMessage={`${name} removed`}
