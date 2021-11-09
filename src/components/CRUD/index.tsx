@@ -31,7 +31,7 @@ const CRUD = <T extends object>({
     url,
 }: CrudProps<T>) => {
     const { data, handleRefresh, isRefreshing } = useFetch<T[]>(
-        name,
+        url,
         [],
         { method: "GET", credentials: "include" },
         "data"

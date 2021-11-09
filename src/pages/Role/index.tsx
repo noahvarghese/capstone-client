@@ -19,7 +19,7 @@ export interface RoleData {
     numMembers: number;
 }
 
-const NAME = "roles";
+const NAME = "role";
 const URL = "/roles";
 
 const columns: Column<RoleData>[] = [
@@ -150,15 +150,11 @@ const Role: React.FC = () => {
             {
                 component: (
                     <TextField select>
-                        {departments
-                            .map((d) => (
-                                <MenuItem value={d.id} key={JSON.stringify(d)}>
-                                    {d.name}
-                                </MenuItem>
-                            ))
-                            .concat([
-                                <MenuItem value={0} key="default"></MenuItem>,
-                            ])}
+                        {departments.map((d) => (
+                            <MenuItem value={d.id} key={JSON.stringify(d)}>
+                                {d.name}
+                            </MenuItem>
+                        ))}
                     </TextField>
                 ),
                 params: {
@@ -180,7 +176,7 @@ const Role: React.FC = () => {
             createProps={{
                 buttons: ["Cancel", "submit"],
                 defaultValues: {
-                    department: 0,
+                    department: "",
                     name: "",
                     global_crud_users: false,
                     global_crud_departments: false,
