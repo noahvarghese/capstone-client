@@ -1,1 +1,3 @@
-export interface UpdateProps {}
+export interface UpdateProps {
+    handleRefresh: () => void;
+}
