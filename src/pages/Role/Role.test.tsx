@@ -86,20 +86,24 @@ global.fetch = jest.fn(() => Promise.resolve(new Response()));
 beforeEach(async () => {
     (fetch as jest.Mock<Promise<Response>>).mockClear();
 
-    (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
-        Promise.resolve(
-            new Response(JSON.stringify({ data: roles }), {
-                status: 200,
+    (fetch as jest.Mock<Promise<Response>>).mockImplementation((url) => {
+        let body = {};
+        let status = 413;
+
+        if (url.includes("department")) {
+            body = { data: [{ id: 1, name: "Admin" }] };
+            status = 200;
+        } else if (url.includes("role")) {
+            body = { data: roles };
+            status = 200;
+        }
+
+        return Promise.resolve(
+            new Response(JSON.stringify(body), {
+                status,
             })
-        )
-    );
-    (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
-        Promise.resolve(
-            new Response(JSON.stringify({ data: [{ id: 1, name: "Admin" }] }), {
-                status: 200,
-            })
-        )
-    );
+        );
+    });
 
     const history = createMemoryHistory();
     await act(async () => {
@@ -112,7 +116,7 @@ afterEach(() => {
     cleanup();
 });
 
-test("Renders correctly", async () => {
+test("Roles renders correctly", async () => {
     for (const item of roles) {
         const searchItem = item.name + item.department + item.numMembers;
         expect(
@@ -171,6 +175,7 @@ test("refreshing table", async () => {
             )
         )
     );
+
     await act(async () => {
         userEvent.click(screen.getByRole("button", { name: /refresh/i }));
     });
@@ -195,8 +200,8 @@ describe("test create", () => {
             );
         });
     });
-    test("Valid parameters show success notification", async () => {
-        (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
+    test("Create role with valid parameters show success notification", async () => {
+        (fetch as jest.Mock<Promise<Response>>).mockImplementation(() =>
             Promise.resolve(
                 new Response(JSON.stringify({}), {
                     status: 200,
@@ -209,9 +214,9 @@ describe("test create", () => {
         });
     });
 
-    test("Invalid parameters show error notification", async () => {
+    test("create role with invalid parameters show error notification", async () => {
         const errorMessage = "this sucks";
-        (fetch as jest.Mock<Promise<Response>>).mockImplementationOnce(() =>
+        (fetch as jest.Mock<Promise<Response>>).mockImplementation(() =>
             Promise.resolve(
                 new Response(JSON.stringify({ message: errorMessage }), {
                     status: 400,

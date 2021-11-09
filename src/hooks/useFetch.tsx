@@ -1,41 +1,63 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useReducer } from "react";
 import { server } from "src/util/permalink";
+
+interface FetchHookResult<T> {
+    data: T;
+    handleRefresh: () => void;
+    isRefreshing: boolean;
+}
+
+interface State<T> {
+    isRefreshing: boolean;
+    data: T;
+}
+const reducer = <T,>(
+    state: State<T>,
+    action: { payload?: unknown; type: "SET_DATA" | "REFRESH" }
+) => {
+    switch (action.type) {
+        case "SET_DATA":
+            return { data: action.payload, isRefreshing: false };
+        case "REFRESH":
+            return { data: state.data, isRefreshing: true };
+        default:
+            throw new Error("Invalid action");
+    }
+};
 
 const useFetch = <T,>(
     url: string,
     defaultState: T,
     init?: RequestInit | undefined,
     key?: string
-): { data: T; handleRefresh: () => void; refreshing: boolean } => {
-    const [fetching, setFetching] = useState(false);
-    const [refresh, setRefresh] = useState(false);
-    const [data, setData] = useState<T>(defaultState);
+): FetchHookResult<T> => {
+    const [{ data, isRefreshing }, dispatch] = useReducer(reducer, {
+        data: defaultState,
+        isRefreshing: true,
+    });
+
+    const handleRefresh = useCallback(
+        () => dispatch({ type: "REFRESH" }),
+        [dispatch]
+    );
 
     useEffect(() => {
-        if (!fetching) {
-            setFetching(true);
-
-            if (data === defaultState || refresh) {
-                const dataWrapper = (d: any) => {
-                    const item = key ? d[key as keyof typeof d] : d;
-                    setData(item);
-                };
-
-                fetch(server(url), init)
-                    .then((res) => res.json())
-                    .then(dataWrapper);
-            }
-            if (refresh) setRefresh(false);
-            setFetching(false);
+        if (isRefreshing) {
+            fetch(server(url), init)
+                .then((res) => res.json())
+                .then((d) => {
+                    dispatch({
+                        type: "SET_DATA",
+                        payload: key ? d[key as keyof T] : d,
+                    });
+                });
         }
-    }, [data, defaultState, fetching, init, key, refresh, url]);
+    }, [data, defaultState, init, key, isRefreshing, url]);
 
     return {
-        data,
-        handleRefresh() {
-            if (!refresh) setRefresh(true);
-        },
-        refreshing: refresh,
+        data: data as T,
+        handleRefresh,
+        isRefreshing,
     };
 };
 

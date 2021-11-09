@@ -7,11 +7,8 @@ export interface ReadProps<T> {
     columns: Column<T>[];
 }
 
-const Read = <T,>({
-    name,
-    data,
-    ...props
-}: ReadProps<T> & {
+interface ReadTableProps<T> {
+    isRefreshing: boolean;
     name: string;
     setSelected: (t: T[]) => void;
     selected: T[];
@@ -24,18 +21,23 @@ const Read = <T,>({
     handleRefresh: () => void;
     handleSelectAll: (e: React.ChangeEvent<HTMLInputElement>) => void;
     isSelected: (t: T[keyof T]) => boolean;
-}) => {
-    return (
-        <Table
-            {...props}
-            rows={data}
-            title={name}
-            style={{
-                maxWidth: "95vw",
-                width: "75rem",
-            }}
-        />
-    );
-};
+}
+
+const Read = <T,>({
+    name,
+    data,
+    isRefreshing,
+    ...props
+}: ReadProps<T> & ReadTableProps<T>) => (
+    <Table
+        {...props}
+        rows={isRefreshing ? [] : data}
+        title={name}
+        style={{
+            maxWidth: "95vw",
+            width: "75rem",
+        }}
+    />
+);
 
 export default Read;
