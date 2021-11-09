@@ -1,4 +1,5 @@
 import { Box } from "@mui/material";
+import React from "react";
 import { useFetch, useSelect } from "src/hooks";
 import Create, { CreateProps } from "./Create";
 import Delete, { DeleteProps } from "./Delete";
@@ -23,7 +24,7 @@ const CRUD = <T extends object>({
     name,
     url,
 }: CrudProps<T>) => {
-    const { data, handleRefresh } = useFetch<T[]>(
+    const { data, handleRefresh, isRefreshing } = useFetch<T[]>(
         name,
         [],
         { method: "GET", credentials: "include" },
@@ -46,6 +47,7 @@ const CRUD = <T extends object>({
             }}
         >
             <Read
+                isRefreshing={isRefreshing}
                 primaryField={primaryField}
                 setSelected={setSelected}
                 selected={selected}
@@ -71,4 +73,11 @@ const CRUD = <T extends object>({
     );
 };
 
-export default CRUD;
+const comparator = <T,>(
+    prevProps: Readonly<CrudProps<T>>,
+    nextProps: Readonly<CrudProps<T>>
+): boolean => {
+    return prevProps.name !== nextProps.name && prevProps.url !== nextProps.url;
+};
+
+export default React.memo(CRUD, comparator) as typeof CRUD;

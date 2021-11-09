@@ -73,4 +73,4 @@ const Department: React.FC = () => {
     );
 };
 
-export default Department;
+export default React.memo(Department);
