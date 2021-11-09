@@ -44,8 +44,10 @@ const DialogForm: React.FC<
             await onSubmit(e);
             setAlert({ message: successMessage, severity: "success" });
             cleanup();
-        } catch (e) {
-            setAlert({ message: e.message, severity: "error" });
+            onClose();
+        } catch (_e) {
+            const { message } = _e as Error;
+            setAlert({ message: message, severity: "error" });
         }
     };
 
