@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useReducer } from "react";
+import Emitter from "src/services/emitter";
 import { server } from "src/util/permalink";
 
 interface FetchHookResult<T> {
@@ -50,7 +51,8 @@ const useFetch = <T,>(
                         type: "SET_DATA",
                         payload: key ? d[key as keyof T] : d,
                     });
-                });
+                })
+                .finally(() => Emitter.emit("DATA_RECEIVED"));
         }
     }, [data, defaultState, init, key, isRefreshing, url]);
 

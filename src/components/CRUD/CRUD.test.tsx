@@ -6,7 +6,7 @@ import {
     waitFor,
 } from "../../../__test__/test-utils";
 import { createMemoryHistory } from "history";
-import Members from ".";
+import Members from "../../pages/Members";
 import { members } from "../../../__test__/attributes/Members";
 import userEvent from "@testing-library/user-event";
 import InviteAttributes from "../../../__test__/attributes/InviteAttributes";
@@ -91,7 +91,7 @@ test("refreshing table", async () => {
     });
 });
 
-describe("test invite", () => {
+describe("test create", () => {
     beforeEach(async () => {
         await act(async () => {
             userEvent.click(
@@ -108,7 +108,7 @@ describe("test invite", () => {
             )
         );
         await submitForm(InviteAttributes.validInputs, {
-            success: /Invite sent/i,
+            success: InviteAttributes.validInputs.email,
             submitBtn: /Send Invite/i,
         });
     });
@@ -129,6 +129,8 @@ describe("test invite", () => {
     });
 });
 
+test.todo("succesful edit unselects item");
+test.todo("succesful delete unselects item");
 test.todo("sorting table");
 test.todo("filtering table");
 test.todo("paginating table");

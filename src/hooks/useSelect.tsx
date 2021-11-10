@@ -11,6 +11,10 @@ const useSelect = <T,>(primaryField: keyof T, data: T[]) => {
         [data]
     );
 
+    const unselectAll = useCallback(() => {
+        if (selected.length > 0) setSelected([]);
+    }, [selected]);
+
     const handleSelect = useCallback(
         (_: React.MouseEvent<unknown>, name: T[keyof T]) => {
             const selectedIndex = selected.findIndex(
@@ -44,7 +48,14 @@ const useSelect = <T,>(primaryField: keyof T, data: T[]) => {
             selected.findIndex((s) => s[primaryField] === item) !== -1,
         [primaryField, selected]
     );
-    return { selected, handleSelect, setSelected, handleSelectAll, isSelected };
+    return {
+        selected,
+        handleSelect,
+        setSelected,
+        handleSelectAll,
+        isSelected,
+        unselectAll,
+    };
 };
 
 export default useSelect;
