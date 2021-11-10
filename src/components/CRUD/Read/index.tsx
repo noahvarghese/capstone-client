@@ -18,7 +18,6 @@ interface ReadTableProps<T> {
     _delete: React.ReactElement;
     _edit: React.ReactElement;
     data: T[];
-    handleRefresh: () => void;
     handleSelectAll: (e: React.ChangeEvent<HTMLInputElement>) => void;
     isSelected: (t: T[keyof T]) => boolean;
 }

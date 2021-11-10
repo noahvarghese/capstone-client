@@ -1,25 +1,20 @@
 import { Box } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import { useFetch, useSelect } from "src/hooks";
+import Emitter from "src/services/emitter";
 import Create, { CreateProps } from "./Create";
 import Delete, { DeleteProps } from "./Delete";
 import Read, { ReadProps } from "./Read";
 import { UpdateProps } from "./Update";
 
-interface ReceivedCreateProps extends Omit<CreateProps, "handleRefresh"> {}
-interface ReceivedUpdateProps extends Omit<UpdateProps, "handleRefresh"> {}
-interface ReceivedReadProps<T> extends Omit<ReadProps<T>, "handleRefresh"> {}
-interface ReceivedDeleteProps<T>
-    extends Omit<DeleteProps<T>, "handleRefresh"> {}
-
 export interface CrudProps<T> {
     name: string;
     url: string;
     primaryField: keyof T;
-    createProps: ReceivedCreateProps;
-    readProps: ReceivedReadProps<T>;
-    updateProps?: ReceivedUpdateProps;
-    deleteProps: ReceivedDeleteProps<T>;
+    createProps: CreateProps;
+    readProps: ReadProps<T>;
+    updateProps?: UpdateProps;
+    deleteProps: DeleteProps<T>;
 }
 
 const CRUD = <T extends object>({
@@ -37,8 +32,31 @@ const CRUD = <T extends object>({
         "data"
     );
 
-    const { selected, handleSelect, setSelected, isSelected, handleSelectAll } =
-        useSelect<T>(primaryField, data);
+    const {
+        selected,
+        handleSelect,
+        setSelected,
+        isSelected,
+        handleSelectAll,
+        unselectAll,
+    } = useSelect<T>(primaryField, data);
+
+    useEffect(() => {
+        Emitter.on("DATA_RECEIVED", unselectAll);
+        return () => {
+            Emitter.off("DATA_RECEIVED");
+        };
+    }, [isRefreshing, unselectAll, selected]);
+
+    useEffect(() => {
+        Emitter.on("REFRESH", () => {
+            handleRefresh();
+        });
+
+        return () => {
+            Emitter.off("REFRESH");
+        };
+    }, [handleRefresh, isRefreshing, unselectAll]);
 
     return (
         <Box
@@ -62,20 +80,20 @@ const CRUD = <T extends object>({
                 handleSelectAll={handleSelectAll}
                 name={name}
                 data={data}
-                handleRefresh={handleRefresh}
                 {...readProps}
-                _create={
-                    <Create {...createProps} handleRefresh={handleRefresh} />
-                }
+                _create={<Create {...createProps} />}
                 _edit={<></>}
                 _delete={
-                    <Delete
-                        handleRefresh={handleRefresh}
-                        selected={selected}
-                        name={name}
-                        url={url}
-                        {...deleteProps}
-                    />
+                    selected.length > 0 ? (
+                        <Delete
+                            selected={selected}
+                            name={name}
+                            url={url}
+                            {...deleteProps}
+                        />
+                    ) : (
+                        <></>
+                    )
                 }
             />
         </Box>

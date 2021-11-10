@@ -3,6 +3,7 @@ import React from "react";
 import { RegisterOptions, useForm } from "react-hook-form";
 import { DialogFormWithTrigger } from "src/components/DialogForm";
 import { usePost } from "src/hooks";
+import Emitter from "src/services/emitter";
 
 export interface IFormElement {
     params: {
@@ -26,7 +27,6 @@ export interface CreateProps {
     successMessage: string;
     formElements: IFormElementGroup;
     trigger: string | React.ReactElement;
-    handleRefresh: () => void;
     buttons: [string, string] | [React.ReactElement, React.ReactElement];
 }
 
@@ -34,7 +34,6 @@ const Create = ({
     trigger,
     defaultValues,
     url,
-    handleRefresh,
     successMessage,
     title,
     text,
@@ -56,7 +55,7 @@ const Create = ({
             trigger={trigger}
             onSubmit={async (e?: React.BaseSyntheticEvent) => {
                 await handleSubmit(submit)(e);
-                handleRefresh();
+                Emitter.emit("REFRESH");
             }}
             isSubmitting={isSubmitting}
             cleanup={reset}

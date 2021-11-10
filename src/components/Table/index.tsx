@@ -15,6 +15,7 @@ import {
     TablePagination,
     TableRow,
 } from "@mui/material";
+import Emitter from "src/services/emitter";
 
 interface TableProps<T> {
     title: string;
@@ -26,7 +27,6 @@ interface TableProps<T> {
     handleSelectAll: (e: React.ChangeEvent<HTMLInputElement>) => void;
     isSelected: (t: T[keyof T]) => boolean;
     toolBarItems?: React.ReactElement[];
-    handleRefresh?: () => void;
     primaryField: keyof T;
     selected: T[];
     _delete: React.ReactElement;
@@ -46,7 +46,6 @@ const EnhancedTable = <T extends Partial<{ id: number }>>({
     toolBarItems,
     columnOrder,
     primaryField,
-    handleRefresh,
     _delete,
     _create,
     _edit,
@@ -96,7 +95,7 @@ const EnhancedTable = <T extends Partial<{ id: number }>>({
         <Box style={style}>
             <Paper elevation={3}>
                 <Toolbar
-                    handleRefresh={handleRefresh}
+                    handleRefresh={() => Emitter.emit("REFRESH")}
                     _delete={_delete}
                     _create={_create}
                     _edit={_edit}

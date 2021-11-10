@@ -8,7 +8,8 @@ import {
     CircularProgress,
     Button,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
+import { sleep } from "src/util/sleep";
 
 interface DialogFormProps {
     title: string;
@@ -39,28 +40,29 @@ const DialogForm: React.FC<
         severity?: "warning" | "error" | "info" | "success";
     }>({ message: "" });
 
-    const submit = async (e: React.BaseSyntheticEvent) => {
-        try {
-            await onSubmit(e);
-            setAlert({ message: successMessage, severity: "success" });
-            cleanup();
-            onClose();
-        } catch (_e) {
-            const { message } = _e as Error;
-            setAlert({ message: message, severity: "error" });
-        }
-    };
+    const close = useCallback(() => {
+        cleanup();
+        onClose();
+        setAlert({ message: "", severity: undefined });
+    }, [cleanup, onClose]);
+
+    const submit = useCallback(
+        async (e: React.BaseSyntheticEvent) => {
+            try {
+                await onSubmit(e);
+                setAlert({ message: successMessage, severity: "success" });
+                sleep(1000);
+                close();
+            } catch (_e) {
+                const { message } = _e as Error;
+                setAlert({ message: message, severity: "error" });
+            }
+        },
+        [onSubmit, successMessage, close]
+    );
 
     return (
-        <Dialog
-            open={open}
-            onClose={() => {
-                cleanup();
-                onClose();
-                setAlert({ message: "", severity: undefined });
-            }}
-            keepMounted={false}
-        >
+        <Dialog open={open} onClose={close} keepMounted={false}>
             <DialogTitle>{title}</DialogTitle>
             <form onSubmit={submit}>
                 <DialogContent
@@ -87,18 +89,7 @@ const DialogForm: React.FC<
                                     key={btn}
                                     type={index === 0 ? "reset" : "submit"}
                                     disabled={isSubmitting}
-                                    onClick={
-                                        index === 0
-                                            ? () => {
-                                                  cleanup();
-                                                  setAlert({
-                                                      message: "",
-                                                      severity: undefined,
-                                                  });
-                                                  onClose();
-                                              }
-                                            : undefined
-                                    }
+                                    onClick={index === 0 ? close : undefined}
                                 >
                                     {btn}
                                 </Button>
@@ -110,17 +101,7 @@ const DialogForm: React.FC<
                                             ? "reset"
                                             : "submit",
                                     disabled: isSubmitting,
-                                    onClick:
-                                        index === 0
-                                            ? () => {
-                                                  cleanup();
-                                                  setAlert({
-                                                      message: "",
-                                                      severity: undefined,
-                                                  });
-                                                  onClose();
-                                              }
-                                            : undefined,
+                                    onClick: index === 0 ? close : undefined,
                                 })
                             )
                     )}
@@ -154,4 +135,4 @@ export const DialogFormWithTrigger: React.FC<
     );
 };
 
-export default DialogForm;
+export default React.memo(DialogForm);
