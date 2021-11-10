@@ -4,8 +4,13 @@ import { server } from "src/util/permalink";
 const useDelete = <T,>(url: string) => {
     const deleteFn = useCallback(
         async (data: T): Promise<void> => {
-            const res = await fetch(server(url), {
-                body: JSON.stringify(data),
+            let queryString = "/?";
+            for (const [key, value] of Object.entries(data)) {
+                queryString += `${key}=${JSON.stringify(value)}&`;
+            }
+            queryString = queryString.substring(0, queryString.length - 1);
+
+            const res = await fetch(server(url + queryString), {
                 method: "DELETE",
                 credentials: "include",
             });
