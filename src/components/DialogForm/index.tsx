@@ -51,7 +51,6 @@ const DialogForm: React.FC<
             try {
                 await onSubmit(e);
                 setAlert({ message: successMessage, severity: "success" });
-                sleep(1000);
                 close();
             } catch (_e) {
                 const { message } = _e as Error;
