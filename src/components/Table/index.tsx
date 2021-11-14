@@ -3,6 +3,8 @@ import Toolbar from "./Toolbar";
 import Head, { Column } from "./Head";
 import { Box } from "@mui/system";
 import {
+    Alert,
+    Button,
     Checkbox,
     CircularProgress,
     FormControlLabel,
@@ -32,6 +34,8 @@ interface TableProps<T> {
     _delete: React.ReactElement;
     _edit: React.ReactElement;
     _create: React.ReactElement;
+    isRefreshing: boolean;
+    failed: boolean;
 }
 
 const EnhancedTable = <T extends Partial<{ id: number }>>({
@@ -43,6 +47,8 @@ const EnhancedTable = <T extends Partial<{ id: number }>>({
     handleSelect,
     handleSelectAll,
     isSelected,
+    failed,
+    isRefreshing,
     toolBarItems,
     columnOrder,
     primaryField,
@@ -119,7 +125,7 @@ const EnhancedTable = <T extends Partial<{ id: number }>>({
                             columns={columns}
                         />
                         <TableBody>
-                            {rows.length < 1 ? (
+                            {isRefreshing ? (
                                 <TableRow>
                                     <TableCell colSpan={columns.length + 1}>
                                         <div
@@ -192,6 +198,33 @@ const EnhancedTable = <T extends Partial<{ id: number }>>({
                                     }}
                                 >
                                     <TableCell colSpan={5} />
+                                </TableRow>
+                            )}
+                            {failed && (
+                                <TableRow
+                                    style={{
+                                        height: (dense ? 33 : 53) * emptyRows,
+                                    }}
+                                >
+                                    <TableCell colSpan={5}>
+                                        <Alert
+                                            action={
+                                                <Button
+                                                    color="inherit"
+                                                    size="small"
+                                                    onClick={() =>
+                                                        Emitter.emit("REFRESH")
+                                                    }
+                                                >
+                                                    Retry
+                                                </Button>
+                                            }
+                                            severity="error"
+                                            style={{ textAlign: "center" }}
+                                        >
+                                            Failed to retrieve data
+                                        </Alert>
+                                    </TableCell>
                                 </TableRow>
                             )}
                         </TableBody>
