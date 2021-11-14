@@ -20,6 +20,7 @@ interface ReadTableProps<T> {
     data: T[];
     handleSelectAll: (e: React.ChangeEvent<HTMLInputElement>) => void;
     isSelected: (t: T[keyof T]) => boolean;
+    failed: boolean;
 }
 
 const Read = <T,>({
@@ -29,6 +30,7 @@ const Read = <T,>({
     ...props
 }: ReadProps<T> & ReadTableProps<T>) => (
     <Table
+        isRefreshing={isRefreshing}
         {...props}
         rows={isRefreshing ? [] : data}
         title={name}
