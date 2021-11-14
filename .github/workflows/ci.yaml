@@ -38,6 +38,8 @@ jobs:
         uses: ./.github/actions/cache-node-modules
       - name: test
         run: npm run test:ci -- -- --changedSince "${{ steps.changed.outputs.CHANGED }}"
+      - name: build
+        run: npm build
       - name: Publish npm log
         if: failure()
         uses: actions/upload-artifact@v2

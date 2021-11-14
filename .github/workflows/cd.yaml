@@ -23,20 +23,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           message: bump version ${{ env.VERSION }} [skip ci]
-  continuous-integration:
-    runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
-    env:
-      REACT_APP_TIMEOUT_MULTIPLIER: ${{ secrets.REACT_APP_TIMEOUT_MULTIPLIER }}
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-      - name: cache node modules
-        uses: ./.github/actions/cache-node-modules
-      - name: test
-        run: npm test
   continuous-deployment:
-    needs: [continuous-integration]
     runs-on: ubuntu-latest
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
