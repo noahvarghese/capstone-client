@@ -25,7 +25,7 @@ const CRUD = <T extends object>({
     name,
     url,
 }: CrudProps<T>) => {
-    const { data, handleRefresh, isRefreshing } = useFetch<T[]>(
+    const { data, handleRefresh, isRefreshing, failed } = useFetch<T[]>(
         url,
         [],
         { method: "GET", credentials: "include" },
@@ -42,9 +42,10 @@ const CRUD = <T extends object>({
     } = useSelect<T>(primaryField, data);
 
     useEffect(() => {
-        Emitter.on("DATA_RECEIVED", unselectAll);
+        Emitter.on("RESPONSE_RECEIVED", unselectAll);
+
         return () => {
-            Emitter.off("DATA_RECEIVED");
+            Emitter.off("RESPONSE_RECEIVED");
         };
     }, [isRefreshing, unselectAll, selected]);
 
@@ -71,6 +72,7 @@ const CRUD = <T extends object>({
             }}
         >
             <Read
+                failed={failed}
                 isRefreshing={isRefreshing}
                 primaryField={primaryField}
                 setSelected={setSelected}
