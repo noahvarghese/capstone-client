@@ -11,7 +11,7 @@ const SingleFormPage: React.FC<{
     return (
         <Box className={`${title.split(" ").join("")} single-form-page`}>
             <Paper elevation={3}>
-                <Typography variant={titleVariant}>{title}</Typography>
+                <Typography variant={titleVariant ?? "h1"}>{title}</Typography>
                 <form onSubmit={onSubmit}>
                     {children}
                     <div

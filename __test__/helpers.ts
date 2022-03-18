@@ -1,5 +1,5 @@
 import { fireEvent, Matcher, waitFor } from "@testing-library/react";
-import { screen, act, within } from "./test-utils";
+import { screen, act, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 export const fireEmptyChangeEvent = (_element: HTMLElement, value: any) => {

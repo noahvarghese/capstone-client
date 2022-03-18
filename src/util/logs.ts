@@ -1,6 +1,4 @@
 // tslint:disable: no-console
-import dotenv from "dotenv";
-dotenv.config();
 
 enum LogLevels {
     TEST = 0,
@@ -89,9 +87,8 @@ export default class Logs {
     ): void => {
         if (logLevel <= Logs.logLevel) {
             try {
-                const { prefix, consoleFunction }: LogData = Logs.getLogData(
-                    logLevel
-                );
+                const { prefix, consoleFunction }: LogData =
+                    Logs.getLogData(logLevel);
 
                 if (optionalParams.length > 1 || optionalParams[0]) {
                     consoleFunction(
@@ -110,7 +107,8 @@ export default class Logs {
                     );
                 }
             } catch (e) {
-                console.error(e.message);
+                const { message } = e as Error;
+                console.error(message);
             }
         }
     };

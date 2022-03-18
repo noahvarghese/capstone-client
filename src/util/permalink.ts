@@ -1,6 +1,4 @@
-import dotenv from "dotenv";
 import Logs from "./logs";
-dotenv.config();
 
 const { REACT_APP_TARGET_ENV } = process.env;
 
