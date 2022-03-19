@@ -33,6 +33,7 @@ import { server } from "src/util/permalink";
 import { Manual } from "./ManualsList";
 import { Delete } from "@mui/icons-material";
 import Confirm from "src/components/Confirmation";
+import { Quiz } from "./QuizzesList";
 
 const AddSection: React.FC<{
     manual: Manual;
@@ -413,6 +414,8 @@ const ManualView = () => {
                         </ListItem>
                     </List>
                 </Box>
+                <ManualSectionDisplay manual={manual} setAlert={setAlert} />
+                <ManualQuizzes manual={manual} setAlert={setAlert} />
                 <Assignment
                     modelName="roles"
                     hideCondition={() => true}
@@ -429,7 +432,6 @@ const ManualView = () => {
                     }
                     setAlert={setAlert}
                 />
-                <ManualSectionDisplay manual={manual} setAlert={setAlert} />
                 {/*
                  * TODO: Add create Quiz table with delete and clickable rows
                  */}
@@ -446,6 +448,305 @@ const ManualView = () => {
                 </Alert>
             )}
         </div>
+    );
+};
+
+const AddQuiz: React.FC<{
+    setAlert: Dispatch<
+        SetStateAction<{
+            message: string;
+            severity?: "success" | "error" | "warning" | "info" | undefined;
+        }>
+    >;
+    manual: Manual;
+    toggleRefresh: () => void;
+}> = ({ manual, setAlert, toggleRefresh }) => {
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+        watch,
+        reset,
+    } = useForm({
+        mode: "all",
+        defaultValues: {
+            title: "",
+            manual_id: "",
+            max_attempts: "",
+            prevent_edit: false,
+            prevent_delete: false,
+            published: false,
+        },
+    });
+
+    const submit = useCallback(
+        async (data) => {
+            await fetch(server(`/manuals/${manual.id}/quizzes`), {
+                body: JSON.stringify({
+                    ...data,
+                    max_attempts: Number(data.max_attempts),
+                    prevent_edit:
+                        typeof data.prevent_edit === "string"
+                            ? Boolean(data.prevent_edit)
+                            : false,
+                    prevent_delete:
+                        typeof data.prevent_delete === "string"
+                            ? Boolean(data.prevent_delete)
+                            : false,
+                    published:
+                        typeof data.published === "string"
+                            ? Boolean(data.published)
+                            : false,
+                }),
+                method: "POST",
+                credentials: "include",
+                mode: "cors",
+            }).then(async (res) => {
+                if (res.ok) {
+                    reset();
+                    toggleRefresh();
+                    setAlert({
+                        message: `Created quiz: ${data.title}`,
+                        severity: "success",
+                    });
+                } else {
+                    setAlert({
+                        message: `Unable to create quiz: ${data.title}`,
+                        severity: "error",
+                    });
+                }
+            });
+        },
+        [manual.id, reset, setAlert, toggleRefresh]
+    );
+
+    return (
+        <Paper style={{ padding: "1rem", height: "min-content" }}>
+            <Typography variant="h6" variantMapping={{ h6: "h4" }}>
+                Add Quiz
+            </Typography>
+            <form
+                style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "1rem",
+                }}
+            >
+                <TextField
+                    {...register("title", {
+                        required: "title cannot be empty",
+                    })}
+                    id="title"
+                    placeholder="title"
+                    type="text"
+                    error={Boolean(errors.title)}
+                    helperText={errors.title?.message}
+                    label="title"
+                    value={watch("title", "")}
+                    required
+                    disabled={isSubmitting}
+                />
+                <TextField
+                    {...register("max_attempts", {
+                        required: "max attempts cannot be empty",
+                    })}
+                    id="max_attempts"
+                    placeholder="max attempts"
+                    type="number"
+                    error={Boolean(errors.title)}
+                    helperText={errors.title?.message}
+                    label="max attempts"
+                    value={watch("max_attempts", "")}
+                    required
+                    disabled={isSubmitting}
+                />
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            {...register("prevent_edit")}
+                            value={true}
+                            checked={Boolean(watch("prevent_edit"))}
+                        />
+                    }
+                    label="prevent edit"
+                />
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            {...register("prevent_delete")}
+                            checked={Boolean(watch("prevent_delete"))}
+                            value={true}
+                        />
+                    }
+                    label="prevent delete"
+                />
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            {...register("published")}
+                            value={true}
+                            checked={Boolean(watch("published"))}
+                        />
+                    }
+                    label="publish"
+                />
+                <Box
+                    style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                    }}
+                >
+                    <Button
+                        type="reset"
+                        disabled={manual.prevent_edit || isSubmitting}
+                        onClick={() => reset()}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        type="submit"
+                        disabled={manual.prevent_edit || isSubmitting}
+                        onClick={handleSubmit(submit)}
+                    >
+                        Create
+                    </Button>
+                </Box>
+            </form>
+        </Paper>
+    );
+};
+
+const ManualQuizzes: React.FC<{
+    manual: Manual;
+    setAlert: Dispatch<
+        SetStateAction<{
+            message: string;
+            severity?: "success" | "error" | "warning" | "info" | undefined;
+        }>
+    >;
+}> = ({ manual, setAlert }) => {
+    const navigate = useNavigate();
+    const [refresh, setRefresh] = useState(true);
+    const [selected, setSelected] = useState<Quiz | undefined>();
+    const [showDelete, setShowDelete] = useState(false);
+    const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+
+    useEffect(() => {
+        if (refresh) {
+            const controller = new AbortController();
+
+            fetch(server(`/manuals/${manual.id}/quizzes`), {
+                method: "GET",
+                credentials: "include",
+                mode: "cors",
+                signal: controller.signal,
+            })
+                .then(async (res) => {
+                    if (res.ok) {
+                        try {
+                            setQuizzes(await res.json());
+                        } catch (e) {
+                            const { message } = e as Error;
+                            setAlert({ message, severity: "error" });
+                        }
+                        return;
+                    }
+                    setAlert({
+                        message: "Unable to load roles",
+                        severity: "error",
+                    });
+                })
+                .catch((e) => {
+                    const { message } = e as Error;
+                    setAlert({ message, severity: "error" });
+                })
+                .finally(() => setRefresh(false));
+
+            return () => {
+                controller.abort();
+            };
+        }
+    }, [manual.id, refresh, setAlert]);
+
+    return (
+        <Box>
+            <Typography variant="h5" variantMapping={{ h5: "h3" }}>
+                Quizzes
+            </Typography>
+            <Box
+                style={{
+                    display: "flex",
+                    gap: "2rem",
+                }}
+            >
+                <AddQuiz
+                    manual={manual}
+                    setAlert={setAlert}
+                    toggleRefresh={() => setRefresh(true)}
+                />
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>title</TableCell>
+                                <TableCell>max attempts</TableCell>
+                                <TableCell>published</TableCell>
+                                <TableCell>prevent edit</TableCell>
+                                <TableCell></TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {quizzes.map((q) => (
+                                <TableRow
+                                    key={q.id}
+                                    hover={true}
+                                    onClick={() => {
+                                        navigate(`/quizzes/${q.id}`);
+                                    }}
+                                >
+                                    <TableCell>{q.title}</TableCell>
+                                    <TableCell>{q.max_attempts}</TableCell>
+                                    <TableCell>
+                                        {q.published.toString()}
+                                    </TableCell>
+                                    <TableCell>
+                                        {q.prevent_edit.toString()}
+                                    </TableCell>
+                                    <TableCell>
+                                        {!q.prevent_delete ? (
+                                            <Button
+                                                color="error"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelected(q);
+                                                    setShowDelete(true);
+                                                }}
+                                            >
+                                                <Delete />
+                                            </Button>
+                                        ) : null}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </Box>
+            <Confirm
+                description={`${selected?.title}`}
+                method="DELETE"
+                title="Delete"
+                onClose={() => {
+                    setShowDelete(false);
+                    setSelected(undefined);
+                }}
+                open={showDelete}
+                setAlert={setAlert}
+                url={server(`/quizzes/${selected?.id}`)}
+                toggleRefresh={() => setRefresh(true)}
+            />
+        </Box>
     );
 };
 
