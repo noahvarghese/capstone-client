@@ -293,7 +293,6 @@ const Manuals = () => {
 
     return (
         <div
-            className="Members"
             style={{
                 minHeight: 400,
                 width: "100%",
