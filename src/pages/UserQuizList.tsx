@@ -2,15 +2,16 @@ import { Alert, Box, MenuItem, TextField, Typography } from "@mui/material";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import AppContext from "src/context";
+import useManuals from "src/hooks/data/useManuals";
 import { server } from "src/util/permalink";
-import { Manual } from "./ManualsList";
+import { Quiz } from "./QuizzesList";
 
-const ManualCard: React.FC<{ manual: Manual }> = ({ manual }) => {
+const QuizCard: React.FC<{ quiz: Quiz }> = ({ quiz }) => {
     const navigate = useNavigate();
 
     return (
         <Box
-            className="manual-card"
+            className="quiz-card"
             sx={{
                 "&:hover": {
                     boxShadow:
@@ -30,7 +31,7 @@ const ManualCard: React.FC<{ manual: Manual }> = ({ manual }) => {
                 borderRadius: "4px",
                 alignItems: "center",
             }}
-            onClick={() => navigate(`/manuals/${manual.id}`)}
+            onClick={() => navigate(`/quizzes/${quiz.id}`)}
         >
             <Typography
                 variant="h2"
@@ -41,19 +42,19 @@ const ManualCard: React.FC<{ manual: Manual }> = ({ manual }) => {
                     borderBottom: "5px solid #1976d2",
                 }}
             >
-                {manual.title}
+                {quiz.title}
             </Typography>
         </Box>
     );
 };
 
-const UserManualsList = () => {
-    const [manuals, setManuals] = useState<Manual[]>([]);
+const UserQuizList = () => {
+    const [quizzes, setQuizzes] = useState<Quiz[]>([]);
     const [refresh, setRefresh] = useState(true);
     const [search, setSearch] = useState("");
     const [filter, setFilter] = useState<number | undefined>();
     const [filterField, setFilterField] = useState<
-        "department" | "role" | undefined
+        "department" | "role" | "manual" | undefined
     >();
     const [alert, setAlert] = useState<{
         message: string;
@@ -61,6 +62,7 @@ const UserManualsList = () => {
     }>({ message: "" });
 
     const { roles } = useContext(AppContext);
+    const manuals = useManuals(setAlert);
 
     const departments = useMemo(() => roles.map((r) => r.department), [roles]);
 
@@ -70,7 +72,7 @@ const UserManualsList = () => {
 
             fetch(
                 server(
-                    `/manuals?${
+                    `/quizzes?${
                         filter
                             ? `&filter_field=${filterField}&filter_ids=${JSON.stringify(
                                   [filter]
@@ -88,13 +90,13 @@ const UserManualsList = () => {
                 .then(async (res) => {
                     if (res.ok) {
                         const { data } = await res.json();
-                        setManuals(data);
+                        setQuizzes(data);
                         return;
                     }
 
                     setAlert({
                         message:
-                            (await res.text()) ?? "Unable to retrieve manuals",
+                            (await res.text()) ?? "Unable to retrieve quizs",
                         severity: "error",
                     });
                 })
@@ -114,7 +116,6 @@ const UserManualsList = () => {
 
     return (
         <div
-            className="Members"
             style={{
                 minHeight: 400,
                 width: "100%",
@@ -124,7 +125,7 @@ const UserManualsList = () => {
                 alignItems: "center",
             }}
         >
-            <Typography variant="h1">Manuals</Typography>
+            <Typography variant="h1">Quizzes</Typography>
             <Box
                 style={{
                     margin: "2rem 0",
@@ -217,6 +218,37 @@ const UserManualsList = () => {
                             </MenuItem>
                         ))}
                     </TextField>
+                    <TextField
+                        select
+                        label="manual"
+                        id="manual"
+                        placeholder="manual"
+                        style={{ width: "15rem" }}
+                        value={
+                            filterField === "manual" && filter && filter > 0
+                                ? filter
+                                : ""
+                        }
+                        onChange={(e) => {
+                            const id =
+                                e.target.value === undefined
+                                    ? undefined
+                                    : Number(e.target.value);
+                            if (filterField !== "manual")
+                                setFilterField("manual");
+                            setFilter(id);
+                            setRefresh(true);
+                        }}
+                    >
+                        <MenuItem value="">
+                            <em>None</em>
+                        </MenuItem>
+                        {manuals.map((m) => (
+                            <MenuItem key={m.id} value={m.id}>
+                                {m.title}
+                            </MenuItem>
+                        ))}
+                    </TextField>
                 </Box>
                 <Box
                     style={{
@@ -227,8 +259,8 @@ const UserManualsList = () => {
                         justifyContent: "flex-start",
                     }}
                 >
-                    {manuals.map((m) => (
-                        <ManualCard manual={m} key={`manual${m.id}`} />
+                    {quizzes.map((q) => (
+                        <QuizCard quiz={q} key={`quiz${q.id}`} />
                     ))}
                 </Box>
             </Box>
@@ -247,4 +279,4 @@ const UserManualsList = () => {
     );
 };
 
-export default UserManualsList;
+export default UserQuizList;

@@ -31,6 +31,8 @@ import Loading from "./components/Loading";
 import ContentView from "./pages/ContentView";
 import UserManualsList from "./pages/UserManualsList";
 import UserManualView from "./pages/UserManualView";
+import QuizView from "./pages/QuizView";
+import UserQuizList from "./pages/UserQuizList";
 
 function App() {
     const navigate = useNavigate();
@@ -124,6 +126,7 @@ function App() {
                         element={<ContentView />}
                     />
                     <Route path="/quizzes" element={<QuizzesList />} />
+                    <Route path="/quizzes/:id" element={<QuizView />} />
                     <Route path="/reports" element={<Reports />} />
                     <Route path="/logout" element={<Logout />} />
                     <Route path="*" element={<NotFound />} />
@@ -135,7 +138,7 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/manuals" element={<UserManualsList />} />
                     <Route path="/manuals/:id" element={<UserManualView />} />
-                    <Route path="/quizzes" element={<QuizzesList />} />
+                    <Route path="/quizzes" element={<UserQuizList />} />
                     <Route path="/scores" element={<ScoresList />} />
                     <Route path="/logout" element={<Logout />} />
                     <Route path="*" element={<NotFound />} />
