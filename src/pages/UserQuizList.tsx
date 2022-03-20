@@ -6,7 +6,9 @@ import useManuals from "src/hooks/data/useManuals";
 import { server } from "src/util/permalink";
 import { Quiz } from "./QuizzesList";
 
-const QuizCard: React.FC<{ quiz: Quiz }> = ({ quiz }) => {
+const QuizCard: React.FC<{ quiz: { attempts?: any[] } & Quiz }> = ({
+    quiz,
+}) => {
     const navigate = useNavigate();
 
     return (
@@ -55,13 +57,14 @@ const QuizCard: React.FC<{ quiz: Quiz }> = ({ quiz }) => {
                     bottom: "1rem",
                 }}
             >
-                Attempt: 0 / {quiz.max_attempts}
+                Attempt: {quiz.attempts?.length} / {quiz.max_attempts}
             </Box>
         </Box>
     );
 };
 
 const UserQuizList = () => {
+    const { userId } = useContext(AppContext);
     const [quizzes, setQuizzes] = useState<Quiz[]>([]);
     const [refresh, setRefresh] = useState(true);
     const [search, setSearch] = useState("");
@@ -82,6 +85,12 @@ const UserQuizList = () => {
     useEffect(() => {
         if (refresh) {
             const controller = new AbortController();
+            const fetchOptions: RequestInit = {
+                method: "GET",
+                credentials: "include",
+                mode: "cors",
+                signal: controller.signal,
+            };
 
             fetch(
                 server(
@@ -93,26 +102,23 @@ const UserQuizList = () => {
                             : ""
                     }${search ? `&search=${search}` : ""}`
                 ),
-                {
-                    method: "GET",
-                    credentials: "include",
-                    mode: "cors",
-                    signal: controller.signal,
-                }
+                fetchOptions
             )
-                .then(async (res) => {
-                    if (res.ok) {
-                        const { data } = await res.json();
-                        setQuizzes(data);
-                        return;
-                    }
-
-                    setAlert({
-                        message:
-                            (await res.text()) ?? "Unable to retrieve quizs",
-                        severity: "error",
-                    });
-                })
+                .then((res) => res.json())
+                .then(({ data }) =>
+                    Promise.all(
+                        data.map((q: Quiz) =>
+                            fetch(
+                                server(
+                                    `quizzes/${q.id}/attempts/users/${userId}`
+                                ),
+                                fetchOptions
+                            )
+                                .then((res) => res.json())
+                                .then((attempts) => ({ ...q, attempts }))
+                        )
+                    ).then(setQuizzes)
+                )
                 .catch((e) =>
                     setAlert({
                         message: (e as Error).message,
@@ -125,7 +131,7 @@ const UserQuizList = () => {
                 controller.abort();
             };
         }
-    }, [filter, filterField, refresh, search]);
+    }, [filter, filterField, refresh, search, userId]);
 
     return (
         <div
