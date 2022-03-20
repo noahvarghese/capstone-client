@@ -34,6 +34,10 @@ const QuizSectionView: React.FC = () => {
         ]).catch((e) =>
             setAlert({ message: (e as Error).message, severity: "error" })
         );
+
+        return () => {
+            controller.abort();
+        };
     }, [id, quiz_id]);
 
     if (!quiz || !quizSection) return <Loading />;
