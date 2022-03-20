@@ -20,6 +20,7 @@ const QuizCard: React.FC<{ quiz: Quiz }> = ({ quiz }) => {
                 },
             }}
             style={{
+                position: "relative",
                 cursor: "pointer",
                 transition: "all 0.15s ease-in-out",
                 width: "20rem",
@@ -28,8 +29,10 @@ const QuizCard: React.FC<{ quiz: Quiz }> = ({ quiz }) => {
                 boxShadow: "4px 8px 8px rgba(44,44,44,0.1)",
                 border: "1px solid #eeeeee",
                 display: "flex",
+                flexDirection: "column",
                 borderRadius: "4px",
-                alignItems: "center",
+                alignItems: "flex-start",
+                justifyContent: "center",
             }}
             onClick={() => navigate(`/quizzes/${quiz.id}`)}
         >
@@ -38,12 +41,22 @@ const QuizCard: React.FC<{ quiz: Quiz }> = ({ quiz }) => {
                 style={{
                     padding: "1rem",
                     textAlign: "left",
-                    width: "100%",
+                    width: "80%",
                     borderBottom: "5px solid #1976d2",
                 }}
             >
                 {quiz.title}
             </Typography>
+            <Box
+                style={{
+                    color: "rgb(111, 126, 140)",
+                    position: "absolute",
+                    right: "1rem",
+                    bottom: "1rem",
+                }}
+            >
+                Attempt: 0 / {quiz.max_attempts}
+            </Box>
         </Box>
     );
 };
