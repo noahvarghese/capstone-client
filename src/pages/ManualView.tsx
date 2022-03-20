@@ -152,22 +152,13 @@ const UpdateManual: React.FC<{
         reset,
     } = useForm({
         mode: "all",
-    });
-
-    useEffect(() => {
-        reset({
+        defaultValues: {
             title: manual.title,
             prevent_edit: manual.prevent_edit,
             prevent_delete: manual.prevent_delete,
             published: manual.published,
-        });
-    }, [
-        manual.prevent_delete,
-        manual.prevent_edit,
-        manual.published,
-        manual.title,
-        reset,
-    ]);
+        },
+    });
 
     const submit = useCallback(
         async (data) => {
@@ -292,6 +283,144 @@ const UpdateManual: React.FC<{
                 </Box>
             </form>
         </Paper>
+    );
+};
+
+interface ManualSection {
+    id: number;
+    title: string;
+}
+
+const ManualSectionDisplay: React.FC<{
+    manual: Manual;
+    setAlert: Dispatch<
+        SetStateAction<{
+            message: string;
+            severity?: "success" | "error" | "warning" | "info" | undefined;
+        }>
+    >;
+}> = ({ manual, setAlert }) => {
+    const navigate = useNavigate();
+    const [refresh, setRefresh] = useState(true);
+    const [sections, setSections] = useState<ManualSection[]>([]);
+    const [selected, setSelected] = useState<ManualSection | undefined>();
+    const [showDelete, setShowDelete] = useState(false);
+
+    useEffect(() => {
+        if (refresh) {
+            const controller = new AbortController();
+
+            fetch(server(`/manuals/${manual.id}/sections`), {
+                method: "GET",
+                credentials: "include",
+                mode: "cors",
+                signal: controller.signal,
+            })
+                .then(async (res) => {
+                    if (res.ok) {
+                        try {
+                            setSections(await res.json());
+                        } catch (e) {
+                            const { message } = e as Error;
+                            setAlert({ message, severity: "error" });
+                        }
+                        return;
+                    }
+                    setAlert({
+                        message: "Unable to load roles",
+                        severity: "error",
+                    });
+                })
+                .catch((e) => {
+                    const { message } = e as Error;
+                    setAlert({ message, severity: "error" });
+                })
+                .finally(() => setRefresh(false));
+
+            return () => {
+                controller.abort();
+            };
+        }
+    }, [manual.id, refresh, setAlert]);
+
+    return (
+        <Box
+            style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "2rem",
+            }}
+        >
+            <Typography variant="h5" variantMapping={{ h5: "h3" }}>
+                Sections
+            </Typography>
+            <Box
+                style={{
+                    display: "flex",
+                    gap: "2rem",
+                }}
+            >
+                <AddSection
+                    manual={manual}
+                    setAlert={setAlert}
+                    toggleRefresh={() => setRefresh(true)}
+                />
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>title</TableCell>
+                                {!manual.prevent_edit ? (
+                                    <TableCell></TableCell>
+                                ) : null}
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {sections.map((s) => (
+                                <TableRow
+                                    key={s.id}
+                                    hover={true}
+                                    onClick={() => {
+                                        navigate(
+                                            `/manuals/${manual.id}/sections/${s.id}`
+                                        );
+                                    }}
+                                >
+                                    <TableCell>{s.title}</TableCell>
+                                    {!manual.prevent_edit ? (
+                                        <TableCell>
+                                            <Button
+                                                color="error"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelected(s);
+                                                    setShowDelete(true);
+                                                }}
+                                            >
+                                                <Delete />
+                                            </Button>
+                                        </TableCell>
+                                    ) : null}
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </Box>
+            <Confirm
+                description={`${selected?.title}`}
+                method="DELETE"
+                title="Delete"
+                onClose={() => {
+                    setShowDelete(false);
+                    setSelected(undefined);
+                }}
+                open={showDelete}
+                setAlert={setAlert}
+                url={server(`/manuals/sections/${selected?.id}`)}
+                toggleRefresh={() => setRefresh(true)}
+            />
+        </Box>
     );
 };
 
@@ -432,9 +561,6 @@ const ManualView = () => {
                     }
                     setAlert={setAlert}
                 />
-                {/*
-                 * TODO: Add create Quiz table with delete and clickable rows
-                 */}
             </Box>
             {alert.severity && (
                 <Alert
@@ -744,144 +870,6 @@ const ManualQuizzes: React.FC<{
                 open={showDelete}
                 setAlert={setAlert}
                 url={server(`/quizzes/${selected?.id}`)}
-                toggleRefresh={() => setRefresh(true)}
-            />
-        </Box>
-    );
-};
-
-interface ManualSection {
-    id: number;
-    title: string;
-}
-
-const ManualSectionDisplay: React.FC<{
-    manual: Manual;
-    setAlert: Dispatch<
-        SetStateAction<{
-            message: string;
-            severity?: "success" | "error" | "warning" | "info" | undefined;
-        }>
-    >;
-}> = ({ manual, setAlert }) => {
-    const navigate = useNavigate();
-    const [refresh, setRefresh] = useState(true);
-    const [sections, setSections] = useState<ManualSection[]>([]);
-    const [selected, setSelected] = useState<ManualSection | undefined>();
-    const [showDelete, setShowDelete] = useState(false);
-
-    useEffect(() => {
-        if (refresh) {
-            const controller = new AbortController();
-
-            fetch(server(`/manuals/${manual.id}/sections`), {
-                method: "GET",
-                credentials: "include",
-                mode: "cors",
-                signal: controller.signal,
-            })
-                .then(async (res) => {
-                    if (res.ok) {
-                        try {
-                            setSections(await res.json());
-                        } catch (e) {
-                            const { message } = e as Error;
-                            setAlert({ message, severity: "error" });
-                        }
-                        return;
-                    }
-                    setAlert({
-                        message: "Unable to load roles",
-                        severity: "error",
-                    });
-                })
-                .catch((e) => {
-                    const { message } = e as Error;
-                    setAlert({ message, severity: "error" });
-                })
-                .finally(() => setRefresh(false));
-
-            return () => {
-                controller.abort();
-            };
-        }
-    }, [manual.id, refresh, setAlert]);
-
-    return (
-        <Box
-            style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "2rem",
-            }}
-        >
-            <Typography variant="h5" variantMapping={{ h5: "h3" }}>
-                Sections
-            </Typography>
-            <Box
-                style={{
-                    display: "flex",
-                    gap: "2rem",
-                }}
-            >
-                <AddSection
-                    manual={manual}
-                    setAlert={setAlert}
-                    toggleRefresh={() => setRefresh(true)}
-                />
-                <TableContainer component={Paper}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>title</TableCell>
-                                {!manual.prevent_edit ? (
-                                    <TableCell></TableCell>
-                                ) : null}
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {sections.map((s) => (
-                                <TableRow
-                                    key={s.id}
-                                    hover={true}
-                                    onClick={() => {
-                                        navigate(
-                                            `/manuals/${manual.id}/sections/${s.id}`
-                                        );
-                                    }}
-                                >
-                                    <TableCell>{s.title}</TableCell>
-                                    {!manual.prevent_edit ? (
-                                        <TableCell>
-                                            <Button
-                                                color="error"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setSelected(s);
-                                                    setShowDelete(true);
-                                                }}
-                                            >
-                                                <Delete />
-                                            </Button>
-                                        </TableCell>
-                                    ) : null}
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Box>
-            <Confirm
-                description={`${selected?.title}`}
-                method="DELETE"
-                title="Delete"
-                onClose={() => {
-                    setShowDelete(false);
-                    setSelected(undefined);
-                }}
-                open={showDelete}
-                setAlert={setAlert}
-                url={server(`/manuals/sections/${selected?.id}`)}
                 toggleRefresh={() => setRefresh(true)}
             />
         </Box>
