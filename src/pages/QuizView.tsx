@@ -21,6 +21,7 @@ import React, {
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router";
 import Loading from "src/components/Loading";
+import SectionDisplay from "src/components/Section";
 import { server } from "src/util/permalink";
 import { Quiz } from "./QuizzesList";
 
@@ -313,6 +314,19 @@ const QuizView = () => {
                         </ListItem>
                     </List>
                 </Box>
+                <SectionDisplay
+                    parent={quiz}
+                    parentName="Quiz"
+                    getUrl={server(`quizzes/${quiz.id}/sections`)}
+                    postUrl={server(`quizzes/${quiz.id}/sections`)}
+                    deleteUrl={(id?: number) =>
+                        server(`/quizzes/sections/${id}`)
+                    }
+                    viewSectionUrl={(id?: number) =>
+                        `/quizzes/${quiz.id}/sections/${id}`
+                    }
+                    setAlert={setAlert}
+                />
             </Box>
             {alert.severity && (
                 <Alert
