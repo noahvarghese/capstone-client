@@ -10,6 +10,7 @@ const QuizSectionView: React.FC = () => {
     const { id, quiz_id } = useParams();
     const [quiz, setQuiz] = useState<Quiz | undefined>();
     const [quizSection, setQuizSection] = useState<Section | undefined>();
+    const [refresh, setRefresh] = useState(true);
     const [alert, setAlert] = useState<{
         message: string;
         severity?: "warning" | "error" | "info" | "success";
