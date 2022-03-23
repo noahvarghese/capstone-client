@@ -29,7 +29,6 @@ interface SectionDisplayProps<T> {
     getUrl: string;
     postUrl: string;
     deleteUrl: (id?: number) => string;
-    // Same url for get and post
     setAlert: Dispatch<
         SetStateAction<{
             message: string;
