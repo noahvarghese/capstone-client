@@ -86,7 +86,7 @@ const QuizSectionView: React.FC = () => {
                     }}
                 >
                     <DynamicForm
-                        title="Update Quiz"
+                        title="Update Quiz Section"
                         fetchOptions={{
                             method: "PUT",
                             credentials: "include",
