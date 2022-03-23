@@ -1,4 +1,4 @@
-import { Checkbox, FormControlLabel, TextField } from "@mui/material";
+import { Checkbox, FormControlLabel, MenuItem, TextField } from "@mui/material";
 import {
     FieldError,
     ControllerRenderProps,
@@ -14,13 +14,14 @@ const Input: React.FC<{
      * @default 'text'
      */
     inputType?: string;
+    items?: { key: string; value: string }[];
     label: string;
     disabled: boolean;
     error: FieldError;
     setValueAs?: (v: any) => any;
     type: "input" | "checkbox" | "select" | "hidden";
     field: ControllerRenderProps<FieldValues, string>;
-}> = ({ type, field, disabled, error, label, inputType }) => {
+}> = ({ items, type, field, disabled, error, label, inputType }) => {
     let validator: (e: BaseEvent) => BaseEvent;
 
     if (inputType === "number")
@@ -36,6 +37,21 @@ const Input: React.FC<{
         });
 
     switch (type) {
+        case "checkbox":
+            return (
+                <FormControlLabel
+                    checked={Boolean(field.value)}
+                    label={label}
+                    control={
+                        <Checkbox
+                            disabled={disabled}
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                        />
+                    }
+                />
+            );
         case "input":
             return (
                 <TextField
@@ -55,20 +71,28 @@ const Input: React.FC<{
                     required
                 />
             );
-        case "checkbox":
+        case "select":
+            if (!items) throw new Error("Items not provided for select input");
+
             return (
-                <FormControlLabel
-                    checked={Boolean(field.value)}
+                <TextField
+                    select
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
                     label={label}
-                    control={
-                        <Checkbox
-                            disabled={disabled}
-                            value={field.value}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                        />
-                    }
-                />
+                    placeholder={label}
+                    error={Boolean(error)}
+                    helperText={error?.message}
+                    disabled={disabled}
+                    required
+                >
+                    {items.map(({ key, value }) => (
+                        <MenuItem key={key} value={value}>
+                            {value}
+                        </MenuItem>
+                    ))}
+                </TextField>
             );
         default:
             throw new Error(`Invalid type: ${type}`);

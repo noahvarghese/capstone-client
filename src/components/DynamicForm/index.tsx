@@ -32,6 +32,7 @@ interface CheckboxOptions extends BaseInputOptions {
 
 interface SelectOptions extends BaseInputOptions {
     type: "select";
+    items: { key: string; value: string }[];
 }
 
 export declare type FormInputOptions =
@@ -40,35 +41,32 @@ export declare type FormInputOptions =
     | SelectOptions;
 
 interface DynamicFormProps {
-    resetOnSubmit?: boolean;
-    title: string;
-    url: string;
+    disableSubmit?: boolean;
     fetchOptions: RequestInit;
     formOptions: {
         [x: string]: FormInputOptions;
     };
-    /**
-     * Adds on to the handleSubmit function provided by react-hook-form
-     * Uses the valueAsDate, valueAsNumber, setValueAs provided by the formOptions.regsterOptions
-     */
-    handleSubmit?: (data: any) => any;
-    triggerRefresh?: () => void;
+    resetOnSubmit?: boolean;
     setAlert: Dispatch<
         SetStateAction<{
             message: string;
             severity?: "success" | "error" | "warning" | "info" | undefined;
         }>
     >;
+    title: string;
+    triggerRefresh?: () => void;
+    url: string;
 }
 
 const DynamicForm = ({
-    title,
-    url,
+    disableSubmit,
     fetchOptions,
     formOptions,
-    triggerRefresh,
-    setAlert,
     resetOnSubmit,
+    setAlert,
+    title,
+    triggerRefresh,
+    url,
 }: DynamicFormProps): ReactElement => {
     const {
         handleSubmit,
@@ -111,7 +109,7 @@ const DynamicForm = ({
     );
 
     const submit = useCallback(
-        (d) => {
+        async (d) => {
             const data: Record<string, unknown> = {};
 
             const entries = Object.entries(d);
@@ -131,7 +129,7 @@ const DynamicForm = ({
                 }
             }
 
-            fetch(url, {
+            await fetch(url, {
                 ...fetchOptions,
                 body: JSON.stringify(data),
             })
@@ -184,14 +182,17 @@ const DynamicForm = ({
                 >
                     <Button
                         type="reset"
-                        disabled={isSubmitting}
+                        disabled={disableSubmit || isSubmitting}
                         onClick={() => reset()}
                     >
                         Cancel
                     </Button>
                     <Button
                         type="submit"
-                        disabled={isSubmitting}
+                        disabled={
+                            (disableSubmit !== undefined && disableSubmit) ||
+                            isSubmitting
+                        }
                         onClick={handleSubmit(submit)}
                     >
                         {fetchOptions.method === "POST" ? "Create" : "Update"}
