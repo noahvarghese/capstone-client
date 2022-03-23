@@ -385,7 +385,7 @@ const Departments = () => {
                     setShowDelete(false);
                     setSelected(undefined);
                 }}
-                toggleRefresh={() => setRefresh(true)}
+                triggerRefresh={() => setRefresh(true)}
             />
             <CreateDepartment
                 refresh={() => setRefresh(true)}
