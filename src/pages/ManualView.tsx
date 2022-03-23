@@ -2,208 +2,19 @@ import {
     Box,
     Typography,
     Alert,
-    Paper,
-    Button,
     List,
     ListItem,
     ListItemText,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
 } from "@mui/material";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router";
 import Assignment from "src/components/Assignment";
 import Loading from "src/components/Loading";
 import { Role } from "src/context";
 import { server } from "src/util/permalink";
 import { Manual } from "./ManualsList";
-import { Delete } from "@mui/icons-material";
-import Confirm from "src/components/Confirmation";
-import { Quiz } from "./QuizzesList";
-import SectionDisplay from "src/components/Section";
 import DynamicForm from "src/components/DynamicForm";
-
-const ManualQuizzes: React.FC<{
-    manual: Manual;
-    setAlert: Dispatch<
-        SetStateAction<{
-            message: string;
-            severity?: "success" | "error" | "warning" | "info" | undefined;
-        }>
-    >;
-}> = ({ manual, setAlert }) => {
-    const navigate = useNavigate();
-    const [refresh, setRefresh] = useState(true);
-    const [selected, setSelected] = useState<Quiz | undefined>();
-    const [showDelete, setShowDelete] = useState(false);
-    const [quizzes, setQuizzes] = useState<Quiz[]>([]);
-
-    useEffect(() => {
-        if (refresh) {
-            const controller = new AbortController();
-
-            fetch(server(`/manuals/${manual.id}/quizzes`), {
-                method: "GET",
-                credentials: "include",
-                mode: "cors",
-                signal: controller.signal,
-            })
-                .then(async (res) => {
-                    if (res.ok) {
-                        try {
-                            setQuizzes(await res.json());
-                        } catch (e) {
-                            const { message } = e as Error;
-                            setAlert({ message, severity: "error" });
-                        }
-                        return;
-                    }
-                    setAlert({
-                        message: "Unable to load roles",
-                        severity: "error",
-                    });
-                })
-                .catch((e) => {
-                    const { message } = e as Error;
-                    setAlert({ message, severity: "error" });
-                })
-                .finally(() => setRefresh(false));
-
-            return () => {
-                controller.abort();
-            };
-        }
-    }, [manual.id, refresh, setAlert]);
-
-    return (
-        <Box>
-            <Typography variant="h5" variantMapping={{ h5: "h3" }}>
-                Quizzes
-            </Typography>
-            <Box
-                style={{
-                    display: "flex",
-                    gap: "2rem",
-                }}
-            >
-                <DynamicForm
-                    resetOnSubmit={true}
-                    title="Add Quiz"
-                    fetchOptions={{
-                        method: "POST",
-                        credentials: "include",
-                        mode: "cors",
-                    }}
-                    setAlert={setAlert}
-                    url={server(`/manuals/${manual.id}/quizzes`)}
-                    triggerRefresh={() => setRefresh(true)}
-                    formOptions={{
-                        title: {
-                            type: "input",
-                            defaultValue: "",
-                            label: "title",
-                            inputType: "text",
-                            registerOptions: {
-                                required: "title cannot be empty",
-                            },
-                        },
-                        max_attempts: {
-                            type: "input",
-                            defaultValue: "",
-                            label: "max attempts",
-                            inputType: "number",
-                            registerOptions: {
-                                required: "max attempts cannot be empty",
-                            },
-                        },
-                        prevent_edit: {
-                            registerOptions: {},
-                            defaultValue: false,
-                            type: "checkbox",
-                            label: "prevent edit",
-                        },
-                        prevent_delete: {
-                            registerOptions: {},
-                            defaultValue: false,
-                            type: "checkbox",
-                            label: "prevent delete",
-                        },
-                        published: {
-                            registerOptions: {},
-                            defaultValue: false,
-                            type: "checkbox",
-                            label: "publish",
-                        },
-                    }}
-                />
-                <TableContainer component={Paper}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>title</TableCell>
-                                <TableCell>max attempts</TableCell>
-                                <TableCell>published</TableCell>
-                                <TableCell>prevent edit</TableCell>
-                                <TableCell></TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {quizzes.map((q) => (
-                                <TableRow
-                                    key={q.id}
-                                    hover={true}
-                                    onClick={() => {
-                                        navigate(`/quizzes/${q.id}`);
-                                    }}
-                                >
-                                    <TableCell>{q.title}</TableCell>
-                                    <TableCell>{q.max_attempts}</TableCell>
-                                    <TableCell>
-                                        {q.published.toString()}
-                                    </TableCell>
-                                    <TableCell>
-                                        {q.prevent_edit.toString()}
-                                    </TableCell>
-                                    <TableCell>
-                                        {!q.prevent_delete ? (
-                                            <Button
-                                                color="error"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setSelected(q);
-                                                    setShowDelete(true);
-                                                }}
-                                            >
-                                                <Delete />
-                                            </Button>
-                                        ) : null}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Box>
-            <Confirm
-                description={`${selected?.title}`}
-                method="DELETE"
-                title="Delete"
-                onClose={() => {
-                    setShowDelete(false);
-                    setSelected(undefined);
-                }}
-                open={showDelete}
-                setAlert={setAlert}
-                url={server(`/quizzes/${selected?.id}`)}
-                toggleRefresh={() => setRefresh(true)}
-            />
-        </Box>
-    );
-};
+import DynamicDataTable from "src/components/DynamicDataTable";
 
 const ManualView = () => {
     const { id } = useParams();
@@ -363,20 +174,92 @@ const ManualView = () => {
                         </ListItem>
                     </List>
                 </Box>
-                <SectionDisplay
-                    parent={manual}
-                    parentName="Manual"
-                    getUrl={server(`manuals/${manual.id}/sections`)}
-                    postUrl={server(`manuals/${manual.id}/sections`)}
+                <DynamicDataTable<{ id: number; title: string }>
+                    columns={[{ key: "title", value: "title" }]}
                     deleteUrl={(id?: number) =>
                         server(`/manuals/sections/${id}`)
                     }
-                    viewSectionUrl={(id?: number) =>
+                    description={(m) => `${m?.title}`}
+                    disabled={manual.prevent_edit}
+                    formOptions={{
+                        title: {
+                            defaultValue: "",
+                            label: "title",
+                            type: "input",
+                            inputType: "text",
+                            registerOptions: {
+                                required: "title cannot be empty",
+                            },
+                        },
+                    }}
+                    getUrl={server(`/manuals/${manual.id}/sections`)}
+                    modelName="Section"
+                    navigateUrl={(id?: number) =>
                         `/manuals/${manual.id}/sections/${id}`
                     }
+                    postUrl={server(`manuals/${manual.id}/sections`)}
                     setAlert={setAlert}
                 />
-                <ManualQuizzes manual={manual} setAlert={setAlert} />
+                <DynamicDataTable<{
+                    id: number;
+                    title: string;
+                    max_attempts: number;
+                    prevent_edit: boolean;
+                    prevent_delete: boolean;
+                    published: boolean;
+                }>
+                    columns={[
+                        { key: "title", value: "title" },
+                        { key: "max_attempts", value: "max attempts" },
+                        { key: "published", value: "published" },
+                        { key: "prevent_edit", value: "prevent edit" },
+                    ]}
+                    deleteUrl={(id?: number) => server(`/quizzes/${id}`)}
+                    description={(q) => `${q?.title}`}
+                    formOptions={{
+                        title: {
+                            type: "input",
+                            defaultValue: "",
+                            label: "title",
+                            inputType: "text",
+                            registerOptions: {
+                                required: "title cannot be empty",
+                            },
+                        },
+                        max_attempts: {
+                            type: "input",
+                            defaultValue: "",
+                            label: "max attempts",
+                            inputType: "number",
+                            registerOptions: {
+                                required: "max attempts cannot be empty",
+                            },
+                        },
+                        prevent_edit: {
+                            registerOptions: {},
+                            defaultValue: false,
+                            type: "checkbox",
+                            label: "prevent edit",
+                        },
+                        prevent_delete: {
+                            registerOptions: {},
+                            defaultValue: false,
+                            type: "checkbox",
+                            label: "prevent delete",
+                        },
+                        published: {
+                            registerOptions: {},
+                            defaultValue: false,
+                            type: "checkbox",
+                            label: "publish",
+                        },
+                    }}
+                    getUrl={server(`/manuals/${manual.id}/quizzes`)}
+                    modelName="Quiz"
+                    navigateUrl={(id?: number) => `/quizzes/${id}`}
+                    postUrl={server(`/manuals/${manual.id}/quizzes`)}
+                    setAlert={setAlert}
+                />
                 <Assignment
                     modelName="roles"
                     hideCondition={() => true}

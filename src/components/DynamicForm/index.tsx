@@ -214,12 +214,14 @@ const DynamicForm = ({
                         display: "flex",
                         flexDirection: "row",
                         justifyContent: "space-between",
+                        gap: "2rem",
                     }}
                 >
                     <Button
                         type="reset"
                         disabled={disableSubmit || isSubmitting}
                         onClick={() => reset()}
+                        variant="outlined"
                     >
                         {resetButtonText}
                     </Button>
@@ -230,6 +232,7 @@ const DynamicForm = ({
                             isSubmitting
                         }
                         onClick={handleSubmit(submit)}
+                        variant="contained"
                     >
                         {submitButtonText ??
                             (fetchOptions.method === "POST"

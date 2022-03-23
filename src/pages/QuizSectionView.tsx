@@ -3,9 +3,13 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import DynamicForm from "src/components/DynamicForm";
 import Loading from "src/components/Loading";
-import { Section } from "src/components/Section";
 import { server } from "src/util/permalink";
 import { Quiz } from "./QuizzesList";
+
+interface Section {
+    id: number;
+    title: string;
+}
 
 const QuizSectionView: React.FC = () => {
     const { id, quiz_id } = useParams();

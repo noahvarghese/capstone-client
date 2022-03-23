@@ -8,9 +8,9 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
+import DynamicDataTable from "src/components/DynamicDataTable";
 import DynamicForm from "src/components/DynamicForm";
 import Loading from "src/components/Loading";
-import SectionDisplay from "src/components/Section";
 import { server } from "src/util/permalink";
 import { Quiz } from "./QuizzesList";
 
@@ -175,17 +175,30 @@ const QuizView: React.FC = () => {
                         </ListItem>
                     </List>
                 </Box>
-                <SectionDisplay
-                    parent={quiz}
-                    parentName="Quiz"
-                    getUrl={server(`quizzes/${quiz.id}/sections`)}
-                    postUrl={server(`quizzes/${quiz.id}/sections`)}
+                <DynamicDataTable<{ id: number; title: string }>
+                    columns={[{ key: "title", value: "title" }]}
                     deleteUrl={(id?: number) =>
                         server(`/quizzes/sections/${id}`)
                     }
-                    viewSectionUrl={(id?: number) =>
+                    description={(q) => `${q?.title}`}
+                    disabled={quiz.prevent_edit}
+                    formOptions={{
+                        title: {
+                            defaultValue: "",
+                            label: "title",
+                            type: "input",
+                            inputType: "text",
+                            registerOptions: {
+                                required: "title cannot be empty",
+                            },
+                        },
+                    }}
+                    getUrl={server(`quizzes/${quiz.id}/sections`)}
+                    modelName="Section"
+                    navigateUrl={(id?: number) =>
                         `/quizzes/${quiz.id}/sections/${id}`
                     }
+                    postUrl={server(`quizzes/${quiz.id}/sections`)}
                     setAlert={setAlert}
                 />
             </Box>
