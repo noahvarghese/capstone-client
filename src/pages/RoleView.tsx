@@ -184,7 +184,7 @@ const RoleView: React.FC = () => {
                 </Box>
                 <Box>
                     <Assignment
-                        toggleRefresh={() => setRefresh(true)}
+                        triggerRefresh={() => setRefresh(true)}
                         setAlert={setAlert}
                         modelName="members"
                         hideCondition={(m?: Member) => userId !== m?.id}
