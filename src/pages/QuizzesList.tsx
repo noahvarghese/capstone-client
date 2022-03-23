@@ -44,7 +44,7 @@ import Confirm from "src/components/Confirmation";
 const CreateQuiz: React.FC<{
     manuals: Manual[];
     open: boolean;
-    toggleRefresh: () => void;
+    triggerRefresh: () => void;
     onClose: () => void;
     setAlert: Dispatch<
         SetStateAction<{
@@ -52,7 +52,7 @@ const CreateQuiz: React.FC<{
             severity?: "success" | "error" | "warning" | "info" | undefined;
         }>
     >;
-}> = ({ onClose, manuals, open, setAlert, toggleRefresh }) => {
+}> = ({ onClose, manuals, open, setAlert, triggerRefresh }) => {
     const {
         register,
         handleSubmit,
@@ -100,7 +100,7 @@ const CreateQuiz: React.FC<{
                 mode: "cors",
             }).then(async (res) => {
                 if (res.ok) {
-                    toggleRefresh();
+                    triggerRefresh();
                     setAlert({
                         message: `Created quiz: ${data.title}`,
                         severity: "success",
@@ -114,7 +114,7 @@ const CreateQuiz: React.FC<{
                 close();
             });
         },
-        [close, setAlert, toggleRefresh]
+        [close, setAlert, triggerRefresh]
     );
 
     return (
@@ -555,7 +555,7 @@ const Quizzes = () => {
                 open={showCreate}
                 onClose={() => setShowCreate(false)}
                 setAlert={setAlert}
-                toggleRefresh={() => setRefresh(true)}
+                triggerRefresh={() => setRefresh(true)}
             />
             <Confirm
                 method="DELETE"
@@ -563,7 +563,7 @@ const Quizzes = () => {
                 description={`${selected?.title}`}
                 url={server(`/quizzes/${selected?.id}`)}
                 setAlert={setAlert}
-                toggleRefresh={() => setRefresh(true)}
+                triggerRefresh={() => setRefresh(true)}
                 open={showDelete}
                 onClose={() => {
                     setShowDelete(false);
