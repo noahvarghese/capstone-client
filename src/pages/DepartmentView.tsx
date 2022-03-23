@@ -182,7 +182,7 @@ const DepartmentRoles: React.FC<{
                 title="Delete"
                 method="DELETE"
                 description={`${selected?.name}`}
-                toggleRefresh={() => setRefresh(true)}
+                triggerRefresh={() => setRefresh(true)}
                 url={server(`/roles/${selected?.id}`)}
                 setAlert={setAlert}
                 open={showDelete}
