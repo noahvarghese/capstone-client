@@ -46,6 +46,10 @@ interface DynamicFormProps {
     formOptions: {
         [x: string]: FormInputOptions;
     };
+    /**
+     * @default Cancel
+     */
+    resetButtonText?: string;
     resetOnSubmit?: boolean;
     setAlert: Dispatch<
         SetStateAction<{
@@ -53,7 +57,17 @@ interface DynamicFormProps {
             severity?: "success" | "error" | "warning" | "info" | undefined;
         }>
     >;
+    /**
+     * Dependent on the method provided in fetchOptions POST = 'Create', PUT | PATCH = 'Update'
+     * @default Create|Update
+     */
+    submitButtonText?: string;
     title: string;
+    /**
+     * Material UI specific
+     * @default h6
+     */
+    titleVariant?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
     triggerRefresh?: () => void;
     url: string;
 }
@@ -62,9 +76,12 @@ const DynamicForm = ({
     disableSubmit,
     fetchOptions,
     formOptions,
+    resetButtonText = "Cancel",
     resetOnSubmit,
     setAlert,
+    submitButtonText,
     title,
+    titleVariant,
     triggerRefresh,
     url,
 }: DynamicFormProps): ReactElement => {
@@ -162,7 +179,10 @@ const DynamicForm = ({
 
     return (
         <Paper style={{ padding: "1rem", height: "min-content" }}>
-            <Typography variant="h6" variantMapping={{ h6: "h4" }}>
+            <Typography
+                variant={titleVariant ?? "h6"}
+                variantMapping={{ h6: "h4", h5: "h3", h4: "h2" }}
+            >
                 {title}
             </Typography>
             <form
@@ -185,7 +205,7 @@ const DynamicForm = ({
                         disabled={disableSubmit || isSubmitting}
                         onClick={() => reset()}
                     >
-                        Cancel
+                        {resetButtonText}
                     </Button>
                     <Button
                         type="submit"
@@ -195,7 +215,10 @@ const DynamicForm = ({
                         }
                         onClick={handleSubmit(submit)}
                     >
-                        {fetchOptions.method === "POST" ? "Create" : "Update"}
+                        {submitButtonText ??
+                            (fetchOptions.method === "POST"
+                                ? "Create"
+                                : "Update")}
                     </Button>
                 </Box>
             </form>
