@@ -452,7 +452,7 @@ const Roles = () => {
                 method="DELETE"
                 description={`${selected?.name} <${selected?.department.name}>`}
                 url={server(`/roles/${selected?.id}`)}
-                toggleRefresh={() => setRefresh(true)}
+                triggerRefresh={() => setRefresh(true)}
                 open={showDelete}
                 setAlert={setAlert}
                 onClose={() => {
