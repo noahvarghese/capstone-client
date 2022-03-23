@@ -1,5 +1,4 @@
 import {
-    TextField,
     Box,
     Button,
     Typography,
@@ -11,7 +10,6 @@ import {
     TableCell,
     TableContainer,
     TableHead,
-    MenuItem,
     ListItem,
     List,
     ListItemText,
@@ -19,13 +17,11 @@ import {
 import React, {
     Dispatch,
     SetStateAction,
-    useCallback,
     useContext,
     useEffect,
     useMemo,
     useState,
 } from "react";
-import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
 import AppContext, { Department, Role } from "src/context";
 import Loading from "src/components/Loading";
@@ -98,15 +94,46 @@ const DepartmentRoles: React.FC<{
                 gap: "2rem",
             }}
         >
-            {isAdmin ? (
-                <AddRole
-                    setAlert={setAlert}
-                    department={department}
-                    toggleRefresh={() => {
-                        setRefresh(true);
-                    }}
-                />
-            ) : null}
+            <DynamicForm
+                title="Add Role"
+                fetchOptions={{
+                    method: "POST",
+                    credentials: "include",
+                    mode: "cors",
+                }}
+                setAlert={setAlert}
+                triggerRefresh={() => setRefresh(true)}
+                url={server("/roles")}
+                disableSubmit={!isAdmin}
+                resetOnSubmit={true}
+                formOptions={{
+                    name: {
+                        defaultValue: "",
+                        label: "name",
+                        type: "input",
+                        registerOptions: {
+                            required: "name cannot be empty",
+                        },
+                    },
+                    access: {
+                        defaultValue: "",
+                        type: "select",
+                        items: [
+                            { key: "MANAGER", value: "MANAGER" },
+                            { key: "USER", value: "USER" },
+                        ],
+                        label: "access",
+                        registerOptions: { required: "access cannot be empty" },
+                    },
+                    department_id: {
+                        defaultValue: department.id,
+                        type: "hidden",
+                        inputType: "number",
+                        label: "department id",
+                        registerOptions: { valueAsNumber: true },
+                    },
+                }}
+            />
             <TableContainer component={Paper}>
                 <Table>
                     <TableHead>
@@ -165,129 +192,6 @@ const DepartmentRoles: React.FC<{
                 }}
             />
         </Box>
-    );
-};
-
-const AddRole: React.FC<{
-    department: Department;
-    toggleRefresh: () => void;
-    setAlert: Dispatch<
-        SetStateAction<{
-            message: string;
-            severity?: "success" | "error" | "warning" | "info" | undefined;
-        }>
-    >;
-}> = ({ department, toggleRefresh, setAlert }) => {
-    const {
-        register,
-        handleSubmit,
-        formState: { errors, isSubmitting },
-        watch,
-        reset,
-    } = useForm({ mode: "all" });
-    const submit = useCallback(
-        (data) => {
-            fetch(server("/roles"), {
-                method: "POST",
-                body: JSON.stringify({
-                    ...data,
-                    department_id: department.id,
-                }),
-                mode: "cors",
-                credentials: "include",
-            })
-                .then((res) => {
-                    if (res.ok) {
-                        toggleRefresh();
-                        reset({ name: "", access: "" });
-                        return;
-                    } else {
-                        setAlert({
-                            message: "Unable to add role",
-                            severity: "error",
-                        });
-                    }
-                })
-                .catch((e) => {
-                    const { message } = e as Error;
-                    setAlert({ message, severity: "error" });
-                });
-        },
-        [department.id, reset, setAlert, toggleRefresh]
-    );
-    return (
-        <Paper style={{ padding: "1rem", height: "min-content" }}>
-            <Typography variant="h6" variantMapping={{ h6: "h4" }}>
-                Add Role
-            </Typography>
-            <form
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "1rem",
-                }}
-            >
-                <TextField
-                    style={{ margin: "0.5rem 0" }}
-                    {...register("name", {
-                        required: "name cannot be empty",
-                    })}
-                    label="name"
-                    id="name"
-                    error={Boolean(errors.name)}
-                    helperText={errors.name?.message}
-                    autoComplete="name"
-                    type="name"
-                    value={watch("name", "")}
-                    placeholder="name"
-                    required
-                    disabled={isSubmitting}
-                />
-                <TextField
-                    {...register("access", {
-                        required: "access cannot be empty",
-                    })}
-                    select
-                    label="access"
-                    id="access"
-                    value={watch("access", "")}
-                    error={Boolean(errors.access)}
-                    helperText={errors.access?.message}
-                    placeholder="access"
-                    required
-                    disabled={isSubmitting}
-                >
-                    <MenuItem key="MANAGER" value="MANAGER">
-                        MANAGER
-                    </MenuItem>
-                    <MenuItem key="USER" value="USER">
-                        USER
-                    </MenuItem>
-                </TextField>
-                <Box
-                    style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                    }}
-                >
-                    <Button
-                        type="reset"
-                        disabled={isSubmitting}
-                        onClick={() => reset()}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        type="submit"
-                        disabled={isSubmitting}
-                        onClick={handleSubmit(submit)}
-                    >
-                        Create
-                    </Button>
-                </Box>
-            </form>
-        </Paper>
     );
 };
 
@@ -395,6 +299,7 @@ const DepartmentView = () => {
                         url={server(`/departments/${department.id}`)}
                         disableSubmit={!isAdmin}
                         titleVariant="h5"
+                        triggerRefresh={() => setRefresh(true)}
                         formOptions={{
                             name: {
                                 defaultValue: department.name,

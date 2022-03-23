@@ -35,10 +35,21 @@ interface SelectOptions extends BaseInputOptions {
     items: { key: string; value: string }[];
 }
 
+interface HiddenOptions extends BaseInputOptions {
+    type: "hidden";
+    /**
+     * Type of the `input` element. It should be [a valid HTML5 input type](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#Form_%3Cinput%3E_types).
+     * Only used if type is input
+     * @default 'text'
+     */
+    inputType?: string;
+}
+
 export declare type FormInputOptions =
     | TextOptions
     | CheckboxOptions
-    | SelectOptions;
+    | SelectOptions
+    | HiddenOptions;
 
 interface DynamicFormProps {
     disableSubmit?: boolean;

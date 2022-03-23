@@ -52,6 +52,8 @@ const Input: React.FC<{
                     }
                 />
             );
+        case "hidden":
+            return <input type="hidden" disabled={true} value={field.value} />;
         case "input":
             return (
                 <TextField
