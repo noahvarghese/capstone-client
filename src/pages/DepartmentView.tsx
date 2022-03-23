@@ -32,115 +32,7 @@ import Loading from "src/components/Loading";
 import { server } from "src/util/permalink";
 import { Delete } from "@mui/icons-material";
 import Confirm from "src/components/Confirmation";
-
-export const UpdateDepartment: React.FC<{
-    department: Department;
-    toggleRefresh: () => void;
-    setAlert: Dispatch<
-        SetStateAction<{
-            message: string;
-            severity?: "success" | "error" | "warning" | "info" | undefined;
-        }>
-    >;
-}> = ({ toggleRefresh, setAlert, department }) => {
-    const { roles } = useContext(AppContext);
-    const {
-        register,
-        handleSubmit,
-        formState: { errors, isSubmitting },
-        watch,
-        reset,
-    } = useForm({ mode: "all", defaultValues: { name: department.name } });
-
-    useEffect(() => {
-        reset({ name: department.name });
-    }, [reset, department.name]);
-
-    const submit = useCallback(
-        async (data) => {
-            await fetch(server(`/departments/${department.id}`), {
-                body: JSON.stringify(data),
-                method: "PUT",
-                credentials: "include",
-            }).then(async (res) => {
-                if (res.ok) {
-                    toggleRefresh();
-                    setAlert({
-                        message: "Success",
-                        severity: "success",
-                    });
-                } else {
-                    setAlert({
-                        message: "Unable to update department",
-                        severity: "error",
-                    });
-                    reset();
-                }
-            });
-        },
-        [department.id, toggleRefresh, setAlert, reset]
-    );
-
-    const isAdmin = useMemo(
-        () => roles.find((r) => r.access === "ADMIN"),
-        [roles]
-    );
-
-    return (
-        <Paper style={{ padding: "1rem", height: "min-content" }}>
-            <Typography variant="h5" variantMapping={{ h5: "h3" }}>
-                Update Department
-            </Typography>
-            <form
-                style={{
-                    padding: "1rem 0 0.5rem 0",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "1rem",
-                }}
-            >
-                <TextField
-                    style={{ margin: "0.5rem 0" }}
-                    {...register("name", {
-                        required: "name cannot be empty",
-                    })}
-                    label="name"
-                    id="name"
-                    error={Boolean(errors.name)}
-                    helperText={errors.name?.message}
-                    autoComplete="name"
-                    type="name"
-                    value={watch("name", department.name)}
-                    placeholder="name"
-                    required
-                    disabled={!isAdmin || isSubmitting}
-                />
-                <Box
-                    style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                    }}
-                >
-                    <Button
-                        type="reset"
-                        disabled={!isAdmin || isSubmitting}
-                        onClick={() => reset({ name: department.name })}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        type="submit"
-                        disabled={!isAdmin || isSubmitting}
-                        onClick={handleSubmit(submit)}
-                    >
-                        Update
-                    </Button>
-                </Box>
-            </form>
-        </Paper>
-    );
-};
+import DynamicForm from "src/components/DynamicForm";
 
 const DepartmentRoles: React.FC<{
     department: Department;
@@ -400,6 +292,7 @@ const AddRole: React.FC<{
 };
 
 const DepartmentView = () => {
+    const { roles } = useContext(AppContext);
     const { id } = useParams();
     const [department, setDepartment] = useState<Department | undefined>();
     const [refresh, setRefresh] = useState(true);
@@ -407,6 +300,11 @@ const DepartmentView = () => {
         message: string;
         severity?: "warning" | "error" | "info" | "success";
     }>({ message: "" });
+
+    const isAdmin = useMemo(
+        () => roles.find((r) => r.access === "ADMIN"),
+        [roles]
+    );
 
     useEffect(() => {
         if (refresh) {
@@ -486,10 +384,27 @@ const DepartmentView = () => {
                         gap: "2rem",
                     }}
                 >
-                    <UpdateDepartment
+                    <DynamicForm
+                        title="Update Department"
+                        fetchOptions={{
+                            method: "PUT",
+                            credentials: "include",
+                            mode: "cors",
+                        }}
                         setAlert={setAlert}
-                        toggleRefresh={() => setRefresh(true)}
-                        department={department}
+                        url={server(`/departments/${department.id}`)}
+                        disableSubmit={!isAdmin}
+                        titleVariant="h5"
+                        formOptions={{
+                            name: {
+                                defaultValue: department.name,
+                                type: "input",
+                                label: "name",
+                                registerOptions: {
+                                    required: "name cannot be empty",
+                                },
+                            },
+                        }}
                     />
                     <List>
                         <ListItem>
