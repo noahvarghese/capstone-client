@@ -127,13 +127,18 @@ const DynamicForm = ({
                                 {...rest}
                                 error={errors[key]}
                                 field={field}
-                                disabled={disabled || isSubmitting}
+                                disabled={
+                                    (disableSubmit !== undefined &&
+                                        disableSubmit) ||
+                                    disabled ||
+                                    isSubmitting
+                                }
                             />
                         )}
                     />
                 )
             ),
-        [control, errors, formOptions, isSubmitting]
+        [control, disableSubmit, errors, formOptions, isSubmitting]
     );
 
     const submit = useCallback(
