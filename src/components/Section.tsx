@@ -9,133 +9,18 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    TextField,
     Typography,
 } from "@mui/material";
-import {
-    Dispatch,
-    SetStateAction,
-    useCallback,
-    useEffect,
-    useState,
-} from "react";
-import { useForm } from "react-hook-form";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { capitalizeFirstLetter } from "src/util/string";
 import Confirm from "./Confirmation";
+import DynamicForm from "./DynamicForm";
 
 export interface Section {
     id: number;
     title: string;
 }
-
-interface AddSectionProps<T> {
-    parent: T;
-    parentName: string;
-    url: string;
-    toggleRefresh: () => void;
-    setAlert: Dispatch<
-        SetStateAction<{
-            message: string;
-            severity?: "success" | "error" | "warning" | "info" | undefined;
-        }>
-    >;
-}
-
-const Add = <T extends { prevent_edit: boolean }>({
-    parent,
-    parentName,
-    url,
-    toggleRefresh,
-    setAlert,
-}: AddSectionProps<T>) => {
-    const {
-        register,
-        handleSubmit,
-        formState: { errors, isSubmitting },
-        watch,
-        reset,
-    } = useForm({ mode: "all", defaultValues: { title: "" } });
-
-    const submit = useCallback(
-        (data) => {
-            fetch(url, {
-                method: "POST",
-                body: JSON.stringify(data),
-                credentials: "include",
-            })
-                .then((res) => {
-                    if (res.ok) {
-                        toggleRefresh();
-                        reset({ title: "" });
-                        return;
-                    } else {
-                        setAlert({
-                            message: `Unable to add ${parentName} section`,
-                            severity: "error",
-                        });
-                    }
-                })
-                .catch((e) => {
-                    const { message } = e as Error;
-                    setAlert({ message, severity: "error" });
-                });
-        },
-        [parentName, reset, setAlert, toggleRefresh, url]
-    );
-
-    return (
-        <Paper style={{ padding: "1rem", height: "min-content" }}>
-            <Typography variant="h6" variantMapping={{ h6: "h4" }}>
-                Add Section
-            </Typography>
-            <form
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "1rem",
-                }}
-            >
-                <TextField
-                    style={{ margin: "0.5rem 0" }}
-                    {...register("title", {
-                        required: "title cannot be empty",
-                    })}
-                    label="title"
-                    id="name"
-                    error={Boolean(errors.title)}
-                    helperText={errors.title?.message}
-                    type="text"
-                    value={watch("title", "")}
-                    placeholder="title"
-                    required
-                    disabled={parent.prevent_edit || isSubmitting}
-                />
-                <Box
-                    style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                    }}
-                >
-                    <Button
-                        type="reset"
-                        disabled={parent.prevent_edit || isSubmitting}
-                        onClick={() => reset()}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        type="submit"
-                        disabled={parent.prevent_edit || isSubmitting}
-                        onClick={handleSubmit(submit)}
-                    >
-                        Create
-                    </Button>
-                </Box>
-            </form>
-        </Paper>
-    );
-};
 
 interface SectionDisplayProps<T> {
     parent: T;
@@ -222,12 +107,28 @@ const SectionDisplay = <T extends { prevent_edit: boolean }>({
                     gap: "2rem",
                 }}
             >
-                <Add
+                <DynamicForm
+                    title={`Add ${capitalizeFirstLetter(parentName)} Section`}
                     url={postUrl}
-                    parent={parent}
-                    parentName={parentName}
+                    fetchOptions={{
+                        method: "POST",
+                        credentials: "include",
+                        mode: "cors",
+                    }}
+                    formOptions={{
+                        title: {
+                            defaultValue: "",
+                            label: "title",
+                            type: "input",
+                            inputType: "text",
+                            registerOptions: {
+                                disabled: parent.prevent_edit,
+                                required: "title cannot be empty",
+                            },
+                        },
+                    }}
                     setAlert={setAlert}
-                    toggleRefresh={() => setRefresh(true)}
+                    triggerRefresh={() => setRefresh(true)}
                 />
                 <TableContainer component={Paper}>
                     <Table>
