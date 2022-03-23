@@ -1,6 +1,16 @@
-import { Alert, Box, Typography } from "@mui/material";
+import {
+    Alert,
+    Box,
+    Link as MuiLink,
+    List,
+    ListItem,
+    ListItemText,
+    Typography,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
+import { Link } from "react-router-dom";
+import DynamicDataTable from "src/components/DynamicDataTable";
 import DynamicForm from "src/components/DynamicForm";
 import Loading from "src/components/Loading";
 import { server } from "src/util/permalink";
@@ -15,11 +25,39 @@ const QuizSectionView: React.FC = () => {
     const { id, quiz_id } = useParams();
     const [quiz, setQuiz] = useState<Quiz | undefined>();
     const [quizSection, setQuizSection] = useState<Section | undefined>();
+    const [quizQuestionTypes, setQuizQuestionTypes] = useState<
+        { id: number; question_type: string }[]
+    >([]);
     const [refresh, setRefresh] = useState(true);
     const [alert, setAlert] = useState<{
         message: string;
         severity?: "warning" | "error" | "info" | "success";
     }>({ message: "" });
+
+    useEffect(() => {
+        const controller = new AbortController();
+
+        fetch(server(`/question_types`), {
+            method: "GET",
+            credentials: "include",
+            mode: "cors",
+            signal: controller.signal,
+        })
+            .then((res) => res.json())
+            .then(setQuizQuestionTypes)
+            .catch((e) => {
+                const { message } = e as Error;
+                console.error(message);
+                setAlert({
+                    message: "Unable to retrieve question types",
+                    severity: "error",
+                });
+            });
+
+        return () => {
+            controller.abort();
+        };
+    }, []);
 
     useEffect(() => {
         if (refresh) {
@@ -108,7 +146,70 @@ const QuizSectionView: React.FC = () => {
                             },
                         }}
                     />
+                    <List>
+                        <MuiLink to={`/quizzes/${quiz.id}`} component={Link}>
+                            <ListItem>
+                                <ListItemText
+                                    primary="quiz title"
+                                    secondary={quiz.title}
+                                />
+                            </ListItem>
+                        </MuiLink>
+                        <ListItem>
+                            <ListItemText
+                                primary="section title"
+                                secondary={quizSection.title}
+                            />
+                        </ListItem>
+                    </List>
                 </Box>
+                <DynamicDataTable<{
+                    id: number;
+                    question: string;
+                    quiz_question_type_id: number;
+                }>
+                    columns={[{ key: "question", value: "question" }]}
+                    deleteUrl={(id) =>
+                        server(`/quizzes/sections/questions/${id}`)
+                    }
+                    description={(q) => `${q?.question}`}
+                    formOptions={{
+                        question: {
+                            defaultValue: "",
+                            label: "question",
+                            type: "input",
+                            registerOptions: {
+                                required: "question cannot be empty",
+                            },
+                        },
+                        quiz_question_type_id: {
+                            defaultValue: "",
+                            label: "question type",
+                            type: "select",
+                            items: quizQuestionTypes.map((qq) => ({
+                                key: qq.id,
+                                value: qq.question_type,
+                            })),
+                            registerOptions: {
+                                required: "question type cannot be empty",
+                            },
+                        },
+                    }}
+                    getUrl={server(
+                        `/quizzes/sections/${quizSection.id}/questions`
+                    )}
+                    modelName="Quiz Question"
+                    navigateUrl={(id) =>
+                        server(
+                            `/quizzes/${quiz.id}/sections/${quizSection.id}/questions/${id}`
+                        )
+                    }
+                    postUrl={server(
+                        `/quizzes/sections/${quizSection.id}/questions`
+                    )}
+                    setAlert={setAlert}
+                    disabled={quiz.prevent_edit}
+                />
             </Box>
             {alert.severity && (
                 <Alert
