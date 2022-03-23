@@ -49,7 +49,7 @@ export type Manual = {
 
 const CreateManual: React.FC<{
     open: boolean;
-    toggleRefresh: () => void;
+    triggerRefresh: () => void;
     onClose: () => void;
     setAlert: Dispatch<
         SetStateAction<{
@@ -57,7 +57,7 @@ const CreateManual: React.FC<{
             severity?: "success" | "error" | "warning" | "info" | undefined;
         }>
     >;
-}> = ({ open, onClose, setAlert, toggleRefresh }) => {
+}> = ({ open, onClose, setAlert, triggerRefresh }) => {
     const {
         register,
         handleSubmit,
@@ -102,7 +102,7 @@ const CreateManual: React.FC<{
                 mode: "cors",
             }).then(async (res) => {
                 if (res.ok) {
-                    toggleRefresh();
+                    triggerRefresh();
                     setAlert({
                         message: `Created manual: ${data.title}`,
                         severity: "success",
@@ -116,7 +116,7 @@ const CreateManual: React.FC<{
                 close();
             });
         },
-        [close, setAlert, toggleRefresh]
+        [close, setAlert, triggerRefresh]
     );
 
     return (
@@ -485,7 +485,7 @@ const Manuals = () => {
                 </Alert>
             )}
             <CreateManual
-                toggleRefresh={() => setRefresh(true)}
+                triggerRefresh={() => setRefresh(true)}
                 open={showCreate}
                 setAlert={setAlert}
                 onClose={() => setShowCreate(false)}
@@ -496,7 +496,7 @@ const Manuals = () => {
                 description={`${selected?.title}`}
                 url={server(`/manuals/${selected?.id}`)}
                 setAlert={setAlert}
-                toggleRefresh={() => setRefresh(true)}
+                triggerRefresh={() => setRefresh(true)}
                 open={showDelete}
                 onClose={() => {
                     setShowDelete(false);
