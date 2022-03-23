@@ -14,7 +14,7 @@ import SectionDisplay from "src/components/Section";
 import { server } from "src/util/permalink";
 import { Quiz } from "./QuizzesList";
 
-const QuizView = () => {
+const QuizView: React.FC = () => {
     const { id } = useParams();
     const [quiz, setQuiz] = useState<Quiz | undefined>();
     const [refresh, setRefresh] = useState(true);
@@ -34,25 +34,11 @@ const QuizView = () => {
                 signal: controller.signal,
             })
                 .then(async (res) => {
-                    try {
-                        if (res.ok) {
-                            const r = await res.json();
-                            setQuiz(r);
-                            return;
-                        }
-                    } catch (e) {
-                        const { message } = e as Error;
-                        setAlert({
-                            message,
-                            severity: "error",
-                        });
+                    if (res.ok) {
+                        const r = await res.json();
+                        setQuiz(r);
+                        return;
                     }
-
-                    setAlert({
-                        message:
-                            (await res.text()) ?? "Unable to retrieve manual",
-                        severity: "error",
-                    });
                 })
                 .catch((e) => {
                     const { message } = e as Error;
