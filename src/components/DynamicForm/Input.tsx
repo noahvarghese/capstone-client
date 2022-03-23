@@ -14,7 +14,11 @@ const Input: React.FC<{
      * @default 'text'
      */
     inputType?: string;
-    items?: { key: string; value: string }[];
+    /**
+     * Value is the human readable option
+     * Key is what will be sent to the server
+     */
+    items?: { key: string | number; value: string }[];
     label: string;
     disabled: boolean;
     error: FieldError;
@@ -90,7 +94,7 @@ const Input: React.FC<{
                     required
                 >
                     {items.map(({ key, value }) => (
-                        <MenuItem key={key} value={value}>
+                        <MenuItem key={key} value={key}>
                             {value}
                         </MenuItem>
                     ))}

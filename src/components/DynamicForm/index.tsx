@@ -32,7 +32,11 @@ interface CheckboxOptions extends BaseInputOptions {
 
 interface SelectOptions extends BaseInputOptions {
     type: "select";
-    items: { key: string; value: string }[];
+    /**
+     * Value is the human readable option
+     * Key is what will be sent to the server
+     */
+    items: { key: string | number; value: string }[];
 }
 
 interface HiddenOptions extends BaseInputOptions {
