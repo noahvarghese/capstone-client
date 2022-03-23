@@ -97,7 +97,7 @@ const Home: React.FC = () => {
                     <UpdateMember
                         setAlert={setAlert}
                         member={member}
-                        toggleRefresh={() => setRefresh(true)}
+                        triggerRefresh={() => setRefresh(true)}
                     />
                     <Paper style={{ padding: "1rem 0", width: "25rem" }}>
                         <Typography variant="h6" variantMapping={{ h6: "h4" }}>

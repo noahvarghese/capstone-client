@@ -15,7 +15,7 @@ interface ConfirmProps {
     method: "PUT" | "POST" | "DELETE";
     url: string;
     open: boolean;
-    toggleRefresh: () => void;
+    triggerRefresh: () => void;
     onClose: () => void;
     setAlert: Dispatch<
         SetStateAction<{
@@ -30,7 +30,7 @@ const Confirm: React.FC<ConfirmProps> = ({
     url,
     description,
     setAlert,
-    toggleRefresh,
+    triggerRefresh,
     method,
     onClose,
     open,
@@ -44,7 +44,7 @@ const Confirm: React.FC<ConfirmProps> = ({
         })
             .then(async (res) => {
                 if (res.ok) {
-                    toggleRefresh();
+                    triggerRefresh();
                     setAlert({
                         message: `Successfully ${
                             title.toLowerCase() +
@@ -72,7 +72,7 @@ const Confirm: React.FC<ConfirmProps> = ({
                 setSubmitting(false);
                 onClose();
             });
-    }, [description, method, onClose, setAlert, title, toggleRefresh, url]);
+    }, [description, method, onClose, setAlert, title, triggerRefresh, url]);
 
     return (
         <Dialog open={open} onClose={onClose} keepMounted={false}>
