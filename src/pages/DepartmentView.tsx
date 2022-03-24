@@ -44,21 +44,17 @@ const DepartmentView: React.FC = () => {
     useEffect(() => {
         if (refresh) {
             const controller = new AbortController();
-
-            fetch(server(`/departments/${id}`), {
+            const fetchOptions: RequestInit = {
                 method: "GET",
                 credentials: "include",
                 mode: "cors",
                 signal: controller.signal,
-            })
+            };
+
+            fetch(server(`/departments/${id}`), fetchOptions)
                 .then((res) => res.json())
                 .then((d) =>
-                    fetch(server(`/departments/${d.id}/roles`), {
-                        method: "GET",
-                        credentials: "include",
-                        mode: "cors",
-                        signal: controller.signal,
-                    })
+                    fetch(server(`/departments/${d.id}/roles`), fetchOptions)
                         .then((res) => res.json())
                         .then((r) => ({ ...d, roles: r }))
                         .then(setDepartment)
