@@ -18,7 +18,8 @@ interface DynamicTableProps<T extends { id: number }> {
     data: T[];
     deleteUrl: (id?: number) => string;
     description: (model?: T) => string;
-    disableDelete?: boolean;
+    disableDeleteForRow?: (model: T) => boolean;
+    disableDeleteForTable?: boolean;
     navigateUrl: (id: number) => string;
     setAlert: Dispatch<
         SetStateAction<{
@@ -34,7 +35,8 @@ const DynamicTable = <T extends { id: number }>({
     data,
     deleteUrl,
     description,
-    disableDelete,
+    disableDeleteForRow,
+    disableDeleteForTable,
     navigateUrl,
     setAlert,
     triggerRefresh,
@@ -74,6 +76,10 @@ const DynamicTable = <T extends { id: number }>({
                                             (d[c.key] as unknown as string)
                                         }
                                     >
+                                        {/*
+                                         * Print readable version of column depending on types
+                                         * ex. booleans do not display unless converted to strings
+                                         */}
                                         {typeof d[c.key] !== "string"
                                             ? (
                                                   d[c.key] as unknown as string
@@ -82,7 +88,9 @@ const DynamicTable = <T extends { id: number }>({
                                     </TableCell>
                                 ))}
                                 <TableCell>
-                                    {disableDelete ? null : (
+                                    {disableDeleteForTable ||
+                                    (disableDeleteForRow &&
+                                        disableDeleteForRow(d)) ? null : (
                                         <Button
                                             color="error"
                                             onClick={(e) => {

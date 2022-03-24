@@ -179,6 +179,9 @@ const DynamicForm = ({
                         if (triggerRefresh) triggerRefresh();
                         if (resetOnSubmit) reset();
                         return;
+                    } else {
+                        reset();
+                        setAlert({ message: "Error", severity: "error" });
                     }
                 })
                 .catch((e) => {

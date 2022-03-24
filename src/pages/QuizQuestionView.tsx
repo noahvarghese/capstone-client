@@ -224,7 +224,8 @@ const QuizQuestionView: React.FC = () => {
                         `/quizzes/sections/questions/${quizQuestion.id}/answers`
                     )}
                     setAlert={setAlert}
-                    disabled={quiz.prevent_edit}
+                    disableForm={quiz.prevent_edit}
+                    disableDeleteForTable={quiz.prevent_edit}
                 />
             </Box>
             {alert.severity && (

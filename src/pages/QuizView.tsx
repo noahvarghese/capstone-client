@@ -181,7 +181,8 @@ const QuizView: React.FC = () => {
                         server(`/quizzes/sections/${id}`)
                     }
                     description={(q) => `${q?.title}`}
-                    disabled={quiz.prevent_edit}
+                    disableDeleteForTable={quiz.prevent_edit}
+                    disableForm={quiz.prevent_edit}
                     formOptions={{
                         title: {
                             defaultValue: "",

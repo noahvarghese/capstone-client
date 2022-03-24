@@ -180,7 +180,8 @@ const ManualView = () => {
                         server(`/manuals/sections/${id}`)
                     }
                     description={(m) => `${m?.title}`}
-                    disabled={manual.prevent_edit}
+                    disableDeleteForTable={manual.prevent_edit}
+                    disableForm={manual.prevent_edit}
                     formOptions={{
                         title: {
                             defaultValue: "",

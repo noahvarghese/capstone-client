@@ -268,7 +268,7 @@ const ContentView: React.FC<{
                 }
                 setAlert={setAlert}
                 triggerRefresh={() => setRefresh(true)}
-                disableDelete={manual.prevent_edit}
+                disableDeleteForTable={manual.prevent_edit}
             />
         </Box>
     );

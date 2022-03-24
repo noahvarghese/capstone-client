@@ -7,7 +7,9 @@ interface DynamicDataTableProps<T extends { id: number }> {
     columns: { key: keyof T; value: string }[];
     deleteUrl: (id?: number) => string;
     description: (model?: T) => string;
-    disabled?: boolean;
+    disableDeleteForRow?: (model: T) => boolean;
+    disableDeleteForTable?: boolean;
+    disableForm?: boolean;
     formOptions: {
         [x: string]: FormInputOptions;
     };
@@ -27,7 +29,9 @@ const DynamicDataTable = <T extends { id: number }>({
     columns,
     deleteUrl,
     description,
-    disabled,
+    disableDeleteForRow,
+    disableDeleteForTable,
+    disableForm,
     formOptions,
     getUrl,
     modelName,
@@ -88,7 +92,7 @@ const DynamicDataTable = <T extends { id: number }>({
                 }}
             >
                 <DynamicForm
-                    disableSubmit={disabled}
+                    disableSubmit={disableForm}
                     fetchOptions={{
                         method: "POST",
                         credentials: "include",
@@ -106,7 +110,8 @@ const DynamicDataTable = <T extends { id: number }>({
                     data={data}
                     deleteUrl={deleteUrl}
                     description={description}
-                    disableDelete={disabled}
+                    disableDeleteForRow={disableDeleteForRow}
+                    disableDeleteForTable={disableDeleteForTable}
                     navigateUrl={navigateUrl}
                     setAlert={setAlert}
                     triggerRefresh={() => setRefresh(true)}

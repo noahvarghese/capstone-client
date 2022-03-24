@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router";
-import AppContext, { Department } from "src/context";
+import AppContext, { Department, Role } from "src/context";
 import Loading from "src/components/Loading";
 import { server } from "src/util/permalink";
 import DynamicForm from "src/components/DynamicForm";
@@ -28,6 +28,29 @@ const DepartmentView: React.FC = () => {
         () => roles.find((r) => r.access === "ADMIN"),
         [roles]
     );
+
+    const [departmentRoles, setDepartmentRoles] = useState<Role[]>([]);
+
+    useEffect(() => {
+        if (department) {
+            const controller = new AbortController();
+
+            fetch(server(`/departments/${department.id}/roles`), {
+                method: "GET",
+                credentials: "include",
+                mode: "cors",
+                signal: controller.signal,
+            }).then(async (res) => {
+                if (res.ok) {
+                    setDepartmentRoles(await res.json());
+                }
+            });
+
+            return () => {
+                controller.abort();
+            };
+        }
+    }, [department]);
 
     useEffect(() => {
         if (refresh) {
@@ -116,7 +139,11 @@ const DepartmentView: React.FC = () => {
                         }}
                         setAlert={setAlert}
                         url={server(`/departments/${department.id}`)}
-                        disableSubmit={!isAdmin}
+                        disableSubmit={
+                            departmentRoles.find(
+                                (r) => r.access === "ADMIN"
+                            ) !== undefined || !isAdmin
+                        }
                         titleVariant="h5"
                         triggerRefresh={() => setRefresh(true)}
                         formOptions={{
@@ -151,12 +178,7 @@ const DepartmentView: React.FC = () => {
                         </ListItem>
                     </List>
                 </Box>
-                <DynamicDataTable<{
-                    id: number;
-                    name: string;
-                    access: "ADMIN" | "MANAGER" | "USER";
-                    num_members: number;
-                }>
+                <DynamicDataTable<Role>
                     columns={[
                         { key: "name", value: "name" },
                         { key: "access", value: "access" },
@@ -164,6 +186,7 @@ const DepartmentView: React.FC = () => {
                     ]}
                     deleteUrl={(id?: number) => server(`/roles/${id}`)}
                     description={(r?) => `${r?.name}`}
+                    disableDeleteForRow={(r: Role) => r.access === "ADMIN"}
                     formOptions={{
                         name: {
                             defaultValue: "",
