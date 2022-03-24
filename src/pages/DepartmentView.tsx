@@ -17,7 +17,9 @@ import DynamicDataTable from "src/components/DynamicDataTable";
 const DepartmentView: React.FC = () => {
     const { roles } = useContext(AppContext);
     const { id } = useParams();
-    const [department, setDepartment] = useState<Department | undefined>();
+    const [department, setDepartment] = useState<
+        (Department & Partial<{ roles: Role[] }>) | undefined
+    >();
     const [refresh, setRefresh] = useState(true);
     const [alert, setAlert] = useState<{
         message: string;
@@ -29,22 +31,9 @@ const DepartmentView: React.FC = () => {
         [roles]
     );
 
-    const [departmentRoles, setDepartmentRoles] = useState<Role[]>([]);
-
     useEffect(() => {
         if (department) {
             const controller = new AbortController();
-
-            fetch(server(`/departments/${department.id}/roles`), {
-                method: "GET",
-                credentials: "include",
-                mode: "cors",
-                signal: controller.signal,
-            }).then(async (res) => {
-                if (res.ok) {
-                    setDepartmentRoles(await res.json());
-                }
-            });
 
             return () => {
                 controller.abort();
@@ -62,27 +51,18 @@ const DepartmentView: React.FC = () => {
                 mode: "cors",
                 signal: controller.signal,
             })
-                .then(async (res) => {
-                    if (res.ok) {
-                        try {
-                            setDepartment(await res.json());
-                        } catch (e) {
-                            const { message } = e as Error;
-                            setAlert({
-                                message,
-                                severity: "error",
-                            });
-                        }
-                        return;
-                    }
-
-                    setAlert({
-                        message:
-                            (await res.text()) ??
-                            "Unable to retrieve department",
-                        severity: "error",
-                    });
-                })
+                .then((res) => res.json())
+                .then((d) =>
+                    fetch(server(`/departments/${d.id}/roles`), {
+                        method: "GET",
+                        credentials: "include",
+                        mode: "cors",
+                        signal: controller.signal,
+                    })
+                        .then((res) => res.json())
+                        .then((r) => ({ ...d, roles: r }))
+                        .then(setDepartment)
+                )
                 .catch((e) => {
                     const { message } = e as Error;
                     setAlert({
@@ -140,7 +120,7 @@ const DepartmentView: React.FC = () => {
                         setAlert={setAlert}
                         url={server(`/departments/${department.id}`)}
                         disableSubmit={
-                            departmentRoles.find(
+                            department.roles?.find(
                                 (r) => r.access === "ADMIN"
                             ) !== undefined || !isAdmin
                         }
