@@ -94,6 +94,9 @@ const Input: React.FC<{
                     required
                 >
                     {items.map(({ key, value }) => (
+                        // FIXME: key is meant only for react purposes
+                        // Value is what should be sent
+                        // Need to adjust so that the value set is different thant the component value
                         <MenuItem key={key} value={key}>
                             {value}
                         </MenuItem>

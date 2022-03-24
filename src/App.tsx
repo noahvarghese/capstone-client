@@ -34,6 +34,7 @@ import UserManualView from "./pages/UserManualView";
 import QuizView from "./pages/QuizView";
 import UserQuizList from "./pages/UserQuizList";
 import QuizSectionView from "./pages/QuizSectionView";
+import QuizQuestionView from "./pages/QuizQuestionView";
 
 function App() {
     const navigate = useNavigate();
@@ -131,6 +132,10 @@ function App() {
                     <Route
                         path="/quizzes/:quiz_id/sections/:id"
                         element={<QuizSectionView />}
+                    />
+                    <Route
+                        path="/quizzes/:quiz_id/sections/:section_id/questions/:id"
+                        element={<QuizQuestionView />}
                     />
                     <Route path="/reports" element={<Reports />} />
                     <Route path="/logout" element={<Logout />} />

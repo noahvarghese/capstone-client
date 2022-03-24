@@ -1,42 +1,31 @@
 import {
-    Alert,
+    Typography,
     Box,
-    Link as MuiLink,
     List,
     ListItem,
     ListItemText,
-    Typography,
+    Alert,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { Link } from "react-router-dom";
 import DynamicDataTable from "src/components/DynamicDataTable";
 import DynamicForm from "src/components/DynamicForm";
 import Loading from "src/components/Loading";
 import { server } from "src/util/permalink";
+import { Question, QuestionType, Section } from "./QuizSectionView";
 import { Quiz } from "./QuizzesList";
 
-export interface Section {
+export interface Answer {
     id: number;
-    title: string;
+    answer: string;
+    correct: boolean;
 }
 
-export interface QuestionType {
-    id: number;
-    question_type: string;
-}
-
-export interface Question {
-    id: number;
-    question: string;
-    quiz_question_type_id: number;
-    question_type: string;
-}
-
-const QuizSectionView: React.FC = () => {
-    const { id, quiz_id } = useParams();
+const QuizQuestionView: React.FC = () => {
+    const { id, section_id, quiz_id } = useParams();
     const [quiz, setQuiz] = useState<Quiz | undefined>();
     const [quizSection, setQuizSection] = useState<Section | undefined>();
+    const [quizQuestion, setQuizQuestion] = useState<Question | undefined>();
     const [quizQuestionTypes, setQuizQuestionTypes] = useState<QuestionType[]>(
         []
     );
@@ -85,9 +74,12 @@ const QuizSectionView: React.FC = () => {
                 fetch(server(`quizzes/${quiz_id}`), fetchOptions)
                     .then((res) => res.json())
                     .then(setQuiz),
-                fetch(server(`quizzes/sections/${id}`), fetchOptions)
+                fetch(server(`quizzes/sections/${section_id}`), fetchOptions)
                     .then((res) => res.json())
                     .then(setQuizSection),
+                fetch(server(`quizzes/sections/questions/${id}`), fetchOptions)
+                    .then((res) => res.json())
+                    .then(setQuizQuestion),
             ])
                 .catch((e) =>
                     setAlert({
@@ -101,9 +93,9 @@ const QuizSectionView: React.FC = () => {
                 controller.abort();
             };
         }
-    }, [id, quiz_id, refresh]);
+    }, [id, section_id, quiz_id, refresh]);
 
-    if (!quiz || !quizSection) return <Loading />;
+    if (!quiz || !quizSection || !quizQuestion) return <Loading />;
 
     return (
         <div
@@ -116,9 +108,11 @@ const QuizSectionView: React.FC = () => {
                 alignItems: "center",
             }}
         >
-            <Typography variant="h1">Quiz Section</Typography>
+            <Typography variant="h1">Quiz Question</Typography>
             <Typography variant="h2">
                 {quiz.title}: {quizSection.title}
+                <br />
+                {quizQuestion.question}
             </Typography>
             <Box
                 style={{
@@ -136,7 +130,7 @@ const QuizSectionView: React.FC = () => {
                     }}
                 >
                     <DynamicForm
-                        title="Update Quiz Section"
+                        title="Update Question"
                         fetchOptions={{
                             method: "PUT",
                             credentials: "include",
@@ -145,76 +139,89 @@ const QuizSectionView: React.FC = () => {
                         setAlert={setAlert}
                         triggerRefresh={() => setRefresh(true)}
                         disableSubmit={quiz.prevent_edit}
-                        url={server(`/quizzes/sections/${quizSection.id}`)}
+                        url={server(
+                            `/quizzes/sections/questions${quizQuestion.id}`
+                        )}
                         titleVariant="h5"
                         formOptions={{
-                            title: {
-                                defaultValue: quizSection.title,
-                                label: "title",
+                            question: {
+                                defaultValue: quizQuestion.question,
+                                label: "question",
                                 type: "input",
                                 registerOptions: {
-                                    required: "title cannot be empty",
+                                    required: "question cannot be empty",
+                                },
+                            },
+                            quiz_question_type_id: {
+                                defaultValue:
+                                    quizQuestion.quiz_question_type_id,
+                                label: "question type",
+                                type: "select",
+                                items: quizQuestionTypes.map((qqt) => ({
+                                    key: qqt.id,
+                                    value: qqt.question_type,
+                                })),
+                                registerOptions: {
+                                    required: "question type cannot be empty",
                                 },
                             },
                         }}
                     />
                     <List>
-                        <MuiLink to={`/quizzes/${quiz.id}`} component={Link}>
-                            <ListItem>
-                                <ListItemText
-                                    primary="quiz title"
-                                    secondary={quiz.title}
-                                />
-                            </ListItem>
-                        </MuiLink>
                         <ListItem>
                             <ListItemText
-                                primary="section title"
-                                secondary={quizSection.title}
+                                primary="question"
+                                secondary={quizQuestion.question}
+                            />
+                        </ListItem>
+                        <ListItem>
+                            <ListItemText
+                                primary="question type"
+                                secondary={quizQuestion.question_type}
                             />
                         </ListItem>
                     </List>
                 </Box>
-                <DynamicDataTable<Question>
+                <DynamicDataTable<Answer>
                     columns={[
-                        { key: "question", value: "question" },
-                        { key: "question_type", value: "type" },
+                        { key: "answer", value: "answer" },
+                        { key: "correct", value: "correct" },
                     ]}
                     deleteUrl={(id) =>
-                        server(`/quizzes/sections/questions/${id}`)
+                        server(`/quizzes/sections/questions/answers/${id}`)
                     }
-                    description={(q) => `${q?.question}`}
+                    description={(a) => `${a?.answer}`}
                     formOptions={{
-                        question: {
+                        answer: {
                             defaultValue: "",
-                            label: "question",
+                            label: "answer",
                             type: "input",
                             registerOptions: {
-                                required: "question cannot be empty",
+                                required: "answer cannot be empty",
                             },
                         },
-                        quiz_question_type_id: {
+                        correct: {
                             defaultValue: "",
-                            label: "question type",
+                            label: "correct",
                             type: "select",
-                            items: quizQuestionTypes.map((qq) => ({
-                                key: qq.id,
-                                value: qq.question_type,
-                            })),
+                            items: [
+                                { key: "true", value: "true" },
+                                { key: "false", value: "false" },
+                            ],
                             registerOptions: {
-                                required: "question type cannot be empty",
+                                required: "correct cannot be empty",
                             },
                         },
                     }}
                     getUrl={server(
-                        `/quizzes/sections/${quizSection.id}/questions`
+                        `/quizzes/sections/questions/${quizQuestion.id}/answers`
                     )}
-                    modelName="Quiz Question"
+                    modelName="Quiz Answer"
                     navigateUrl={(id) =>
-                        `/quizzes/${quiz.id}/sections/${quizSection.id}/questions/${id}`
+                        `/quizzes/${quiz.id}/sections/${quizSection.id}/questions/${quizQuestion.id}/answers/${id}`
                     }
                     postUrl={server(
-                        `/quizzes/sections/${quizSection.id}/questions`
+                        `/quizzes/sections/questions/${quizQuestion.id}/answers`
                     )}
                     setAlert={setAlert}
                     disabled={quiz.prevent_edit}
@@ -235,4 +242,4 @@ const QuizSectionView: React.FC = () => {
     );
 };
 
-export default QuizSectionView;
+export default QuizQuestionView;
