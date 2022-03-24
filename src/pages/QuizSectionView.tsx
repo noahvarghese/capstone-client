@@ -166,9 +166,12 @@ const QuizSectionView: React.FC = () => {
                 <DynamicDataTable<{
                     id: number;
                     question: string;
-                    quiz_question_type_id: number;
+                    question_type: string;
                 }>
-                    columns={[{ key: "question", value: "question" }]}
+                    columns={[
+                        { key: "question", value: "question" },
+                        { key: "question_type", value: "type" },
+                    ]}
                     deleteUrl={(id) =>
                         server(`/quizzes/sections/questions/${id}`)
                     }
