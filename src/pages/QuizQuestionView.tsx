@@ -115,11 +115,7 @@ const QuizQuestionView: React.FC = () => {
                         setAlert={setAlert}
                         triggerRefresh={() => {
                             setRefresh(true);
-                            if (
-                                quizQuestion.question_type === "true or false"
-                            ) {
-                                setRefreshForDynamicTable(true);
-                            }
+                            setRefreshForDynamicTable(true);
                         }}
                         disableSubmit={quiz.prevent_edit}
                         url={server(
