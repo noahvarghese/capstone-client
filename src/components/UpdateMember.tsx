@@ -21,14 +21,14 @@ const birthdayFormatter = (birthday: Date | null): string => {
 
 const UpdateMember: React.FC<{
     member: Member;
-    toggleRefresh: () => void;
+    triggerRefresh: () => void;
     setAlert: Dispatch<
         SetStateAction<{
             message: string;
             severity?: "success" | "error" | "warning" | "info" | undefined;
         }>
     >;
-}> = ({ setAlert, toggleRefresh, member }) => {
+}> = ({ setAlert, triggerRefresh, member }) => {
     const {
         register,
         handleSubmit,
@@ -60,7 +60,7 @@ const UpdateMember: React.FC<{
                             message: `Successfully updated member: ${member.first_name} ${member.last_name} <${member.email}>`,
                             severity: "success",
                         });
-                        toggleRefresh();
+                        triggerRefresh();
                     } else {
                         return res.text().then((t) =>
                             setAlert({
@@ -86,7 +86,7 @@ const UpdateMember: React.FC<{
             member.id,
             member.last_name,
             setAlert,
-            toggleRefresh,
+            triggerRefresh,
         ]
     );
 

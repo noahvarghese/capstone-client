@@ -421,16 +421,18 @@ const Roles = () => {
                                 <TableCell>{r.access}</TableCell>
                                 {isAdmin ? (
                                     <TableCell>
-                                        <Button
-                                            color="error"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setSelected(r);
-                                                setShowDelete(true);
-                                            }}
-                                        >
-                                            <Delete />
-                                        </Button>
+                                        {r.access !== "ADMIN" ? (
+                                            <Button
+                                                color="error"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelected(r);
+                                                    setShowDelete(true);
+                                                }}
+                                            >
+                                                <Delete />
+                                            </Button>
+                                        ) : null}
                                     </TableCell>
                                 ) : null}
                             </TableRow>
@@ -452,7 +454,7 @@ const Roles = () => {
                 method="DELETE"
                 description={`${selected?.name} <${selected?.department.name}>`}
                 url={server(`/roles/${selected?.id}`)}
-                toggleRefresh={() => setRefresh(true)}
+                triggerRefresh={() => setRefresh(true)}
                 open={showDelete}
                 setAlert={setAlert}
                 onClose={() => {

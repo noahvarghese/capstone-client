@@ -538,7 +538,7 @@ const Members: React.FC = () => {
                 title="Delete"
                 url={server(`/members/${selected?.id}`)}
                 description={`${selected?.first_name} ${selected?.last_name} <${selected?.email}>`}
-                toggleRefresh={() => setRefresh(true)}
+                triggerRefresh={() => setRefresh(true)}
                 open={showDelete}
                 setAlert={setAlert}
                 onClose={() => {

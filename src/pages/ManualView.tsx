@@ -2,297 +2,19 @@ import {
     Box,
     Typography,
     Alert,
-    Paper,
-    Button,
-    Checkbox,
-    FormControlLabel,
-    TextField,
     List,
     ListItem,
     ListItemText,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
 } from "@mui/material";
-import React, {
-    Dispatch,
-    SetStateAction,
-    useCallback,
-    useEffect,
-    useState,
-} from "react";
-import { useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router";
 import Assignment from "src/components/Assignment";
 import Loading from "src/components/Loading";
 import { Role } from "src/context";
 import { server } from "src/util/permalink";
 import { Manual } from "./ManualsList";
-import { Delete } from "@mui/icons-material";
-import Confirm from "src/components/Confirmation";
-
-const AddSection: React.FC<{
-    manual: Manual;
-    toggleRefresh: () => void;
-    setAlert: Dispatch<
-        SetStateAction<{
-            message: string;
-            severity?: "success" | "error" | "warning" | "info" | undefined;
-        }>
-    >;
-}> = ({ manual, toggleRefresh, setAlert }) => {
-    const {
-        register,
-        handleSubmit,
-        formState: { errors, isSubmitting },
-        watch,
-        reset,
-    } = useForm({ mode: "all", defaultValues: { title: "" } });
-
-    const submit = useCallback(
-        (data) => {
-            fetch(server(`/manuals/${manual.id}/sections`), {
-                method: "POST",
-                body: JSON.stringify(data),
-                credentials: "include",
-            })
-                .then((res) => {
-                    if (res.ok) {
-                        toggleRefresh();
-                        reset({ title: "" });
-                        return;
-                    } else {
-                        setAlert({
-                            message: "Unable to add manual section",
-                            severity: "error",
-                        });
-                    }
-                })
-                .catch((e) => {
-                    const { message } = e as Error;
-                    setAlert({ message, severity: "error" });
-                });
-        },
-        [manual.id, reset, setAlert, toggleRefresh]
-    );
-
-    return (
-        <Paper style={{ padding: "1rem", height: "min-content" }}>
-            <Typography variant="h6" variantMapping={{ h6: "h4" }}>
-                Add Section
-            </Typography>
-            <form
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "1rem",
-                }}
-            >
-                <TextField
-                    style={{ margin: "0.5rem 0" }}
-                    {...register("title", {
-                        required: "title cannot be empty",
-                    })}
-                    label="title"
-                    id="name"
-                    error={Boolean(errors.title)}
-                    helperText={errors.title?.message}
-                    type="text"
-                    value={watch("title", "")}
-                    placeholder="title"
-                    required
-                    disabled={manual.prevent_edit || isSubmitting}
-                />
-                <Box
-                    style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                    }}
-                >
-                    <Button
-                        type="reset"
-                        disabled={manual.prevent_edit || isSubmitting}
-                        onClick={() => reset()}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        type="submit"
-                        disabled={manual.prevent_edit || isSubmitting}
-                        onClick={handleSubmit(submit)}
-                    >
-                        Create
-                    </Button>
-                </Box>
-            </form>
-        </Paper>
-    );
-};
-
-const UpdateManual: React.FC<{
-    manual: Manual;
-    setAlert: Dispatch<
-        SetStateAction<{
-            message: string;
-            severity?: "success" | "error" | "warning" | "info" | undefined;
-        }>
-    >;
-    toggleRefresh: () => void;
-}> = ({ manual, setAlert, toggleRefresh }) => {
-    const {
-        register,
-        handleSubmit,
-        formState: { errors, isSubmitting },
-        watch,
-        reset,
-    } = useForm({
-        mode: "all",
-    });
-
-    useEffect(() => {
-        reset({
-            title: manual.title,
-            prevent_edit: manual.prevent_edit,
-            prevent_delete: manual.prevent_delete,
-            published: manual.published,
-        });
-    }, [
-        manual.prevent_delete,
-        manual.prevent_edit,
-        manual.published,
-        manual.title,
-        reset,
-    ]);
-
-    const submit = useCallback(
-        async (data) => {
-            await fetch(server(`/manuals/${manual.id}`), {
-                body: JSON.stringify({
-                    ...data,
-                    prevent_edit:
-                        typeof data.prevent_edit === "string"
-                            ? data.prevent_edit === "true"
-                            : data.prevent_edit,
-                    prevent_delete:
-                        typeof data.prevent_delete === "string"
-                            ? data.prevent_delete === "true"
-                            : data.prevent_delete,
-                    published:
-                        typeof data.published === "string"
-                            ? data.published === "true"
-                            : data.published,
-                }),
-                method: "PUT",
-                credentials: "include",
-                mode: "cors",
-            }).then(async (res) => {
-                if (res.ok) {
-                    setAlert({
-                        message: `Updated manual: ${data.title}`,
-                        severity: "success",
-                    });
-                    toggleRefresh();
-                } else {
-                    setAlert({
-                        message: `Unable to update manual: ${data.title}`,
-                        severity: "error",
-                    });
-                }
-            });
-        },
-        [manual.id, toggleRefresh, setAlert]
-    );
-
-    return (
-        <Paper style={{ padding: "1rem", height: "min-content" }}>
-            <Typography variant="h5" variantMapping={{ h5: "h3" }}>
-                Update Manual
-            </Typography>
-            <form
-                onSubmit={handleSubmit(submit)}
-                style={{
-                    padding: "1rem",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "1rem",
-                }}
-            >
-                <TextField
-                    {...register("title", {
-                        required: "title cannot be empty",
-                    })}
-                    id="title"
-                    placeholder="title"
-                    type="text"
-                    error={Boolean(errors.title)}
-                    helperText={errors.title?.message}
-                    label="title"
-                    value={watch("title", "")}
-                    required
-                    disabled={manual.prevent_edit || isSubmitting}
-                />
-                <FormControlLabel
-                    checked={Boolean(watch("prevent_edit"))}
-                    control={
-                        <Checkbox {...register("prevent_edit")} value={true} />
-                    }
-                    label="prevent edit"
-                />
-                <FormControlLabel
-                    checked={Boolean(watch("prevent_delete"))}
-                    control={
-                        <Checkbox
-                            {...register("prevent_delete")}
-                            disabled={manual.prevent_edit}
-                            value={true}
-                        />
-                    }
-                    label="prevent delete"
-                />
-                <FormControlLabel
-                    checked={Boolean(watch("published"))}
-                    control={
-                        <Checkbox
-                            {...register("published")}
-                            value={true}
-                            disabled={manual.prevent_edit}
-                        />
-                    }
-                    label="publish"
-                />
-                <Box
-                    style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                    }}
-                >
-                    <Button
-                        type="reset"
-                        disabled={isSubmitting}
-                        onClick={() => {
-                            reset({
-                                title: manual.title,
-                                prevent_edit: manual.prevent_edit,
-                                prevent_delete: manual.prevent_delete,
-                                published: manual.published,
-                            });
-                        }}
-                    >
-                        Cancel
-                    </Button>
-                    <Button type="submit" disabled={isSubmitting}>
-                        Update
-                    </Button>
-                </Box>
-            </form>
-        </Paper>
-    );
-};
+import DynamicForm from "src/components/DynamicForm";
+import DynamicDataTable from "src/components/DynamicDataTable";
 
 const ManualView = () => {
     const { id } = useParams();
@@ -381,10 +103,49 @@ const ManualView = () => {
                         gap: "2rem",
                     }}
                 >
-                    <UpdateManual
-                        toggleRefresh={() => setRefresh(true)}
-                        manual={manual}
+                    <DynamicForm
+                        title="Update Manual"
+                        triggerRefresh={() => setRefresh(true)}
                         setAlert={setAlert}
+                        fetchOptions={{
+                            mode: "cors",
+                            credentials: "include",
+                            method: "PUT",
+                        }}
+                        url={server(`/manuals/${manual.id}`)}
+                        formOptions={{
+                            title: {
+                                registerOptions: {
+                                    required: "title cannot be empty",
+                                    disabled: manual.prevent_edit,
+                                },
+                                type: "input",
+                                label: "title",
+                                defaultValue: manual.title,
+                            },
+                            prevent_edit: {
+                                registerOptions: {},
+                                defaultValue: manual.prevent_edit,
+                                type: "checkbox",
+                                label: "prevent edit",
+                            },
+                            prevent_delete: {
+                                registerOptions: {
+                                    disabled: manual.prevent_edit,
+                                },
+                                defaultValue: manual.prevent_delete,
+                                type: "checkbox",
+                                label: "prevent delete",
+                            },
+                            published: {
+                                registerOptions: {
+                                    disabled: manual.prevent_edit,
+                                },
+                                defaultValue: manual.published,
+                                type: "checkbox",
+                                label: "publish",
+                            },
+                        }}
                     />
                     <List>
                         <ListItem>
@@ -413,6 +174,94 @@ const ManualView = () => {
                         </ListItem>
                     </List>
                 </Box>
+                <DynamicDataTable<{ id: number; title: string }>
+                    columns={[{ key: "title", value: "title" }]}
+                    deleteUrl={(id?: number) =>
+                        server(`/manuals/sections/${id}`)
+                    }
+                    description={(m) => `${m?.title}`}
+                    disableDeleteForTable={manual.prevent_edit}
+                    disableForm={manual.prevent_edit}
+                    formOptions={{
+                        title: {
+                            defaultValue: "",
+                            label: "title",
+                            type: "input",
+                            inputType: "text",
+                            registerOptions: {
+                                required: "title cannot be empty",
+                            },
+                        },
+                    }}
+                    getUrl={server(`/manuals/${manual.id}/sections`)}
+                    modelName="Section"
+                    navigateUrl={(id?: number) =>
+                        `/manuals/${manual.id}/sections/${id}`
+                    }
+                    postUrl={server(`manuals/${manual.id}/sections`)}
+                    setAlert={setAlert}
+                />
+                <DynamicDataTable<{
+                    id: number;
+                    title: string;
+                    max_attempts: number;
+                    prevent_edit: boolean;
+                    prevent_delete: boolean;
+                    published: boolean;
+                }>
+                    columns={[
+                        { key: "title", value: "title" },
+                        { key: "max_attempts", value: "max attempts" },
+                        { key: "published", value: "published" },
+                        { key: "prevent_edit", value: "prevent edit" },
+                    ]}
+                    deleteUrl={(id?: number) => server(`/quizzes/${id}`)}
+                    disableDeleteForRow={(q) => q.prevent_delete}
+                    description={(q) => `${q?.title}`}
+                    formOptions={{
+                        title: {
+                            type: "input",
+                            defaultValue: "",
+                            label: "title",
+                            inputType: "text",
+                            registerOptions: {
+                                required: "title cannot be empty",
+                            },
+                        },
+                        max_attempts: {
+                            type: "input",
+                            defaultValue: "",
+                            label: "max attempts",
+                            inputType: "number",
+                            registerOptions: {
+                                required: "max attempts cannot be empty",
+                            },
+                        },
+                        prevent_edit: {
+                            registerOptions: {},
+                            defaultValue: false,
+                            type: "checkbox",
+                            label: "prevent edit",
+                        },
+                        prevent_delete: {
+                            registerOptions: {},
+                            defaultValue: false,
+                            type: "checkbox",
+                            label: "prevent delete",
+                        },
+                        published: {
+                            registerOptions: {},
+                            defaultValue: false,
+                            type: "checkbox",
+                            label: "publish",
+                        },
+                    }}
+                    getUrl={server(`/manuals/${manual.id}/quizzes`)}
+                    modelName="Quiz"
+                    navigateUrl={(id?: number) => `/quizzes/${id}`}
+                    postUrl={server(`/manuals/${manual.id}/quizzes`)}
+                    setAlert={setAlert}
+                />
                 <Assignment
                     modelName="roles"
                     hideCondition={() => true}
@@ -429,10 +278,6 @@ const ManualView = () => {
                     }
                     setAlert={setAlert}
                 />
-                <ManualSectionDisplay manual={manual} setAlert={setAlert} />
-                {/*
-                 * TODO: Add create Quiz table with delete and clickable rows
-                 */}
             </Box>
             {alert.severity && (
                 <Alert
@@ -446,144 +291,6 @@ const ManualView = () => {
                 </Alert>
             )}
         </div>
-    );
-};
-
-interface ManualSection {
-    id: number;
-    title: string;
-}
-
-const ManualSectionDisplay: React.FC<{
-    manual: Manual;
-    setAlert: Dispatch<
-        SetStateAction<{
-            message: string;
-            severity?: "success" | "error" | "warning" | "info" | undefined;
-        }>
-    >;
-}> = ({ manual, setAlert }) => {
-    const navigate = useNavigate();
-    const [refresh, setRefresh] = useState(true);
-    const [sections, setSections] = useState<ManualSection[]>([]);
-    const [selected, setSelected] = useState<ManualSection | undefined>();
-    const [showDelete, setShowDelete] = useState(false);
-
-    useEffect(() => {
-        if (refresh) {
-            const controller = new AbortController();
-
-            fetch(server(`/manuals/${manual.id}/sections`), {
-                method: "GET",
-                credentials: "include",
-                mode: "cors",
-                signal: controller.signal,
-            })
-                .then(async (res) => {
-                    if (res.ok) {
-                        try {
-                            setSections(await res.json());
-                        } catch (e) {
-                            const { message } = e as Error;
-                            setAlert({ message, severity: "error" });
-                        }
-                        return;
-                    }
-                    setAlert({
-                        message: "Unable to load roles",
-                        severity: "error",
-                    });
-                })
-                .catch((e) => {
-                    const { message } = e as Error;
-                    setAlert({ message, severity: "error" });
-                })
-                .finally(() => setRefresh(false));
-
-            return () => {
-                controller.abort();
-            };
-        }
-    }, [manual.id, refresh, setAlert]);
-
-    return (
-        <Box
-            style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "2rem",
-            }}
-        >
-            <Typography variant="h5" variantMapping={{ h5: "h3" }}>
-                Sections
-            </Typography>
-            <Box
-                style={{
-                    display: "flex",
-                    gap: "2rem",
-                }}
-            >
-                <AddSection
-                    manual={manual}
-                    setAlert={setAlert}
-                    toggleRefresh={() => setRefresh(true)}
-                />
-                <TableContainer component={Paper}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>title</TableCell>
-                                {!manual.prevent_edit ? (
-                                    <TableCell></TableCell>
-                                ) : null}
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {sections.map((s) => (
-                                <TableRow
-                                    key={s.id}
-                                    hover={true}
-                                    onClick={() => {
-                                        navigate(
-                                            `/manuals/${manual.id}/sections/${s.id}`
-                                        );
-                                    }}
-                                >
-                                    <TableCell>{s.title}</TableCell>
-                                    {!manual.prevent_edit ? (
-                                        <TableCell>
-                                            <Button
-                                                color="error"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setSelected(s);
-                                                    setShowDelete(true);
-                                                }}
-                                            >
-                                                <Delete />
-                                            </Button>
-                                        </TableCell>
-                                    ) : null}
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Box>
-            <Confirm
-                description={`${selected?.title}`}
-                method="DELETE"
-                title="Delete"
-                onClose={() => {
-                    setShowDelete(false);
-                    setSelected(undefined);
-                }}
-                open={showDelete}
-                setAlert={setAlert}
-                url={server(`/manuals/sections/${selected?.id}`)}
-                toggleRefresh={() => setRefresh(true)}
-            />
-        </Box>
     );
 };
 

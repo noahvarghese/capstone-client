@@ -1,4 +1,5 @@
 import {
+    Alert,
     Box,
     Button,
     List,
@@ -8,13 +9,6 @@ import {
     TextField,
     Typography,
     Link as MuiLink,
-    Alert,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TableCell,
-    Table,
-    TableBody,
 } from "@mui/material";
 import React, {
     Dispatch,
@@ -24,20 +18,20 @@ import React, {
     useState,
 } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router";
+import { useParams } from "react-router";
 import { Link } from "react-router-dom";
 import Loading from "src/components/Loading";
 import { server } from "src/util/permalink";
 import { Manual } from "./ManualsList";
-import { Delete } from "@mui/icons-material";
 import { EditorState, convertToRaw } from "draft-js";
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-import Confirm from "src/components/Confirmation";
+import DynamicTable from "src/components/DynamicTable";
+import DynamicForm from "src/components/DynamicForm";
 
 const CreateContent: React.FC<{
     manual: Manual;
-    toggleRefresh: () => void;
+    triggerRefresh: () => void;
     manualSection: ManualSection;
     setAlert: Dispatch<
         SetStateAction<{
@@ -45,7 +39,7 @@ const CreateContent: React.FC<{
             severity?: "success" | "error" | "warning" | "info" | undefined;
         }>
     >;
-}> = ({ manual, manualSection, setAlert, toggleRefresh }) => {
+}> = ({ manual, manualSection, setAlert, triggerRefresh }) => {
     const [editor, setEditor] = useState(EditorState.createEmpty());
     const {
         register,
@@ -77,7 +71,7 @@ const CreateContent: React.FC<{
                             severity: "success",
                             message: `Succesfully created content for ${manual.title}: ${manualSection.title}`,
                         });
-                        toggleRefresh();
+                        triggerRefresh();
                     } else {
                         setAlert({
                             severity: "error",
@@ -103,7 +97,7 @@ const CreateContent: React.FC<{
             manualSection.title,
             reset,
             setAlert,
-            toggleRefresh,
+            triggerRefresh,
         ]
     );
 
@@ -211,11 +205,8 @@ const ContentView: React.FC<{
         }>
     >;
 }> = ({ manual, manualSection, setAlert }) => {
-    const navigate = useNavigate();
     const [refresh, setRefresh] = useState(true);
     const [contents, setContents] = useState<Content[]>([]);
-    const [showDelete, setShowDelete] = useState(false);
-    const [selected, setSelected] = useState<Content | undefined>();
 
     useEffect(() => {
         if (refresh) {
@@ -262,172 +253,24 @@ const ContentView: React.FC<{
             }}
         >
             <CreateContent
-                toggleRefresh={() => setRefresh(true)}
+                triggerRefresh={() => setRefresh(true)}
                 manual={manual}
                 manualSection={manualSection}
                 setAlert={setAlert}
             />
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>title</TableCell>
-                            {!manual.prevent_edit ? (
-                                <TableCell></TableCell>
-                            ) : null}
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {contents.map((c) => (
-                            <TableRow
-                                key={c.id}
-                                hover
-                                onClick={() =>
-                                    navigate(
-                                        `/manuals/${manual.id}/sections/${manualSection.id}/contents/${c.id}`
-                                    )
-                                }
-                            >
-                                <TableCell>{c.title}</TableCell>
-                                {!manual.prevent_edit ? (
-                                    <TableCell>
-                                        <Button
-                                            color="error"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setSelected(c);
-                                                setShowDelete(true);
-                                            }}
-                                        >
-                                            <Delete />
-                                        </Button>
-                                    </TableCell>
-                                ) : null}
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-                <Confirm
-                    description={`${selected?.title}`}
-                    method="DELETE"
-                    title="Delete"
-                    onClose={() => {
-                        setShowDelete(false);
-                        setSelected(undefined);
-                    }}
-                    open={showDelete}
-                    setAlert={setAlert}
-                    toggleRefresh={() => setRefresh(true)}
-                    url={server(`/manuals/sections/contents/${selected?.id}`)}
-                />
-            </TableContainer>
+            <DynamicTable<{ id: number; title: string }>
+                columns={[{ key: "title", value: "title" }]}
+                data={contents}
+                deleteUrl={(id) => server(`/manuals/sections/contents/${id}`)}
+                description={(c) => `${c?.title}`}
+                navigateUrl={(id) =>
+                    `/manuals/${manual.id}/sections/${manualSection.id}/contents/${id}`
+                }
+                setAlert={setAlert}
+                triggerRefresh={() => setRefresh(true)}
+                disableDeleteForTable={manual.prevent_edit}
+            />
         </Box>
-    );
-};
-
-const UpdateManualSection: React.FC<{
-    manualSection: ManualSection;
-    manual: Manual;
-    toggleRefresh: () => void;
-    setAlert: Dispatch<
-        SetStateAction<{
-            message: string;
-            severity?: "success" | "error" | "warning" | "info" | undefined;
-        }>
-    >;
-}> = ({ manualSection, manual, toggleRefresh, setAlert }) => {
-    const {
-        register,
-        handleSubmit,
-        formState: { errors, isSubmitting },
-        watch,
-        reset,
-    } = useForm({
-        mode: "all",
-        defaultValues: { title: manualSection?.title },
-    });
-
-    const submit = useCallback(
-        (data) => {
-            fetch(server(`/manuals/sections/${manualSection.id}`), {
-                method: "PUT",
-                body: JSON.stringify(data),
-                credentials: "include",
-                mode: "cors",
-            })
-                .then((res) => {
-                    if (res.ok) {
-                        toggleRefresh();
-                        reset({ title: "" });
-                        return;
-                    } else {
-                        setAlert({
-                            message: `Unable to update manual section: ${manualSection.title}`,
-                            severity: "error",
-                        });
-                    }
-                })
-                .catch((e) => {
-                    const { message } = e as Error;
-                    setAlert({ message, severity: "error" });
-                });
-        },
-        [manualSection.id, manualSection.title, reset, setAlert, toggleRefresh]
-    );
-
-    return (
-        <Paper style={{ padding: "1rem", height: "min-content" }}>
-            <Typography variant="h6" variantMapping={{ h6: "h4" }}>
-                Update Section
-            </Typography>
-            <form
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "1rem",
-                }}
-            >
-                <TextField
-                    style={{ margin: "0.5rem 0" }}
-                    {...register("title", {
-                        required: "title cannot be empty",
-                    })}
-                    label="title"
-                    id="name"
-                    error={Boolean(errors.title)}
-                    helperText={errors.title?.message}
-                    type="text"
-                    value={watch("title", "")}
-                    placeholder="title"
-                    required
-                    disabled={manual.prevent_edit || isSubmitting}
-                />
-                <Box
-                    style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                    }}
-                >
-                    <Button
-                        type="reset"
-                        disabled={manual.prevent_edit || isSubmitting}
-                        onClick={() => reset()}
-                        variant="outlined"
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        type="submit"
-                        disabled={manual.prevent_edit || isSubmitting}
-                        onClick={handleSubmit(submit)}
-                        variant="contained"
-                    >
-                        Update
-                    </Button>
-                </Box>
-            </form>
-        </Paper>
     );
 };
 
@@ -461,57 +304,27 @@ const ManualSectionView = () => {
             Promise.all([
                 fetch(server(`/manuals/${manual_id}`), fetchOptions).then(
                     async (res) => {
-                        try {
-                            if (res.ok) {
-                                const r = await res.json();
-                                setManual(r);
-                                return;
-                            }
-                        } catch (e) {
-                            const { message } = e as Error;
-                            setAlert({
-                                message,
-                                severity: "error",
-                            });
+                        if (res.ok) {
+                            const r = await res.json();
+                            setManual(r);
                         }
-
-                        setAlert({
-                            message:
-                                (await res.text()) ??
-                                "Unable to retrieve manual",
-                            severity: "error",
-                        });
                     }
                 ),
                 fetch(server(`/manuals/sections/${id}`), fetchOptions).then(
                     async (res) => {
-                        try {
-                            if (res.ok) {
-                                const r = await res.json();
-                                setManualSection(r);
-                                return;
-                            }
-                        } catch (e) {
-                            const { message } = e as Error;
-                            setAlert({
-                                message,
-                                severity: "error",
-                            });
+                        if (res.ok) {
+                            const r = await res.json();
+                            setManualSection(r);
+                            return;
                         }
-
-                        setAlert({
-                            message:
-                                (await res.text()) ??
-                                "Unable to retrieve manual section",
-                            severity: "error",
-                        });
                     }
                 ),
             ])
                 .catch((e) => {
                     const { message } = e as Error;
+                    console.error(message);
                     setAlert({
-                        message,
+                        message: "Error retrieving data",
                         severity: "error",
                     });
                 })
@@ -560,11 +373,27 @@ const ManualSectionView = () => {
                         gap: "2rem",
                     }}
                 >
-                    <UpdateManualSection
-                        manual={manual}
-                        manualSection={manualSection}
-                        toggleRefresh={() => setRefresh(true)}
+                    <DynamicForm
+                        disableSubmit={manual.prevent_edit}
+                        fetchOptions={{
+                            method: "PUT",
+                            credentials: "include",
+                            mode: "cors",
+                        }}
+                        formOptions={{
+                            title: {
+                                defaultValue: manualSection.title,
+                                label: "title",
+                                type: "input",
+                                registerOptions: {
+                                    required: "title cannot be empty",
+                                },
+                            },
+                        }}
                         setAlert={setAlert}
+                        title="Update Section"
+                        triggerRefresh={() => setRefresh(true)}
+                        url={server(`/manuals/sections/${manualSection.id}`)}
                     />
                     <List>
                         <MuiLink to={`/manuals/${manual.id}`} component={Link}>

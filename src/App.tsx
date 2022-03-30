@@ -31,6 +31,11 @@ import Loading from "./components/Loading";
 import ContentView from "./pages/ContentView";
 import UserManualsList from "./pages/UserManualsList";
 import UserManualView from "./pages/UserManualView";
+import QuizView from "./pages/QuizView";
+import UserQuizList from "./pages/UserQuizList";
+import QuizSectionView from "./pages/QuizSectionView";
+import QuizQuestionView from "./pages/QuizQuestionView";
+import QuizAnswerView from "./pages/QuizAnswerView";
 
 function App() {
     const navigate = useNavigate();
@@ -124,6 +129,19 @@ function App() {
                         element={<ContentView />}
                     />
                     <Route path="/quizzes" element={<QuizzesList />} />
+                    <Route path="/quizzes/:id" element={<QuizView />} />
+                    <Route
+                        path="/quizzes/:quiz_id/sections/:id"
+                        element={<QuizSectionView />}
+                    />
+                    <Route
+                        path="/quizzes/:quiz_id/sections/:section_id/questions/:id"
+                        element={<QuizQuestionView />}
+                    />
+                    <Route
+                        path="/quizzes/:quiz_id/sections/:section_id/questions/:question_id/answers/:id"
+                        element={<QuizAnswerView />}
+                    />
                     <Route path="/reports" element={<Reports />} />
                     <Route path="/logout" element={<Logout />} />
                     <Route path="*" element={<NotFound />} />
@@ -135,7 +153,7 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/manuals" element={<UserManualsList />} />
                     <Route path="/manuals/:id" element={<UserManualView />} />
-                    <Route path="/quizzes" element={<QuizzesList />} />
+                    <Route path="/quizzes" element={<UserQuizList />} />
                     <Route path="/scores" element={<ScoresList />} />
                     <Route path="/logout" element={<Logout />} />
                     <Route path="*" element={<NotFound />} />
