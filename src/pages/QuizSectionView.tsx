@@ -131,14 +131,14 @@ const QuizSectionView: React.FC = () => {
                         <MuiLink to={`/quizzes/${quiz.id}`} component={Link}>
                             <ListItem>
                                 <ListItemText
-                                    primary="quiz title"
+                                    primary="quiz"
                                     secondary={quiz.title}
                                 />
                             </ListItem>
                         </MuiLink>
                         <ListItem>
                             <ListItemText
-                                primary="section title"
+                                primary="section"
                                 secondary={quizSection.title}
                             />
                         </ListItem>

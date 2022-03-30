@@ -4,10 +4,12 @@ import {
     List,
     ListItem,
     ListItemText,
+    Link as MuiLink,
     Alert,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
+import { Link } from "react-router-dom";
 import DynamicDataTable from "src/components/DynamicDataTable";
 import DynamicForm from "src/components/DynamicForm";
 import Loading from "src/components/Loading";
@@ -158,6 +160,25 @@ const QuizQuestionView: React.FC = () => {
                         }}
                     />
                     <List>
+                        <MuiLink to={`/quizzes/${quiz.id}`} component={Link}>
+                            <ListItem>
+                                <ListItemText
+                                    primary="quiz"
+                                    secondary={quiz.title}
+                                />
+                            </ListItem>
+                        </MuiLink>
+                        <MuiLink
+                            to={`/quizzes/${quiz.id}/sections/${quizSection.id}`}
+                            component={Link}
+                        >
+                            <ListItem>
+                                <ListItemText
+                                    primary="section"
+                                    secondary={quizSection.title}
+                                />
+                            </ListItem>
+                        </MuiLink>
                         <ListItem>
                             <ListItemText
                                 primary="question"
@@ -171,6 +192,17 @@ const QuizQuestionView: React.FC = () => {
                             />
                         </ListItem>
                     </List>
+                </Box>
+                <Box>
+                    <Typography variant="body2" sx={{ fontStyle: "italic" }}>
+                        * 'true or false' type questions require that you
+                        designate one answer as correct
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontStyle: "italic" }}>
+                        * 'single correct - multiple choice' type questions will
+                        unset correct answers when designating another answer as
+                        correct
+                    </Typography>
                 </Box>
                 <DynamicDataTable<Answer>
                     columns={[
