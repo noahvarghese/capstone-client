@@ -32,6 +32,8 @@ const QuizQuestionView: React.FC = () => {
         severity?: "warning" | "error" | "info" | "success";
     }>({ message: "" });
 
+    const [refreshDynamicTable, setRefreshForDynamicTable] = useState(false);
+
     useEffect(() => {
         if (refresh) {
             const controller = new AbortController();
@@ -109,7 +111,14 @@ const QuizQuestionView: React.FC = () => {
                             mode: "cors",
                         }}
                         setAlert={setAlert}
-                        triggerRefresh={() => setRefresh(true)}
+                        triggerRefresh={() => {
+                            setRefresh(true);
+                            if (
+                                quizQuestion.question_type === "true or false"
+                            ) {
+                                setRefreshForDynamicTable(true);
+                            }
+                        }}
                         disableSubmit={quiz.prevent_edit}
                         url={server(
                             `/quizzes/sections/questions/${quizQuestion.id}`
@@ -168,6 +177,10 @@ const QuizQuestionView: React.FC = () => {
                         { key: "answer", value: "answer" },
                         { key: "correct", value: "correct" },
                     ]}
+                    controlledRefresh={{
+                        refreshComplete: () => setRefreshForDynamicTable(false),
+                        shouldRefresh: refreshDynamicTable,
+                    }}
                     deleteUrl={(id) =>
                         server(`/quizzes/sections/questions/answers/${id}`)
                     }

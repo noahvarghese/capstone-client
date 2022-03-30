@@ -11,6 +11,7 @@ import DynamicTable from "./DynamicTable";
 
 interface DynamicDataTableProps<T extends { id: number }> {
     columns: { key: keyof T; value: string }[];
+    controlledRefresh?: { shouldRefresh: boolean; refreshComplete: () => void };
     deleteUrl: (id?: number) => string;
     description: (model?: T) => string;
     disableDeleteForRow?: (model: T) => boolean;
@@ -33,6 +34,7 @@ interface DynamicDataTableProps<T extends { id: number }> {
 
 const DynamicDataTable = <T extends { id: number }>({
     columns,
+    controlledRefresh,
     deleteUrl,
     description,
     disableDeleteForRow,
@@ -47,6 +49,13 @@ const DynamicDataTable = <T extends { id: number }>({
 }: DynamicDataTableProps<T>) => {
     const [refresh, setRefresh] = useState(true);
     const [data, setData] = useState<T[]>([]);
+
+    useEffect(() => {
+        if (controlledRefresh?.shouldRefresh && !refresh) {
+            setRefresh(true);
+            controlledRefresh.refreshComplete();
+        }
+    }, [controlledRefresh, refresh]);
 
     useEffect(() => {
         if (refresh) {
