@@ -37,39 +37,11 @@ const QuizSectionView: React.FC = () => {
     const { id, quiz_id } = useParams();
     const [quiz, setQuiz] = useState<Quiz | undefined>();
     const [quizSection, setQuizSection] = useState<Section | undefined>();
-    const [quizQuestionTypes, setQuizQuestionTypes] = useState<QuestionType[]>(
-        []
-    );
     const [refresh, setRefresh] = useState(true);
     const [alert, setAlert] = useState<{
         message: string;
         severity?: "warning" | "error" | "info" | "success";
     }>({ message: "" });
-
-    useEffect(() => {
-        const controller = new AbortController();
-
-        fetch(server(`/question_types`), {
-            method: "GET",
-            credentials: "include",
-            mode: "cors",
-            signal: controller.signal,
-        })
-            .then((res) => res.json())
-            .then(setQuizQuestionTypes)
-            .catch((e) => {
-                const { message } = e as Error;
-                console.error(message);
-                setAlert({
-                    message: "Unable to retrieve question types",
-                    severity: "error",
-                });
-            });
-
-        return () => {
-            controller.abort();
-        };
-    }, []);
 
     useEffect(() => {
         if (refresh) {
@@ -197,10 +169,20 @@ const QuizSectionView: React.FC = () => {
                             defaultValue: "",
                             label: "question type",
                             type: "select",
-                            items: quizQuestionTypes.map((qq) => ({
-                                key: qq.id,
-                                value: qq.question_type,
-                            })),
+                            items: [
+                                {
+                                    key: "true or false",
+                                    value: "true or false",
+                                },
+                                {
+                                    key: "multiple correct - multiple choice",
+                                    value: "multiple correct - multiple choice",
+                                },
+                                {
+                                    key: "single correct - multiple choice",
+                                    value: "single correct - multiple choice",
+                                },
+                            ],
                             registerOptions: {
                                 required: "question type cannot be empty",
                             },
