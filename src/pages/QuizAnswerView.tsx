@@ -113,9 +113,6 @@ const QuizAnswerView = () => {
                         gap: "2rem",
                     }}
                 >
-                    {
-                        // TODO: Fix boolean passing in request
-                    }
                     <DynamicForm
                         title="Update Answer"
                         fetchOptions={{
