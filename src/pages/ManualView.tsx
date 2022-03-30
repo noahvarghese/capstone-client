@@ -216,6 +216,7 @@ const ManualView = () => {
                         { key: "prevent_edit", value: "prevent edit" },
                     ]}
                     deleteUrl={(id?: number) => server(`/quizzes/${id}`)}
+                    disableDeleteForRow={(q) => q.prevent_delete}
                     description={(q) => `${q?.title}`}
                     formOptions={{
                         title: {
