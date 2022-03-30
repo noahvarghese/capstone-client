@@ -12,7 +12,7 @@ import DynamicDataTable from "src/components/DynamicDataTable";
 import DynamicForm from "src/components/DynamicForm";
 import Loading from "src/components/Loading";
 import { server } from "src/util/permalink";
-import { Question, QuestionType, Section } from "./QuizSectionView";
+import { Question, Section } from "./QuizSectionView";
 import { Quiz } from "./QuizzesList";
 
 export interface Answer {
@@ -26,39 +26,11 @@ const QuizQuestionView: React.FC = () => {
     const [quiz, setQuiz] = useState<Quiz | undefined>();
     const [quizSection, setQuizSection] = useState<Section | undefined>();
     const [quizQuestion, setQuizQuestion] = useState<Question | undefined>();
-    const [quizQuestionTypes, setQuizQuestionTypes] = useState<QuestionType[]>(
-        []
-    );
     const [refresh, setRefresh] = useState(true);
     const [alert, setAlert] = useState<{
         message: string;
         severity?: "warning" | "error" | "info" | "success";
     }>({ message: "" });
-
-    useEffect(() => {
-        const controller = new AbortController();
-
-        fetch(server(`/question_types`), {
-            method: "GET",
-            credentials: "include",
-            mode: "cors",
-            signal: controller.signal,
-        })
-            .then((res) => res.json())
-            .then(setQuizQuestionTypes)
-            .catch((e) => {
-                const { message } = e as Error;
-                console.error(message);
-                setAlert({
-                    message: "Unable to retrieve question types",
-                    severity: "error",
-                });
-            });
-
-        return () => {
-            controller.abort();
-        };
-    }, []);
 
     useEffect(() => {
         if (refresh) {
@@ -140,7 +112,7 @@ const QuizQuestionView: React.FC = () => {
                         triggerRefresh={() => setRefresh(true)}
                         disableSubmit={quiz.prevent_edit}
                         url={server(
-                            `/quizzes/sections/questions${quizQuestion.id}`
+                            `/quizzes/sections/questions/${quizQuestion.id}`
                         )}
                         titleVariant="h5"
                         formOptions={{
@@ -152,15 +124,24 @@ const QuizQuestionView: React.FC = () => {
                                     required: "question cannot be empty",
                                 },
                             },
-                            quiz_question_type_id: {
-                                defaultValue:
-                                    quizQuestion.quiz_question_type_id,
+                            question_type: {
+                                defaultValue: quizQuestion.question_type,
                                 label: "question type",
                                 type: "select",
-                                items: quizQuestionTypes.map((qqt) => ({
-                                    key: qqt.id,
-                                    value: qqt.question_type,
-                                })),
+                                items: [
+                                    {
+                                        key: "true or false",
+                                        value: "true or false",
+                                    },
+                                    {
+                                        key: "multiple correct - multiple choice",
+                                        value: "multiple correct - multiple choice",
+                                    },
+                                    {
+                                        key: "single correct - multiple choice",
+                                        value: "single correct - multiple choice",
+                                    },
+                                ],
                                 registerOptions: {
                                     required: "question type cannot be empty",
                                 },
@@ -224,8 +205,14 @@ const QuizQuestionView: React.FC = () => {
                         `/quizzes/sections/questions/${quizQuestion.id}/answers`
                     )}
                     setAlert={setAlert}
-                    disableForm={quiz.prevent_edit}
-                    disableDeleteForTable={quiz.prevent_edit}
+                    disableForm={
+                        quiz.prevent_edit ||
+                        quizQuestion.question_type === "true or false"
+                    }
+                    disableDeleteForTable={
+                        quiz.prevent_edit ||
+                        quizQuestion.question_type === "true or false"
+                    }
                 />
             </Box>
             {alert.severity && (

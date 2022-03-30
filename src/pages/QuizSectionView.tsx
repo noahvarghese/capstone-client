@@ -21,16 +21,13 @@ export interface Section {
     title: string;
 }
 
-export interface QuestionType {
-    id: number;
-    question_type: string;
-}
-
 export interface Question {
     id: number;
     question: string;
-    quiz_question_type_id: number;
-    question_type: string;
+    question_type:
+        | "true or false"
+        | "multiple correct - multiple choice"
+        | "single correct - multiple choice";
 }
 
 const QuizSectionView: React.FC = () => {
@@ -165,7 +162,7 @@ const QuizSectionView: React.FC = () => {
                                 required: "question cannot be empty",
                             },
                         },
-                        quiz_question_type_id: {
+                        question_type: {
                             defaultValue: "",
                             label: "question type",
                             type: "select",
