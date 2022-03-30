@@ -1,5 +1,11 @@
 import { Box, Typography } from "@mui/material";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, {
+    Dispatch,
+    SetStateAction,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
 import DynamicForm, { FormInputOptions } from "./DynamicForm";
 import DynamicTable from "./DynamicTable";
 
@@ -73,6 +79,27 @@ const DynamicDataTable = <T extends { id: number }>({
         }
     }, [getUrl, refresh, setAlert]);
 
+    // Correctly pluralize english words
+    const title = useMemo(() => {
+        let currentTitle = modelName;
+
+        if (currentTitle[currentTitle.length - 1] === "z") {
+            currentTitle += "z";
+        }
+
+        if (
+            ["ss", "ch", "sh", "zz"].includes(
+                currentTitle.slice(currentTitle.length - 2)
+            )
+        ) {
+            currentTitle += "es";
+        } else {
+            currentTitle += "s";
+        }
+
+        return currentTitle;
+    }, [modelName]);
+
     return (
         <Box
             style={{
@@ -82,8 +109,7 @@ const DynamicDataTable = <T extends { id: number }>({
             }}
         >
             <Typography variant="h5" variantMapping={{ h5: "h3" }}>
-                {modelName}
-                {"s"}
+                {title}
             </Typography>
             <Box
                 style={{
