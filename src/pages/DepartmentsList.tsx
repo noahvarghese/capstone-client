@@ -28,7 +28,7 @@ import React, {
     useState,
 } from "react";
 import AddIcon from "@mui/icons-material/Add";
-import AppContext, { Department } from "src/context";
+import AppContext, { Department, Role } from "src/context";
 import { server } from "src/util/permalink";
 import { useForm } from "react-hook-form";
 import { Delete } from "@mui/icons-material";
@@ -145,7 +145,9 @@ const Departments = () => {
     const [selected, setSelected] = useState<Department | undefined>();
     const [showCreate, setShowCreate] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
-    const [departments, setDepartments] = useState<Department[]>([]);
+    const [departments, setDepartments] = useState<
+        (Department & Partial<{ roles: Role[] }>)[]
+    >([]);
     const [alert, setAlert] = useState<{
         message: string;
         severity?: "warning" | "error" | "info" | "success";
@@ -162,6 +164,12 @@ const Departments = () => {
     useEffect(() => {
         if (refresh) {
             const controller = new AbortController();
+            const fetchOptions: RequestInit = {
+                method: "GET",
+                credentials: "include",
+                mode: "cors",
+                signal: controller.signal,
+            };
 
             fetch(
                 server(
@@ -171,19 +179,28 @@ const Departments = () => {
                             : ""
                     }${search ? `&search=${search}` : ""}`
                 ),
-                {
-                    method: "GET",
-                    credentials: "include",
-                    mode: "cors",
-                    signal: controller.signal,
-                }
+                fetchOptions
             )
                 .then(async (res) => {
                     if (res.ok) {
                         try {
-                            const data = await res.json();
-                            setDepartments(data.data);
-                            setCount(data.count);
+                            const { data, count } = await res.json();
+
+                            const departments = await Promise.all(
+                                data.map((d: Department) =>
+                                    fetch(
+                                        server(`/departments/${d.id}/roles`),
+                                        fetchOptions
+                                    )
+                                        .then((result) => result.json())
+                                        .then((r) => ({
+                                            ...d,
+                                            roles: r,
+                                        }))
+                                )
+                            );
+                            setDepartments(departments);
+                            setCount(count);
                         } catch (e) {
                             const { message } = e as Error;
                             setAlert({ message, severity: "error" });
@@ -329,39 +346,48 @@ const Departments = () => {
                                     number of roles
                                 </TableSortLabel>
                             </TableCell>
-                            {isAdmin ? <TableCell></TableCell> : null}
+                            <TableCell></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {departments.map((d) => (
-                            <TableRow
-                                key={d.id}
-                                hover={true}
-                                onClick={() => {
-                                    setSelected(d);
-                                    navigate(`/departments/${d.id}`);
-                                }}
-                            >
-                                <TableCell>{d.name}</TableCell>
-                                <TableCell>{d.num_managers}</TableCell>
-                                <TableCell>{d.num_members}</TableCell>
-                                <TableCell>{d.num_roles}</TableCell>
-                                {isAdmin ? (
-                                    <TableCell>
-                                        <Button
-                                            color="error"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setSelected(d);
-                                                setShowDelete(true);
-                                            }}
-                                        >
-                                            <Delete />
-                                        </Button>
-                                    </TableCell>
-                                ) : null}
-                            </TableRow>
-                        ))}
+                        {departments.map(
+                            (d: Department & Partial<{ roles: Role[] }>) => {
+                                const hasAdminRole =
+                                    d.roles?.find(
+                                        (r) => r.access === "ADMIN"
+                                    ) !== undefined;
+
+                                return (
+                                    <TableRow
+                                        key={d.id}
+                                        hover={true}
+                                        onClick={() => {
+                                            setSelected(d);
+                                            navigate(`/departments/${d.id}`);
+                                        }}
+                                    >
+                                        <TableCell>{d.name}</TableCell>
+                                        <TableCell>{d.num_managers}</TableCell>
+                                        <TableCell>{d.num_members}</TableCell>
+                                        <TableCell>{d.num_roles}</TableCell>
+                                        <TableCell>
+                                            {!hasAdminRole && isAdmin ? (
+                                                <Button
+                                                    color="error"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setSelected(d);
+                                                        setShowDelete(true);
+                                                    }}
+                                                >
+                                                    <Delete />
+                                                </Button>
+                                            ) : null}
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            }
+                        )}
                     </TableBody>
                 </Table>
                 <TablePagination
@@ -385,7 +411,7 @@ const Departments = () => {
                     setShowDelete(false);
                     setSelected(undefined);
                 }}
-                toggleRefresh={() => setRefresh(true)}
+                triggerRefresh={() => setRefresh(true)}
             />
             <CreateDepartment
                 refresh={() => setRefresh(true)}

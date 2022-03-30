@@ -132,7 +132,7 @@ const MemberView = () => {
                         <UpdateMember
                             setAlert={setAlert}
                             member={member}
-                            toggleRefresh={() => setRefresh(true)}
+                            triggerRefresh={() => setRefresh(true)}
                         />
                     ) : (
                         <Paper

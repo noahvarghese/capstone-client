@@ -3,7 +3,7 @@ import React, { useCallback, useState } from "react";
 // Page is 0 based
 const usePagination = (
     defaultLimit: number,
-    toggleRefresh: () => void
+    triggerRefresh: () => void
 ): {
     limit: number;
     page: number;
@@ -21,9 +21,9 @@ const usePagination = (
     const onRowsPerPageChange = useCallback(
         (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
             setLimit(Number(e.target.value));
-            toggleRefresh();
+            triggerRefresh();
         },
-        [toggleRefresh]
+        [triggerRefresh]
     );
 
     const onPageChange = useCallback(
@@ -32,9 +32,9 @@ const usePagination = (
             p: number
         ) => {
             setPage(p);
-            toggleRefresh();
+            triggerRefresh();
         },
-        [toggleRefresh]
+        [triggerRefresh]
     );
 
     return { page, limit, onPageChange, onRowsPerPageChange };

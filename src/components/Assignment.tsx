@@ -23,7 +23,7 @@ import Confirm from "./Confirmation";
 interface AssignmentProps<T> {
     // Plural
     modelName: string;
-    toggleRefresh?: () => void;
+    triggerRefresh?: () => void;
     hideCondition: (m?: T) => boolean;
     // URL to retrieve the assigned models from
     assignedURL: string;
@@ -52,7 +52,7 @@ const Assignment = <T extends { id: number }>({
     setAlert,
     description,
     hideCondition,
-    toggleRefresh,
+    triggerRefresh,
 }: AssignmentProps<T>) => {
     const navigate = useNavigate();
     const [refresh, setRefresh] = useState(true);
@@ -213,9 +213,9 @@ const Assignment = <T extends { id: number }>({
                 title="Assign"
                 url={assignmentURL(selected)}
                 description={assignmentDescription(selected)}
-                toggleRefresh={() => {
+                triggerRefresh={() => {
                     setRefresh(true);
-                    if (toggleRefresh) toggleRefresh();
+                    if (triggerRefresh) triggerRefresh();
                 }}
                 setAlert={setAlert}
                 onClose={() => {
@@ -229,9 +229,9 @@ const Assignment = <T extends { id: number }>({
                 title="Remove"
                 url={assignmentURL(selected)}
                 description={assignmentDescription(selected)}
-                toggleRefresh={() => {
+                triggerRefresh={() => {
                     setRefresh(true);
-                    if (toggleRefresh) toggleRefresh();
+                    if (triggerRefresh) triggerRefresh();
                 }}
                 setAlert={setAlert}
                 onClose={() => {

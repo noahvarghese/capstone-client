@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 
 const useSort = (
-    toggleRefresh: () => void
+    triggerRefresh: () => void
 ): {
     sortColumn: string;
     sortOrder: "asc" | "desc";
@@ -22,9 +22,9 @@ const useSort = (
                     setSortColumn("");
                 }
             }
-            toggleRefresh();
+            triggerRefresh();
         },
-        [sortColumn, sortOrder, toggleRefresh]
+        [sortColumn, sortOrder, triggerRefresh]
     );
     return { sortColumn, sortOrder, sortCallback };
 };
