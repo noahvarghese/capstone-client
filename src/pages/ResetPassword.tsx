@@ -18,7 +18,7 @@ const ResetPassword: React.FC = () => {
         defaultValues: { password: "", confirm_password: "" },
     });
 
-    const { token } = useParams<{ token: string }>();
+    const { token } = useParams();
 
     const submit = useCallback(
         async (data) => {
