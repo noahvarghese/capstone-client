@@ -75,7 +75,7 @@ function App() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userId]);
 
-    if (userId && (businesses.length === 0 || roles.length === 0)) {
+    if (userId && businesses.length === 0) {
         return <Loading />;
     }
 
