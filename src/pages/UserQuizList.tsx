@@ -10,20 +10,24 @@ const QuizCard: React.FC<{ quiz: { attempts?: any[] } & Quiz }> = ({
     quiz,
 }) => {
     const navigate = useNavigate();
+    const numberOfAttempts = quiz.attempts?.length ?? 0;
 
     return (
         <Box
             className="quiz-card"
             sx={{
-                "&:hover": {
-                    boxShadow:
-                        "8px 12px 12px rgba(44, 44, 44, 0.25) !important",
-                    transform: "scale(1.01)",
-                },
+                "&:hover":
+                    numberOfAttempts < quiz.max_attempts
+                        ? {
+                              boxShadow:
+                                  "8px 12px 12px rgba(44, 44, 44, 0.25) !important",
+                              transform: "scale(1.01)",
+                              cursor: "pointer",
+                          }
+                        : {},
             }}
             style={{
                 position: "relative",
-                cursor: "pointer",
                 transition: "all 0.15s ease-in-out",
                 width: "20rem",
                 height: "20rem",
@@ -36,7 +40,10 @@ const QuizCard: React.FC<{ quiz: { attempts?: any[] } & Quiz }> = ({
                 alignItems: "flex-start",
                 justifyContent: "center",
             }}
-            onClick={() => navigate(`/quizzes/${quiz.id}`)}
+            onClick={() => {
+                if (numberOfAttempts < quiz.max_attempts)
+                    navigate(`/quizzes/${quiz.id}`);
+            }}
         >
             <Typography
                 variant="h2"
@@ -57,7 +64,7 @@ const QuizCard: React.FC<{ quiz: { attempts?: any[] } & Quiz }> = ({
                     bottom: "1rem",
                 }}
             >
-                Attempt: {quiz.attempts?.length} / {quiz.max_attempts}
+                Attempt: {numberOfAttempts} / {quiz.max_attempts}
             </Box>
         </Box>
     );
