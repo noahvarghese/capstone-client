@@ -194,7 +194,7 @@ const DepartmentView: React.FC = () => {
                     }}
                     getUrl={server(`/departments/${department.id}/roles`)}
                     modelName="Role"
-                    navigateUrl={(id) => server(`/roles/${id}`)}
+                    navigateUrl={(id) => `/roles/${id}`}
                     postUrl={server("/roles")}
                     setAlert={setAlert}
                 />
