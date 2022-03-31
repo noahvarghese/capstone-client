@@ -23,7 +23,7 @@ const Nav: React.FC = () => {
         </MuiLink>
     );
 
-    if (userId && businesses.length > 0 && roles.length > 0) {
+    if (userId && businesses.length > 0) {
         if (
             roles.find(
                 (r: Role) => r.access === "ADMIN" || r.access === "MANAGER"
