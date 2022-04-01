@@ -3,11 +3,14 @@ import {
     Alert,
     Box,
     Button,
+    FormControlLabel,
     ListItemIcon,
     ListItemText,
     MenuItem,
     MenuList,
     Paper,
+    Radio,
+    RadioGroup,
     Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
@@ -175,7 +178,12 @@ const UserQuizView: React.FC = () => {
                         }}
                     >
                         {startQuiz ? (
-                            <Paper sx={{ width: "max-content" }}>
+                            <Paper
+                                sx={{
+                                    maxWidth: "max-content",
+                                    minWidth: "20rem",
+                                }}
+                            >
                                 <MenuList dense>
                                     {quiz.sections.map((s, index) => (
                                         <MenuItem
@@ -183,6 +191,12 @@ const UserQuizView: React.FC = () => {
                                             onClick={() =>
                                                 setSelectedSection(s)
                                             }
+                                            style={{
+                                                paddingRight: "2rem",
+                                                textAlign: "right",
+                                                minWidth: "20rem",
+                                                maxWidth: "max-content",
+                                            }}
                                         >
                                             {
                                                 // TODO: Check if selected is set otherwise use first section
@@ -225,6 +239,7 @@ const UserQuizView: React.FC = () => {
                                                           flexDirection:
                                                               "column",
                                                           gap: "1rem",
+                                                          margin: "1rem",
                                                       }}
                                                   >
                                                       <Typography
@@ -238,32 +253,52 @@ const UserQuizView: React.FC = () => {
                                                       >
                                                           {q.question}
                                                       </Typography>
-                                                      <Box>
+                                                      <Box
+                                                          sx={{
+                                                              display: "flex",
+                                                              flexDirection:
+                                                                  "column",
+                                                              alignItems:
+                                                                  "flex-start",
+                                                          }}
+                                                      >
                                                           {q.question_type ===
                                                               "true or false" ||
                                                           q.question_type ===
-                                                              "single correct - multiple choice"
-                                                              ? q.answers.map(
-                                                                    (
-                                                                        a,
-                                                                        index
-                                                                    ) => (
-                                                                        <input
-                                                                            key={`answer${index}`}
-                                                                            type="radio"
-                                                                            value={
-                                                                                a.answer
-                                                                            }
-                                                                        />
-                                                                    )
-                                                                )
-                                                              : null}
+                                                              "single correct - multiple choice" ? (
+                                                              <RadioGroup>
+                                                                  {q.answers.map(
+                                                                      (
+                                                                          a,
+                                                                          index
+                                                                      ) => (
+                                                                          <FormControlLabel
+                                                                              key={
+                                                                                  a.answer +
+                                                                                  index.toString()
+                                                                              }
+                                                                              value={
+                                                                                  a.answer
+                                                                              }
+                                                                              control={
+                                                                                  <Radio />
+                                                                              }
+                                                                              label={a.answer.toString()}
+                                                                          />
+                                                                      )
+                                                                  )}
+                                                              </RadioGroup>
+                                                          ) : null}
                                                       </Box>
                                                       {index !==
                                                       selectedSection.questions
                                                           .length -
                                                           1 ? (
-                                                          <hr />
+                                                          <hr
+                                                              style={{
+                                                                  width: "100%",
+                                                              }}
+                                                          />
                                                       ) : null}
                                                   </Box>
                                               )
