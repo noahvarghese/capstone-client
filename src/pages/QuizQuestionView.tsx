@@ -231,6 +231,7 @@ const QuizQuestionView: React.FC = () => {
                                 { key: "false", value: "false" },
                             ],
                             registerOptions: {
+                                setValueAs: (v) => v === "true",
                                 required: "correct cannot be empty",
                             },
                         },
