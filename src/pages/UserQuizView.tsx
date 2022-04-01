@@ -3,6 +3,7 @@ import {
     Alert,
     Box,
     Button,
+    Checkbox,
     FormControlLabel,
     ListItemIcon,
     ListItemText,
@@ -288,6 +289,30 @@ const UserQuizView: React.FC = () => {
                                                                       )
                                                                   )}
                                                               </RadioGroup>
+                                                          ) : q.question_type ===
+                                                            "multiple correct - multiple choice" ? (
+                                                              q.answers.map(
+                                                                  (
+                                                                      a,
+                                                                      index
+                                                                  ) => (
+                                                                      <FormControlLabel
+                                                                          key={
+                                                                              a.answer +
+                                                                              index.toString()
+                                                                          }
+                                                                          value={
+                                                                              a.answer
+                                                                          }
+                                                                          control={
+                                                                              <Checkbox />
+                                                                          }
+                                                                          label={
+                                                                              a.answer
+                                                                          }
+                                                                      />
+                                                                  )
+                                                              )
                                                           ) : null}
                                                       </Box>
                                                       {index !==
