@@ -4,6 +4,7 @@ import {
     Alert,
     Button,
     CircularProgress,
+    Link as MuiLink,
     MenuItem,
     TextField,
 } from "@mui/material";
@@ -13,6 +14,7 @@ import SingleFormPage from "src/components/SingleFormPage";
 import { passwordValidator, phoneValidator } from "src/util/validators";
 import { server } from "src/util/permalink";
 import AppContext from "src/context";
+import { Link } from "react-router-dom";
 
 const Register: React.FC = () => {
     const {
@@ -83,15 +85,15 @@ const Register: React.FC = () => {
             title="Register"
             onSubmit={handleSubmit(submit)}
             buttons={[
-                <Button
-                    key="login"
-                    href="/login"
-                    type="button"
-                    variant="outlined"
-                    disabled={isSubmitting}
-                >
-                    Login
-                </Button>,
+                <MuiLink to="/login" component={Link} key="login">
+                    <Button
+                        type="button"
+                        variant="outlined"
+                        disabled={isSubmitting}
+                    >
+                        Login
+                    </Button>
+                </MuiLink>,
                 <Button
                     key="register"
                     type="submit"

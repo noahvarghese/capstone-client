@@ -35,7 +35,7 @@ import validator from "validator";
 import { phoneValidator } from "src/util/validators";
 import { SetStateAction } from "react";
 import { Delete } from "@mui/icons-material";
-import { useNavigate } from "react-router";
+import { useHistory } from "react-router-dom";
 import useRoles from "src/hooks/data/useRoles";
 import useDepartments from "src/hooks/data/useDepartments";
 import useSort from "src/hooks/useSort";
@@ -162,7 +162,7 @@ const InviteMember: React.FC<{
 };
 
 const Members: React.FC = () => {
-    const navigate = useNavigate();
+    const history = useHistory();
     const { roles: userRoles } = useContext(AppContext);
     const [selected, setSelected] = useState<Member | undefined>();
     const [refresh, setRefresh] = useState(false);
@@ -482,7 +482,7 @@ const Members: React.FC = () => {
                                     key={m.id}
                                     hover={true}
                                     onClick={() => {
-                                        navigate(`/members/${m.id}`);
+                                        history.push(`/members/${m.id}`);
                                     }}
                                 >
                                     <TableCell>{m.first_name}</TableCell>

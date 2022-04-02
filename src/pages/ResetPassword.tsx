@@ -1,12 +1,12 @@
 import { Alert, Button, CircularProgress, TextField } from "@mui/material";
 import React, { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router";
+import { useHistory, useParams } from "react-router";
 import SingleFormPage from "src/components/SingleFormPage";
 import { server } from "src/util/permalink";
 
 const ResetPassword: React.FC = () => {
-    const navigate = useNavigate();
+    const history = useHistory();
     const {
         register,
         handleSubmit,
@@ -18,7 +18,7 @@ const ResetPassword: React.FC = () => {
         defaultValues: { password: "", confirm_password: "" },
     });
 
-    const { token } = useParams();
+    const { token } = useParams<{ token?: string }>();
 
     const submit = useCallback(
         async (data) => {
@@ -30,7 +30,7 @@ const ResetPassword: React.FC = () => {
             })
                 .then((res) => {
                     if (res.ok) {
-                        navigate("/");
+                        history.push("/");
                     } else {
                         res.text().then((t) =>
                             setAlert({

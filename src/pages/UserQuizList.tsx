@@ -1,6 +1,6 @@
 import { Alert, Box, MenuItem, TextField, Typography } from "@mui/material";
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router";
+import { useHistory } from "react-router-dom";
 import AppContext from "src/context";
 import useManuals from "src/hooks/data/useManuals";
 import { server } from "src/util/permalink";
@@ -9,7 +9,7 @@ import { Quiz } from "./QuizzesList";
 const QuizCard: React.FC<{ quiz: { attempts?: any[] } & Quiz }> = ({
     quiz,
 }) => {
-    const navigate = useNavigate();
+    const history = useHistory();
     const numberOfAttempts = quiz.attempts?.length ?? 0;
 
     return (
@@ -42,7 +42,7 @@ const QuizCard: React.FC<{ quiz: { attempts?: any[] } & Quiz }> = ({
             }}
             onClick={() => {
                 if (numberOfAttempts < quiz.max_attempts)
-                    navigate(`/quizzes/${quiz.id}`);
+                    history.push(`/quizzes/${quiz.id}`);
             }}
         >
             <Typography

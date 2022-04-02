@@ -1,4 +1,10 @@
-import { Checkbox, FormControlLabel, MenuItem, TextField } from "@mui/material";
+import {
+    Checkbox,
+    FormControlLabel,
+    MenuItem,
+    Radio,
+    TextField,
+} from "@mui/material";
 import {
     FieldError,
     ControllerRenderProps,
@@ -23,7 +29,7 @@ const Input: React.FC<{
     disabled: boolean;
     error: FieldError;
     setValueAs?: (v: any) => any;
-    type: "input" | "checkbox" | "select" | "hidden";
+    type: "input" | "checkbox" | "radio" | "select" | "hidden";
     field: ControllerRenderProps<FieldValues, string>;
 }> = ({ items, type, field, disabled, error, label, inputType }) => {
     let validator: (e: BaseEvent) => BaseEvent;
@@ -75,6 +81,14 @@ const Input: React.FC<{
                     helperText={error?.message}
                     disabled={disabled}
                     required
+                />
+            );
+        case "radio":
+            return (
+                <FormControlLabel
+                    value={field.value}
+                    control={<Radio />}
+                    label={label}
                 />
             );
         case "select":

@@ -20,7 +20,8 @@ import { useForm } from "react-hook-form";
 import { convertToRaw, EditorState, convertFromRaw } from "draft-js";
 
 const ContentView = () => {
-    const { section_id, manual_id, id } = useParams();
+    const { section_id, manual_id, id } =
+        useParams<{ id?: string; section_id?: string; manual_id?: string }>();
 
     const [manual, setManual] = useState<Manual | undefined>();
     const [manualSection, setManualSection] = useState<

@@ -19,7 +19,7 @@ import AppContext, { Member, Role } from "src/context";
 import { server } from "src/util/permalink";
 
 const MemberView = () => {
-    const { id } = useParams();
+    const { id } = useParams<{ id?: string }>();
     const { userId } = useContext(AppContext);
     const [member, setMember] = useState<Member | undefined>();
     const [refresh, setRefresh] = useState(true);

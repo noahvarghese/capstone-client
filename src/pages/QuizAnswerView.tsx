@@ -18,7 +18,13 @@ import { Section, Question } from "./QuizSectionView";
 import { Quiz } from "./QuizzesList";
 
 const QuizAnswerView = () => {
-    const { id, question_id, section_id, quiz_id } = useParams();
+    const { id, question_id, section_id, quiz_id } =
+        useParams<{
+            id?: string;
+            question_id?: string;
+            section_id?: string;
+            quiz_id?: string;
+        }>();
     const [quiz, setQuiz] = useState<Quiz | undefined>();
     const [quizSection, setQuizSection] = useState<Section | undefined>();
     const [quizQuestion, setQuizQuestion] = useState<Question | undefined>();

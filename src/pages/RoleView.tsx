@@ -25,7 +25,7 @@ const RoleView: React.FC = () => {
         [roles]
     );
 
-    const { id } = useParams();
+    const { id } = useParams<{ id?: string }>();
     const [role, setRole] = useState<Role | undefined>();
     const [refresh, setRefresh] = useState(true);
     const [alert, setAlert] = useState<{

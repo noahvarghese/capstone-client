@@ -1,12 +1,12 @@
 import { Alert, Box, MenuItem, TextField, Typography } from "@mui/material";
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router";
+import { useHistory } from "react-router-dom";
 import AppContext from "src/context";
 import { server } from "src/util/permalink";
 import { Manual } from "./ManualsList";
 
 const ManualCard: React.FC<{ manual: Manual }> = ({ manual }) => {
-    const navigate = useNavigate();
+    const history = useHistory();
 
     return (
         <Box
@@ -30,7 +30,7 @@ const ManualCard: React.FC<{ manual: Manual }> = ({ manual }) => {
                 borderRadius: "4px",
                 alignItems: "center",
             }}
-            onClick={() => navigate(`/manuals/${manual.id}`)}
+            onClick={() => history.push(`/manuals/${manual.id}`)}
         >
             <Typography
                 variant="h2"

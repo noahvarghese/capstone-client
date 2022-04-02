@@ -10,7 +10,7 @@ import {
     TableRow,
 } from "@mui/material";
 import React, { Dispatch, SetStateAction, useState } from "react";
-import { useNavigate } from "react-router";
+import { useHistory } from "react-router-dom";
 import Confirm from "./Confirmation";
 
 interface DynamicTableProps<T extends { id: number }> {
@@ -41,7 +41,7 @@ const DynamicTable = <T extends { id: number }>({
     setAlert,
     triggerRefresh,
 }: DynamicTableProps<T>): React.ReactElement => {
-    const navigate = useNavigate();
+    const history = useHistory();
     const [selected, setSelected] = useState<T | undefined>();
     const [showDelete, setShowDelete] = useState(false);
 
@@ -64,7 +64,7 @@ const DynamicTable = <T extends { id: number }>({
                             <TableRow
                                 key={"row" + d.id}
                                 hover={true}
-                                onClick={() => navigate(navigateUrl(d.id))}
+                                onClick={() => history.push(navigateUrl(d.id))}
                             >
                                 {columns.map((c) => (
                                     <TableCell

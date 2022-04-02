@@ -32,7 +32,7 @@ import AppContext, { Department, Role } from "src/context";
 import { server } from "src/util/permalink";
 import { useForm } from "react-hook-form";
 import { Delete } from "@mui/icons-material";
-import { useNavigate } from "react-router";
+import { useHistory } from "react-router-dom";
 import useSort from "src/hooks/useSort";
 import usePagination from "src/hooks/usePagination";
 import Confirm from "src/components/Confirmation";
@@ -139,7 +139,7 @@ const CreateDepartment: React.FC<{
 
 const Departments = () => {
     const { roles } = useContext(AppContext);
-    const navigate = useNavigate();
+    const history = useHistory();
     const [search, setSearch] = useState("");
     const [refresh, setRefresh] = useState(true);
     const [selected, setSelected] = useState<Department | undefined>();
@@ -363,7 +363,9 @@ const Departments = () => {
                                         hover={true}
                                         onClick={() => {
                                             setSelected(d);
-                                            navigate(`/departments/${d.id}`);
+                                            history.push(
+                                                `/departments/${d.id}`
+                                            );
                                         }}
                                     >
                                         <TableCell>{d.name}</TableCell>

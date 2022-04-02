@@ -7,14 +7,15 @@ import { Alert, AppBar, Box, Collapse, Paper, Typography } from "@mui/material";
 import { convertFromRaw, EditorState } from "draft-js";
 import React, { useEffect, useState } from "react";
 import { Editor } from "react-draft-wysiwyg";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import Loading from "src/components/Loading";
 import { server } from "src/util/permalink";
 import { Content, ManualSection } from "./ManualSectionView";
 import { Manual } from "./ManualsList";
 
 const UserManualView: React.FC = () => {
-    const { id } = useParams();
+    const { id } = useParams<{ id?: string }>();
+
     const [manual, setManual] = useState<Manual | undefined>();
     const [sections, setSections] = useState<ManualSection[]>([]);
     const [selectedSection, setSelectedSection] = useState<

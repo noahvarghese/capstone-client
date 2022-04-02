@@ -33,7 +33,7 @@ import AppContext, { Department, Role } from "src/context";
 import { server } from "src/util/permalink";
 import { useForm } from "react-hook-form";
 import { Delete } from "@mui/icons-material";
-import { useNavigate } from "react-router";
+import { useHistory } from "react-router-dom";
 import useDepartments from "src/hooks/data/useDepartments";
 import usePagination from "src/hooks/usePagination";
 import useSort from "src/hooks/useSort";
@@ -190,7 +190,7 @@ const CreateRole: React.FC<{
 
 const Roles = () => {
     const { roles: userRoles } = useContext(AppContext);
-    const navigate = useNavigate();
+    const history = useHistory();
     const [search, setSearch] = useState("");
     const [selected, setSelected] = useState<Role | undefined>();
     const [refresh, setRefresh] = useState(true);
@@ -412,7 +412,7 @@ const Roles = () => {
                                 key={r.id}
                                 hover={true}
                                 onClick={() => {
-                                    navigate(`/roles/${r.id}`);
+                                    history.push(`/roles/${r.id}`);
                                 }}
                             >
                                 <TableCell>{r.name}</TableCell>
