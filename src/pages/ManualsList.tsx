@@ -28,7 +28,7 @@ import React, {
     useEffect,
     useState,
 } from "react";
-import { useNavigate } from "react-router";
+import { useHistory } from "react-router-dom";
 import { server } from "src/util/permalink";
 import AddIcon from "@mui/icons-material/Add";
 import { Delete } from "@mui/icons-material";
@@ -200,7 +200,7 @@ const CreateManual: React.FC<{
 };
 
 const Manuals = () => {
-    const navigate = useNavigate();
+    const history = useHistory();
     const [selected, setSelected] = useState<Manual | undefined>();
     const [manuals, setManuals] = useState<Manual[]>([]);
     const [refresh, setRefresh] = useState(true);
@@ -437,7 +437,7 @@ const Manuals = () => {
                                 key={m.id}
                                 hover={true}
                                 onClick={() => {
-                                    navigate(`/manuals/${m.id}`);
+                                    history.push(`/manuals/${m.id}`);
                                 }}
                             >
                                 <TableCell>{m.title}</TableCell>

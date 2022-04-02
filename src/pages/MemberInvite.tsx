@@ -8,7 +8,7 @@ import { server } from "src/util/permalink";
 import { passwordValidator } from "src/util/validators";
 
 const MemberInvite = () => {
-    const { token } = useParams();
+    const { token } = useParams<{ token?: string }>();
     const [firstLoadComplete, setFirstLoadComplete] = useState(false);
     const [disabled, setDisabled] = useState(true);
     const [alert, setAlert] = useState<{

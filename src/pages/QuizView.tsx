@@ -15,7 +15,7 @@ import { server } from "src/util/permalink";
 import { Quiz } from "./QuizzesList";
 
 const QuizView: React.FC = () => {
-    const { id } = useParams();
+    const { id } = useParams<{ id?: string }>();
     const [quiz, setQuiz] = useState<Quiz | undefined>();
     const [refresh, setRefresh] = useState(true);
     const [alert, setAlert] = useState<{

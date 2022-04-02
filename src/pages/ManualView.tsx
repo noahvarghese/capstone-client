@@ -17,7 +17,7 @@ import DynamicForm from "src/components/DynamicForm";
 import DynamicDataTable from "src/components/DynamicDataTable";
 
 const ManualView = () => {
-    const { id } = useParams();
+    const { id } = useParams<{ id?: string }>();
     const [manual, setManual] = useState<Manual | undefined>();
     const [refresh, setRefresh] = useState(true);
     const [alert, setAlert] = useState<{

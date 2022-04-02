@@ -28,7 +28,7 @@ import React, {
     useEffect,
     useState,
 } from "react";
-import { useNavigate } from "react-router";
+import { useHistory } from "react-router-dom";
 import useDepartments from "src/hooks/data/useDepartments";
 import useManuals from "src/hooks/data/useManuals";
 import useRoles from "src/hooks/data/useRoles";
@@ -234,7 +234,7 @@ const CreateQuiz: React.FC<{
 export type Quiz = { max_attempts: number } & Manual;
 
 const Quizzes = () => {
-    const navigate = useNavigate();
+    const history = useHistory();
     const [refresh, setRefresh] = useState(true);
     const [search, setSearch] = useState("");
     const { sortOrder, sortColumn, sortCallback } = useSort(() =>
@@ -503,7 +503,7 @@ const Quizzes = () => {
                                 key={q.id}
                                 hover={true}
                                 onClick={() => {
-                                    navigate(`/quizzes/${q.id}`);
+                                    history.push(`/quizzes/${q.id}`);
                                 }}
                             >
                                 <TableCell>{q.title}</TableCell>

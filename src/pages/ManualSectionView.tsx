@@ -280,7 +280,7 @@ export interface ManualSection {
 }
 
 const ManualSectionView = () => {
-    const { id, manual_id } = useParams();
+    const { id, manual_id } = useParams<{ id?: string; manual_id?: string }>();
     const [manual, setManual] = useState<Manual | undefined>();
     const [manualSection, setManualSection] = useState<
         ManualSection | undefined

@@ -16,7 +16,7 @@ import DynamicDataTable from "src/components/DynamicDataTable";
 
 const DepartmentView: React.FC = () => {
     const { roles } = useContext(AppContext);
-    const { id } = useParams();
+    const { id } = useParams<{ id?: string }>();
     const [department, setDepartment] = useState<
         (Department & Partial<{ roles: Role[] }>) | undefined
     >();

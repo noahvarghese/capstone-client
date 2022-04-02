@@ -17,7 +17,7 @@ import React, {
     useMemo,
     useState,
 } from "react";
-import { useNavigate } from "react-router";
+import { useHistory } from "react-router-dom";
 import Confirm from "./Confirmation";
 
 interface AssignmentProps<T> {
@@ -54,7 +54,7 @@ const Assignment = <T extends { id: number }>({
     hideCondition,
     triggerRefresh,
 }: AssignmentProps<T>) => {
-    const navigate = useNavigate();
+    const history = useHistory();
     const [refresh, setRefresh] = useState(true);
     const [assignedModels, setAssignedModels] = useState<T[]>([]);
     const [allModels, setAllModels] = useState<T[]>([]);
@@ -163,7 +163,7 @@ const Assignment = <T extends { id: number }>({
                         paddingRight: "2rem",
                     }}
                     onClick={() =>
-                        navigate(`/${modelName.toLowerCase()}/${model.id}`)
+                        history.push(`/${modelName.toLowerCase()}/${model.id}`)
                     }
                 >
                     {direction === "left" ? (
@@ -180,7 +180,9 @@ const Assignment = <T extends { id: number }>({
                 </ListItem>
             );
         },
-        [description, hideCondition, modelName, navigate]
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [description, hideCondition, modelName]
     );
 
     return (

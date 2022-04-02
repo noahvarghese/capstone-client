@@ -2,10 +2,10 @@ import React, { useContext, useEffect } from "react";
 import AppContext from "src/context";
 import { server } from "src/util/permalink";
 import Loading from "src/components/Loading";
-import { useNavigate } from "react-router";
+import { useHistory } from "react-router-dom";
 
 const Logout: React.FC = () => {
-    const navigate = useNavigate();
+    const history = useHistory();
     const { logout } = useContext(AppContext);
 
     useEffect(() => {
@@ -20,7 +20,7 @@ const Logout: React.FC = () => {
             .then((res) => {
                 if (res.ok) {
                     logout();
-                    navigate("/");
+                    history.push("/");
                     window.location.href = "/";
                 }
             })

@@ -1,17 +1,17 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useCallback } from "react";
 import {
     Alert,
     Button,
     CircularProgress,
     TextField,
-    Link,
+    Link as MuiLink,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import validator from "validator";
 import SingleFormPage from "src/components/SingleFormPage";
-import { useCallback } from "react";
 import AppContext from "src/context";
 import { server } from "src/util/permalink";
+import { Link } from "react-router-dom";
 
 const Login: React.FC = () => {
     const {
@@ -63,14 +63,11 @@ const Login: React.FC = () => {
             onSubmit={handleSubmit(submit)}
             title="Login"
             buttons={[
-                <Button
-                    key="register"
-                    href="/register"
-                    variant="outlined"
-                    disabled={isSubmitting}
-                >
-                    Register
-                </Button>,
+                <MuiLink component={Link} to="/register" key="register">
+                    <Button variant="outlined" disabled={isSubmitting}>
+                        Register
+                    </Button>
+                </MuiLink>,
                 <Button
                     key="login"
                     variant="contained"
@@ -113,9 +110,9 @@ const Login: React.FC = () => {
                 placeholder="password"
                 disabled={isSubmitting}
             />
-            <Link href="/forgotPassword">
+            <MuiLink to="/forgotPassword" component={Link}>
                 Click here to reset your password
-            </Link>
+            </MuiLink>
             {isSubmitting && <CircularProgress />}
             {alert.severity && (
                 <Alert

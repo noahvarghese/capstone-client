@@ -32,7 +32,7 @@ const Landing: React.FC = () => {
                 <Typography variant="h1">Welcome OnBoard</Typography>
                 <Typography variant="body1">
                     This is{" "}
-                    <MuiLink to="noahvarghese.me" component={Link}>
+                    <MuiLink href="https://noahvarghese.me" target="_blank">
                         Noah Varghese's
                     </MuiLink>{" "}
                     capstone project to conclude his studies in Mohawk College's
@@ -78,7 +78,7 @@ const Landing: React.FC = () => {
                             justifyContent: "center",
                         }}
                     >
-                        <MuiLink href="/login" variant="button">
+                        <MuiLink to="/login" variant="button" component={Link}>
                             <Button
                                 variant="outlined"
                                 style={{ width: "10rem" }}
@@ -94,7 +94,7 @@ const Landing: React.FC = () => {
                             justifyContent: "center",
                         }}
                     >
-                        <MuiLink href="/register">
+                        <MuiLink to="/register" component={Link}>
                             <Button
                                 variant="contained"
                                 style={{ width: "10rem" }}

@@ -31,7 +31,7 @@ export interface Question {
 }
 
 const QuizSectionView: React.FC = () => {
-    const { id, quiz_id } = useParams();
+    const { id, quiz_id } = useParams<{ id?: string; quiz_id?: string }>();
     const [quiz, setQuiz] = useState<Quiz | undefined>();
     const [quizSection, setQuizSection] = useState<Section | undefined>();
     const [refresh, setRefresh] = useState(true);

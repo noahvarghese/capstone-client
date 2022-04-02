@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.scss";
-import { ThemeProvider } from "@emotion/react";
-import theme from "./theme";
 import UserContext, { Business, Role } from "./context";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Switch, useHistory } from "react-router-dom";
 import { server } from "./util/permalink";
 import Nav from "./components/Nav";
 import NotFound from "./pages/NotFound";
@@ -39,7 +37,7 @@ import QuizAnswerView from "./pages/QuizAnswerView";
 import UserQuizView from "./pages/UserQuizView";
 
 function App() {
-    const navigate = useNavigate();
+    const history = useHistory();
 
     const [userId, setUserId] = useState<number | undefined>();
     const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -64,7 +62,7 @@ function App() {
                     (res) => (res.ok ? res.json().then(setRoles) : null)
                 ),
             ])
-                .then(() => navigate("/"))
+                .then(() => history.push("/"))
                 .catch((e) => {
                     const { message } = e as Error;
                     console.error(message);
@@ -73,8 +71,7 @@ function App() {
             return () => controller.abort();
         }
         // do not include navigate otherwise it triggers a refresh everytime the url changes
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [userId]);
+    }, [history, userId]);
 
     if (userId && businesses.length === 0) {
         return <Loading />;
@@ -85,21 +82,27 @@ function App() {
     // Public routes
     if (!userId && businesses.length === 0 && roles.length === 0) {
         routes = (
-            <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/forgotPassword" element={<ForgotPassword />} />
+            <Switch>
+                <Route exact path="/" component={Landing} />
+                <Route exact path="/login" component={Login} />
+                <Route exact path="/register" component={Register} />
                 <Route
+                    exact
+                    path="/forgotPassword"
+                    component={ForgotPassword}
+                />
+                <Route
+                    exact
                     path="/resetPassword/:token"
-                    element={<ResetPassword />}
+                    component={ResetPassword}
                 />
                 <Route
+                    exact
                     path="/members/invite/:token"
-                    element={<MemberInvite />}
+                    component={MemberInvite}
                 />
-                <Route path="*" element={<NotFound />} />
-            </Routes>
+                <Route path="*" component={NotFound} />
+            </Switch>
         );
     } else {
         if (
@@ -108,83 +111,95 @@ function App() {
             )
         ) {
             routes = (
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/members" element={<MembersList />} />
-                    <Route path="/members/:id" element={<MemberView />} />
-                    <Route path="/roles" element={<RolesList />} />{" "}
-                    <Route path="/roles/:id" element={<RoleView />} />
-                    <Route path="/departments" element={<DepartmentsList />} />
+                <Switch>
+                    <Route exact path="/" component={Home} />
+                    <Route exact path="/members" component={MembersList} />
+                    <Route exact path="/members/:id" component={MemberView} />
+                    <Route exact path="/roles" component={RolesList} />
+                    <Route exact path="/roles/:id" component={RoleView} />
                     <Route
+                        exact
+                        path="/departments"
+                        component={DepartmentsList}
+                    />
+                    <Route
+                        exact
                         path="/departments/:id"
-                        element={<DepartmentView />}
+                        component={DepartmentView}
                     />
-                    <Route path="/manuals" element={<ManualsList />} />
-                    <Route path="/manuals/:id" element={<ManualView />} />
+                    <Route exact path="/manuals" component={ManualsList} />
+                    <Route exact path="/manuals/:id" component={ManualView} />
                     <Route
+                        exact
                         path="/manuals/:manual_id/sections/:id"
-                        element={<ManualSectionView />}
+                        component={ManualSectionView}
                     />
                     <Route
+                        exact
                         path="/manuals/:manual_id/sections/:section_id/contents/:id"
-                        element={<ContentView />}
+                        component={ContentView}
                     />
-                    <Route path="/quizzes" element={<QuizzesList />} />
-                    <Route path="/quizzes/:id" element={<QuizView />} />
+                    <Route exact path="/quizzes" component={QuizzesList} />
+                    <Route exact path="/quizzes/:id" component={QuizView} />
                     <Route
+                        exact
                         path="/quizzes/:quiz_id/sections/:id"
-                        element={<QuizSectionView />}
+                        component={QuizSectionView}
                     />
                     <Route
+                        exact
                         path="/quizzes/:quiz_id/sections/:section_id/questions/:id"
-                        element={<QuizQuestionView />}
+                        component={QuizQuestionView}
                     />
                     <Route
+                        exact
                         path="/quizzes/:quiz_id/sections/:section_id/questions/:question_id/answers/:id"
-                        element={<QuizAnswerView />}
+                        component={QuizAnswerView}
                     />
-                    <Route path="/reports" element={<Reports />} />
-                    <Route path="/logout" element={<Logout />} />
-                    <Route path="*" element={<NotFound />} />
-                </Routes>
+                    <Route exact path="/reports" component={Reports} />
+                    <Route exact path="/logout" component={Logout} />
+                    <Route path="*" component={NotFound} />
+                </Switch>
             );
         } else {
             routes = (
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/manuals" element={<UserManualsList />} />
-                    <Route path="/manuals/:id" element={<UserManualView />} />
-                    <Route path="/quizzes" element={<UserQuizList />} />
-                    <Route path="/quizzes/:id" element={<UserQuizView />} />
-                    <Route path="/scores" element={<ScoresList />} />
-                    <Route path="/logout" element={<Logout />} />
-                    <Route path="*" element={<NotFound />} />
-                </Routes>
+                <Switch>
+                    <Route exact path="/" component={Home} />
+                    <Route exact path="/manuals" component={UserManualsList} />
+                    <Route
+                        exact
+                        path="/manuals/:id"
+                        component={UserManualView}
+                    />
+                    <Route exact path="/quizzes" component={UserQuizList} />
+                    <Route exact path="/quizzes/:id" component={UserQuizView} />
+                    <Route exact path="/scores" component={ScoresList} />
+                    <Route exact path="/logout" component={Logout} />
+                    <Route path="*" component={NotFound} />
+                </Switch>
             );
         }
     }
 
     return (
-        <ThemeProvider theme={theme}>
-            <UserContext.Provider
-                value={{
-                    userId,
-                    setUserId,
-                    businesses,
-                    setBusinesses,
-                    roles,
-                    setRoles,
-                    logout: () => {
-                        setRoles([]);
-                        setBusinesses([]);
-                        setUserId(undefined);
-                    },
-                }}
-            >
-                <Nav />
-                <div className="App">{routes}</div>
-            </UserContext.Provider>
-        </ThemeProvider>
+        <UserContext.Provider
+            value={{
+                userId,
+                setUserId,
+                businesses,
+                setBusinesses,
+                roles,
+                setRoles,
+                logout: () => {
+                    setRoles([]);
+                    setBusinesses([]);
+                    setUserId(undefined);
+                },
+            }}
+        >
+            <Nav />
+            <div className="App">{routes}</div>
+        </UserContext.Provider>
     );
 }
 

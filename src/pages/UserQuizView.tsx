@@ -3,51 +3,189 @@ import {
     Alert,
     Box,
     Button,
-    Checkbox,
-    FormControlLabel,
     ListItemIcon,
     ListItemText,
     MenuItem,
     MenuList,
     Paper,
-    Radio,
     RadioGroup,
     Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { Prompt, useParams, useHistory } from "react-router-dom";
+import Input from "src/components/DynamicForm/Input";
 import Loading from "src/components/Loading";
-import { usePrompt } from "src/hooks/useBlocker";
 import { server } from "src/util/permalink";
 import { Answer } from "./QuizQuestionView";
 import { Question, Section } from "./QuizSectionView";
 import { Quiz } from "./QuizzesList";
 
+type CompleteQuestion = Question & { answers: Answer[] };
+
+type CompleteSection = Section & { questions: CompleteQuestion[] };
+
 type CompleteQuiz = Quiz & {
-    sections: (Section & { questions: (Question & { answers: Answer[] })[] })[];
+    sections: CompleteSection[];
 };
 
 const UserQuizView: React.FC = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
+    const { id } = useParams<{ id?: string | undefined }>();
+    const history = useHistory();
     const [quiz, setQuiz] = useState<CompleteQuiz | undefined>();
     const [startQuiz, setStartQuiz] = useState(false);
     const [submitQuiz, setSubmitQuiz] = useState(false);
-    const [selectedSection, setSelectedSection] = useState<
-        | (Section & { questions: (Question & { answers: Answer[] })[] })
-        | undefined
+    const [selectedSectionId, setSelectedSectionId] = useState<
+        number | undefined
     >();
+    const selectedSection = useMemo(() => {
+        if (!quiz || !selectedSectionId) return undefined;
 
-    // TODO: submit quiz attempt on exit
-    usePrompt(
-        "Are you sure you want to leave the quiz? Your progress will not be saved.",
-        startQuiz
-    );
+        return quiz.sections.find((s) => s.id === selectedSectionId);
+    }, [quiz, selectedSectionId]);
 
     const [alert, setAlert] = useState<{
         message: string;
         severity?: "warning" | "error" | "info" | "success";
     }>({ message: "" });
+
+    const {
+        handleSubmit,
+        formState: { errors },
+        control,
+    } = useForm({ mode: "all" });
+
+    const submit = useCallback((data: any) => {
+        console.log(data);
+        // TODO: submit quiz
+        // TODO: Make call to end quiz attempt using quiz attempt id
+        setSubmitQuiz(true);
+    }, []);
+
+    useEffect(() => {
+        if (submitQuiz) history.push("/quizzes");
+    }, [submitQuiz, history]);
+
+    useEffect(() => {
+        if (startQuiz) {
+            // TODO: Make call to create new quiz attempt
+            // TODO: Store quiz attempt id
+        }
+    }, [startQuiz]);
+
+    // TODO: submit quiz attempt on exit after prompt
+
+    const formInputs: { [sectionId: number]: JSX.Element[] } = useMemo(() => {
+        // Store inputs in HashMap with the section.id as the key and an array of JSX.Elements as the value
+        const sectionsMap: { [sectionId: number]: JSX.Element[] } = {};
+
+        if (!quiz) return sectionsMap;
+
+        const { sections } = quiz;
+
+        // Iterate over all questions
+        for (let i = 0; i < sections.length; i++) {
+            const { questions } = sections[i];
+            sectionsMap[sections[i].id] = [];
+
+            for (let j = 0; j < questions.length; j++) {
+                const q = questions[j];
+
+                sectionsMap[sections[i].id].push(
+                    <Box
+                        key={`question${j}`}
+                        sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "1rem",
+                            margin: "1rem",
+                        }}
+                    >
+                        <Typography
+                            variant="h5"
+                            variantMapping={{
+                                h5: "h4",
+                            }}
+                            sx={{
+                                textAlign: "left",
+                            }}
+                        >
+                            {q.question}
+                        </Typography>{" "}
+                        <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "flex-start",
+                            }}
+                        >
+                            {q.question_type === "true or false" ||
+                            q.question_type ===
+                                "single correct - multiple choice" ? (
+                                <RadioGroup>
+                                    {q.answers.map((a, index) => (
+                                        <Controller
+                                            key={
+                                                q.question +
+                                                "_answer" +
+                                                a.answer +
+                                                index.toString()
+                                            }
+                                            name={q.question}
+                                            control={control}
+                                            defaultValue={undefined}
+                                            render={({ field }) => (
+                                                <Input
+                                                    error={errors[q.question]}
+                                                    label={a.answer}
+                                                    disabled={false}
+                                                    type="radio"
+                                                    field={field}
+                                                />
+                                            )}
+                                        />
+                                    ))}
+                                </RadioGroup>
+                            ) : q.question_type ===
+                              "multiple correct - multiple choice" ? (
+                                q.answers.map((a, index) => (
+                                    <Controller
+                                        key={
+                                            q.question +
+                                            "_answer" +
+                                            a.answer +
+                                            index.toString()
+                                        }
+                                        name={q.question}
+                                        control={control}
+                                        defaultValue={undefined}
+                                        render={({ field }) => (
+                                            <Input
+                                                error={errors[q.question]}
+                                                label={a.answer}
+                                                disabled={false}
+                                                type="checkbox"
+                                                field={field}
+                                            />
+                                        )}
+                                    />
+                                ))
+                            ) : null}
+                        </Box>
+                        {j !== sections[i].questions.length - 1 ? (
+                            <hr
+                                style={{
+                                    width: "100%",
+                                }}
+                            />
+                        ) : null}
+                    </Box>
+                );
+            }
+        }
+
+        return sectionsMap;
+    }, [control, errors, quiz]);
 
     // Get full document
     useEffect(() => {
@@ -92,54 +230,33 @@ const UserQuizView: React.FC = () => {
                                             )
                                         )
                                     )
-                                    .then(
-                                        (
-                                            questions: (Question & {
-                                                answers: Answer[];
-                                            })[]
-                                        ) => ({ ...s, questions })
-                                    )
+                                    .then((questions: CompleteQuestion[]) => ({
+                                        ...s,
+                                        questions,
+                                    }))
                             )
                         )
                     )
-                    .then(
-                        (
-                            sections: (Section & {
-                                questions: (Question & { answers: Answer[] })[];
-                            })[]
-                        ) => ({ ...q, sections })
-                    )
+                    .then((sections: CompleteSection[]) => ({ ...q, sections }))
             )
             .then((q) => {
-                setQuiz(q);
-                return q;
-            })
-            .then((q) => {
                 if (q && q.sections.length > 0)
-                    setSelectedSection(q.sections[0]);
+                    setSelectedSectionId(q.sections[0].id);
+                setQuiz(q);
+            })
+            .catch((e) => {
+                const { message } = e as Error;
+                console.error(message);
+                setAlert({
+                    severity: "error",
+                    message: "Error retrieving data",
+                });
             });
 
         return () => {
             controller.abort();
         };
     }, [id]);
-
-    useEffect(() => {
-        if (startQuiz) {
-            // TODO: Make call to create new quiz attempt
-            // TODO: Store quiz attempt id
-        }
-    }, [startQuiz]);
-
-    useEffect(() => {
-        if (submitQuiz) {
-            // TODO: submit quiz
-            // TODO: Make call to end quiz attempt using quiz attempt id
-            navigate(-1);
-        }
-        // navigate in useEffect causes weird things to happen
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [submitQuiz]);
 
     if (!quiz || submitQuiz) return <Loading />;
 
@@ -171,52 +288,72 @@ const UserQuizView: React.FC = () => {
                         gap: "2rem",
                     }}
                 >
-                    <Box
-                        style={{
-                            display: "flex",
-                            alignItems: "flex-start",
-                            gap: "2rem",
-                        }}
-                    >
-                        {startQuiz ? (
-                            <Paper
-                                sx={{
-                                    maxWidth: "max-content",
-                                    minWidth: "20rem",
+                    {startQuiz ? (
+                        <Box
+                            style={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                                gap: "2rem",
+                            }}
+                        >
+                            <Box
+                                style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "2rem",
                                 }}
                             >
-                                <MenuList dense>
-                                    {quiz.sections.map((s, index) => (
-                                        <MenuItem
-                                            key={`section${index}`}
-                                            onClick={() =>
-                                                setSelectedSection(s)
-                                            }
-                                            style={{
-                                                paddingRight: "2rem",
-                                                textAlign: "right",
-                                                minWidth: "20rem",
-                                                maxWidth: "max-content",
-                                            }}
-                                        >
-                                            {
-                                                // TODO: Check if selected is set otherwise use first section
-                                                selectedSection &&
-                                                s.id === selectedSection.id ? (
-                                                    <ListItemIcon>
-                                                        <Check />
-                                                    </ListItemIcon>
-                                                ) : null
-                                            }
-                                            <ListItemText key={s.title} inset>
-                                                {s.title}
-                                            </ListItemText>
-                                        </MenuItem>
-                                    ))}
-                                </MenuList>
-                            </Paper>
-                        ) : null}
-                        {startQuiz ? (
+                                <Paper
+                                    sx={{
+                                        maxWidth: "max-content",
+                                        minWidth: "20rem",
+                                    }}
+                                >
+                                    <MenuList dense>
+                                        {quiz.sections.map(
+                                            (s: CompleteSection, index) => (
+                                                <MenuItem
+                                                    key={`section${index}`}
+                                                    onClick={() =>
+                                                        setSelectedSectionId(
+                                                            s.id
+                                                        )
+                                                    }
+                                                    style={{
+                                                        paddingRight: "2rem",
+                                                        textAlign: "right",
+                                                        minWidth: "20rem",
+                                                        maxWidth: "max-content",
+                                                    }}
+                                                >
+                                                    {
+                                                        // TODO: Check if selected is set otherwise use first section
+                                                        selectedSectionId &&
+                                                        s.id ===
+                                                            selectedSectionId ? (
+                                                            <ListItemIcon>
+                                                                <Check />
+                                                            </ListItemIcon>
+                                                        ) : null
+                                                    }
+                                                    <ListItemText
+                                                        key={s.title}
+                                                        inset
+                                                    >
+                                                        {s.title}
+                                                    </ListItemText>
+                                                </MenuItem>
+                                            )
+                                        )}
+                                    </MenuList>
+                                </Paper>
+                                <Button
+                                    variant="contained"
+                                    onClick={handleSubmit(submit)}
+                                >
+                                    Submit
+                                </Button>
+                            </Box>
                             <Paper
                                 sx={{
                                     padding: "2rem",
@@ -230,126 +367,20 @@ const UserQuizView: React.FC = () => {
                                     {selectedSection?.title}
                                 </Typography>
                                 <Box>
-                                    {selectedSection
-                                        ? selectedSection.questions.map(
-                                              (q, index) => (
-                                                  <Box
-                                                      key={`question${index}`}
-                                                      sx={{
-                                                          display: "flex",
-                                                          flexDirection:
-                                                              "column",
-                                                          gap: "1rem",
-                                                          margin: "1rem",
-                                                      }}
-                                                  >
-                                                      <Typography
-                                                          variant="h5"
-                                                          variantMapping={{
-                                                              h5: "h4",
-                                                          }}
-                                                          sx={{
-                                                              textAlign: "left",
-                                                          }}
-                                                      >
-                                                          {q.question}
-                                                      </Typography>
-                                                      <Box
-                                                          sx={{
-                                                              display: "flex",
-                                                              flexDirection:
-                                                                  "column",
-                                                              alignItems:
-                                                                  "flex-start",
-                                                          }}
-                                                      >
-                                                          {q.question_type ===
-                                                              "true or false" ||
-                                                          q.question_type ===
-                                                              "single correct - multiple choice" ? (
-                                                              <RadioGroup>
-                                                                  {q.answers.map(
-                                                                      (
-                                                                          a,
-                                                                          index
-                                                                      ) => (
-                                                                          <FormControlLabel
-                                                                              key={
-                                                                                  a.answer +
-                                                                                  index.toString()
-                                                                              }
-                                                                              value={
-                                                                                  a.answer
-                                                                              }
-                                                                              control={
-                                                                                  <Radio />
-                                                                              }
-                                                                              label={a.answer.toString()}
-                                                                          />
-                                                                      )
-                                                                  )}
-                                                              </RadioGroup>
-                                                          ) : q.question_type ===
-                                                            "multiple correct - multiple choice" ? (
-                                                              q.answers.map(
-                                                                  (
-                                                                      a,
-                                                                      index
-                                                                  ) => (
-                                                                      <FormControlLabel
-                                                                          key={
-                                                                              a.answer +
-                                                                              index.toString()
-                                                                          }
-                                                                          value={
-                                                                              a.answer
-                                                                          }
-                                                                          control={
-                                                                              <Checkbox />
-                                                                          }
-                                                                          label={
-                                                                              a.answer
-                                                                          }
-                                                                      />
-                                                                  )
-                                                              )
-                                                          ) : null}
-                                                      </Box>
-                                                      {index !==
-                                                      selectedSection.questions
-                                                          .length -
-                                                          1 ? (
-                                                          <hr
-                                                              style={{
-                                                                  width: "100%",
-                                                              }}
-                                                          />
-                                                      ) : null}
-                                                  </Box>
-                                              )
-                                          )
+                                    {selectedSectionId
+                                        ? formInputs[selectedSectionId]
                                         : null}
                                 </Box>
                             </Paper>
-                        ) : null}
-                    </Box>
-                    <Box>
-                        {!startQuiz ? (
-                            <Button
-                                variant="contained"
-                                onClick={() => setStartQuiz(true)}
-                            >
-                                Start Quiz
-                            </Button>
-                        ) : (
-                            <Button
-                                variant="contained"
-                                onClick={() => setSubmitQuiz(true)}
-                            >
-                                Submit
-                            </Button>
-                        )}
-                    </Box>
+                        </Box>
+                    ) : (
+                        <Button
+                            variant="contained"
+                            onClick={() => setStartQuiz(true)}
+                        >
+                            Start Quiz
+                        </Button>
+                    )}
                 </Box>
             </Box>
             {alert.severity && (
@@ -363,6 +394,10 @@ const UserQuizView: React.FC = () => {
                     {alert.message}
                 </Alert>
             )}
+            <Prompt
+                when={startQuiz && !submitQuiz}
+                message="Are you sure you want to leave the quiz? Your current progress will be submitted."
+            />
         </div>
     );
 };

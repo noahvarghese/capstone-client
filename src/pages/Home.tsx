@@ -8,14 +8,14 @@ import {
     Typography,
 } from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useHistory } from "react-router-dom";
 import Loading from "src/components/Loading";
 import UpdateMember from "src/components/UpdateMember";
 import AppContext, { Member } from "src/context";
 import { server } from "src/util/permalink";
 
 const Home: React.FC = () => {
-    const navigate = useNavigate();
+    const history = useHistory();
     const { userId, roles: assignedRoles } = useContext(AppContext);
     const [member, setMember] = useState<Member | undefined>();
     const [refresh, setRefresh] = useState(true);
@@ -123,7 +123,7 @@ const Home: React.FC = () => {
                                                     r.access === "MANAGER"
                                             )
                                                 ? () => {
-                                                      navigate(
+                                                      history.push(
                                                           `/roles/${r.id}`
                                                       );
                                                   }
