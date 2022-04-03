@@ -62,7 +62,7 @@ const UserQuizView: React.FC = () => {
         console.log(data);
         // TODO: submit quiz
         // TODO: Make call to end quiz attempt using quiz attempt id
-        // setSubmitQuiz(true);
+        setSubmitQuiz(true);
     }, []);
 
     useEffect(() => {
@@ -94,6 +94,7 @@ const UserQuizView: React.FC = () => {
             for (let j = 0; j < questions.length; j++) {
                 const q = questions[j];
 
+                // TODO: Override onchange for all of these to set answers correctly to the question ids
                 sectionsMap[sections[i].id].push(
                     <Box
                         key={`question${j}`}
