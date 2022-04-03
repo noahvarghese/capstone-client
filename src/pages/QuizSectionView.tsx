@@ -21,13 +21,15 @@ export interface Section {
     title: string;
 }
 
+export type QuestionType =
+    | "true or false"
+    | "multiple correct - multiple choice"
+    | "single correct - multiple choice";
+
 export interface Question {
     id: number;
     question: string;
-    question_type:
-        | "true or false"
-        | "multiple correct - multiple choice"
-        | "single correct - multiple choice";
+    question_type: QuestionType;
 }
 
 const QuizSectionView: React.FC = () => {

@@ -14,14 +14,19 @@ import {
     RadioGroup,
     Typography,
 } from "@mui/material";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import { Prompt, useParams, useHistory } from "react-router-dom";
 import Input from "src/components/DynamicForm/Input";
 import Loading from "src/components/Loading";
 import { server } from "src/util/permalink";
 import { Answer } from "./QuizQuestionView";
-import { Question, Section } from "./QuizSectionView";
+import { Question, QuestionType, Section } from "./QuizSectionView";
 import { Quiz } from "./QuizzesList";
 
 type CompleteQuestion = Question & { answers: Answer[] };
@@ -52,18 +57,79 @@ const UserQuizView: React.FC = () => {
         severity?: "warning" | "error" | "info" | "success";
     }>({ message: "" });
 
-    const {
-        handleSubmit,
-        formState: { errors },
-        control,
-    } = useForm({ mode: "all" });
+    const [formState, setFormState] = useState<
+        { [questionId: number]: "" | number | number[] } | undefined
+    >();
 
-    const submit = useCallback((data: any) => {
-        console.log(data);
+    const formElementsRefs = useRef<Array<HTMLElement | null>>([]);
+    useEffect(() => {
+        // TODO: Get number of elements as number of total possible answers
+        // https://stackoverflow.com/questions/54633690/how-can-i-use-multiple-refs-for-an-array-of-elements-with-hooks
+        formElementsRefs.current = formElementsRefs.current.slice(0, Infinity);
+    }, [formState]);
+
+    useEffect(() => {
+        if (!quiz) {
+            if (formState) setFormState(undefined);
+            return;
+        }
+
+        if (formState) return;
+
+        let state: { [questionId: number]: "" | number | number[] } = {};
+
+        for (let i = 0; i < quiz.sections.length; i++) {
+            for (let j = 0; j < quiz.sections[i].questions.length; j++) {
+                const { id, question_type } = quiz.sections[i].questions[j];
+                if (question_type === "multiple correct - multiple choice")
+                    state[id] = [];
+                else if (question_type === "single correct - multiple choice")
+                    state[id] = "";
+                else if (question_type === "true or false") state[id] = "";
+            }
+        }
+
+        setFormState(state);
+    }, [formState, quiz]);
+
+    const setAnswer = useCallback(
+        (
+            questionId: number,
+            _answerId: string | number,
+            questionType: QuestionType
+        ) => {
+            if (!formState) return;
+
+            const answerId =
+                typeof _answerId === "string" ? Number(_answerId) : _answerId;
+
+            if (questionType === "true or false")
+                formState[questionId] = answerId;
+            else if (questionType === "single correct - multiple choice")
+                formState[questionId] = answerId;
+            else if (questionType === "multiple correct - multiple choice") {
+                if (Array.isArray(formState[questionId])) {
+                    const answerArray = formState[questionId] as Array<number>;
+                    if (answerArray.includes(answerId)) {
+                        answerArray.splice(answerArray.indexOf(answerId));
+                    } else {
+                        answerArray.push(answerId);
+                    }
+                }
+            }
+
+            console.log(formState);
+            setFormState(formState);
+        },
+        [formState]
+    );
+
+    const submit = useCallback(() => {
+        console.log(formState);
         // TODO: submit quiz
         // TODO: Make call to end quiz attempt using quiz attempt id
         setSubmitQuiz(true);
-    }, []);
+    }, [formState]);
 
     useEffect(() => {
         if (submitQuiz) history.push("/quizzes");
@@ -82,7 +148,7 @@ const UserQuizView: React.FC = () => {
         // Store inputs in HashMap with the section.id as the key and an array of JSX.Elements as the value
         const sectionsMap: { [sectionId: number]: JSX.Element[] } = {};
 
-        if (!quiz) return sectionsMap;
+        if (!quiz || !formState) return sectionsMap;
 
         const { sections } = quiz;
 
@@ -93,11 +159,12 @@ const UserQuizView: React.FC = () => {
 
             for (let j = 0; j < questions.length; j++) {
                 const q = questions[j];
+                const questionName = q.question.split(" ").join("");
 
-                // TODO: Override onchange for all of these to set answers correctly to the question ids
+                // TODO: Add refs to each Input element
                 sectionsMap[sections[i].id].push(
                     <Box
-                        key={`question${j}`}
+                        key={questionName}
                         sx={{
                             display: "flex",
                             flexDirection: "column",
@@ -113,7 +180,7 @@ const UserQuizView: React.FC = () => {
                             }}
                         >
                             <FormControl>
-                                <FormLabel id={q.question}>
+                                <FormLabel id={questionName}>
                                     <Typography
                                         variant="h5"
                                         variantMapping={{
@@ -128,69 +195,47 @@ const UserQuizView: React.FC = () => {
                                 </FormLabel>
                                 {q.question_type === "true or false" ? (
                                     <RadioGroup
-                                        name={q.question}
-                                        defaultValue={undefined}
-                                        aria-labelledby={q.question}
+                                        name={questionName}
+                                        aria-labelledby={questionName}
+                                        onChange={(_, value) => {
+                                            setAnswer(
+                                                q.id,
+                                                value,
+                                                q.question_type
+                                            );
+                                        }}
+                                        value={formState[q.id].toString()}
                                     >
                                         {q.answers.map((a, index) => (
-                                            <Controller
-                                                key={
-                                                    q.question +
-                                                    "_answer" +
-                                                    a.answer.toString() +
-                                                    index.toString()
-                                                }
-                                                name={a.answer.toString()}
-                                                defaultValue={undefined}
-                                                control={control}
-                                                render={({ field }) => (
-                                                    <Input
-                                                        error={
-                                                            errors[q.question]
-                                                        }
-                                                        label={a.answer}
-                                                        disabled={false}
-                                                        type="radio"
-                                                        field={{
-                                                            ...field,
-                                                            value: a.answer.toString(),
-                                                        }}
-                                                        setValueAs={(v) =>
-                                                            v === "true"
-                                                        }
-                                                    />
-                                                )}
+                                            <Input
+                                                key={`question_${questionName}_answer${a.answer.toString()}${index}`}
+                                                label={a.answer.toString()}
+                                                disabled={false}
+                                                type="radio"
+                                                value={a.id.toString()}
                                             />
                                         ))}
                                     </RadioGroup>
                                 ) : q.question_type ===
                                   "single correct - multiple choice" ? (
-                                    <RadioGroup>
+                                    <RadioGroup
+                                        aria-labelledby={questionName}
+                                        onChange={(_, value) => {
+                                            setAnswer(
+                                                q.id,
+                                                value,
+                                                q.question_type
+                                            );
+                                        }}
+                                        value={formState[q.id].toString()}
+                                    >
                                         {q.answers.map((a, index) => (
-                                            <Controller
-                                                key={
-                                                    q.question +
-                                                    "_answer" +
-                                                    a.answer.toString() +
-                                                    index.toString()
-                                                }
-                                                name={a.answer}
-                                                control={control}
-                                                defaultValue={undefined}
-                                                render={({ field }) => (
-                                                    <Input
-                                                        error={
-                                                            errors[q.question]
-                                                        }
-                                                        label={a.answer}
-                                                        disabled={false}
-                                                        type="radio"
-                                                        field={{
-                                                            ...field,
-                                                            value: a.answer,
-                                                        }}
-                                                    />
-                                                )}
+                                            <Input
+                                                key={`question_${questionName}_answer${a.answer.toString()}${index}`}
+                                                label={a.answer.toString()}
+                                                disabled={false}
+                                                type="radio"
+                                                value={a.id.toString()}
                                             />
                                         ))}
                                     </RadioGroup>
@@ -198,30 +243,38 @@ const UserQuizView: React.FC = () => {
                                   "multiple correct - multiple choice" ? (
                                     <FormGroup>
                                         {q.answers.map((a, index) => (
-                                            <Controller
+                                            <Input
                                                 key={
                                                     q.question +
                                                     "_answer" +
                                                     a.answer +
                                                     index.toString()
                                                 }
-                                                name={a.answer}
-                                                control={control}
-                                                defaultValue={undefined}
-                                                render={({ field }) => (
-                                                    <Input
-                                                        error={
-                                                            errors[q.question]
-                                                        }
-                                                        label={a.answer}
-                                                        disabled={false}
-                                                        type="checkbox"
-                                                        field={{
-                                                            ...field,
-                                                            value: a.answer,
-                                                        }}
-                                                    />
-                                                )}
+                                                checked={(
+                                                    formState[
+                                                        q.id
+                                                    ]! as Array<number>
+                                                ).includes(a.id)}
+                                                label={a.answer}
+                                                disabled={false}
+                                                type="checkbox"
+                                                field={{
+                                                    onChange: () => {
+                                                        setAnswer(
+                                                            q.id,
+                                                            a.id,
+                                                            q.question_type
+                                                        );
+                                                    },
+                                                    name: q.question,
+                                                    onBlur: () => {
+                                                        return;
+                                                    },
+                                                    ref: () => {
+                                                        return;
+                                                    },
+                                                    value: a.id.toString(),
+                                                }}
                                             />
                                         ))}
                                     </FormGroup>
@@ -241,7 +294,7 @@ const UserQuizView: React.FC = () => {
         }
 
         return sectionsMap;
-    }, [control, errors, quiz]);
+    }, [formState, quiz, setAnswer]);
 
     // Get full document
     useEffect(() => {
@@ -403,10 +456,7 @@ const UserQuizView: React.FC = () => {
                                         )}
                                     </MenuList>
                                 </Paper>
-                                <Button
-                                    variant="contained"
-                                    onClick={handleSubmit(submit)}
-                                >
+                                <Button variant="contained" onClick={submit}>
                                     Submit
                                 </Button>
                             </Box>
