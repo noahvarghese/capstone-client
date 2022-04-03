@@ -25,14 +25,37 @@ const Input: React.FC<{
      * Key is what will be sent to the server
      */
     items?: { key: string | number; value: string }[];
+    checked?: boolean;
+    value?: string | number;
     label: string;
     disabled: boolean;
-    error: FieldError;
+    error?: FieldError;
     setValueAs?: (v: any) => any;
     type: "input" | "checkbox" | "radio" | "select" | "hidden";
-    field: ControllerRenderProps<FieldValues, string>;
-}> = ({ items, type, field, disabled, error, label, inputType }) => {
+    field?: ControllerRenderProps<FieldValues, string>;
+}> = ({
+    items,
+    type,
+    field,
+    disabled,
+    error,
+    label,
+    inputType,
+    checked,
+    value,
+}) => {
     let validator: (e: BaseEvent) => BaseEvent;
+
+    if (type !== "radio" && !field) throw new Error("field is required");
+
+    if (type === "checkbox" && checked === undefined)
+        throw new Error(`Invalid args type: ${type}, checked: ${checked}`);
+
+    if (type === "select" && !items)
+        throw new Error(`Invalid args type: ${type}, items: ${items}`);
+
+    if (type === "radio" && !value)
+        throw new Error(`Invalid args type: ${type}, value: ${value}`);
 
     if (inputType === "number")
         validator = (e: BaseEvent): BaseEvent => ({
@@ -50,29 +73,29 @@ const Input: React.FC<{
         case "checkbox":
             return (
                 <FormControlLabel
-                    checked={Boolean(field.value)}
+                    checked={checked}
                     label={label}
                     control={
                         <Checkbox
                             disabled={disabled}
-                            value={field.value}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
+                            value={field!.value}
+                            onChange={field!.onChange}
+                            onBlur={field!.onBlur}
                         />
                     }
                 />
             );
         case "hidden":
-            return <input type="hidden" disabled={true} value={field.value} />;
+            return <input type="hidden" disabled={true} value={field!.value} />;
         case "input":
             return (
                 <TextField
-                    value={field.value}
+                    value={field!.value}
                     onChange={(e) => {
                         const ev = validator !== undefined ? validator(e) : e;
-                        return field.onChange(ev);
+                        return field!.onChange(ev);
                     }}
-                    onBlur={field.onBlur}
+                    onBlur={field!.onBlur}
                     label={label}
                     placeholder={label}
                     type={inputType ? inputType : "text"}
@@ -86,20 +109,19 @@ const Input: React.FC<{
         case "radio":
             return (
                 <FormControlLabel
-                    value={field.value}
+                    value={value}
+                    checked={checked}
                     control={<Radio />}
                     label={label}
                 />
             );
         case "select":
-            if (!items) throw new Error("Items not provided for select input");
-
             return (
                 <TextField
                     select
-                    value={field.value}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
+                    value={field!.value}
+                    onChange={field!.onChange}
+                    onBlur={field!.onBlur}
                     label={label}
                     placeholder={label}
                     error={Boolean(error)}
@@ -107,7 +129,10 @@ const Input: React.FC<{
                     disabled={disabled}
                     required
                 >
-                    {items.map(({ key, value }) => (
+                    {
+                        // Check is done above
+                    }
+                    {items!.map(({ key, value }) => (
                         // FIXME: key is meant only for react purposes
                         // Value is what should be sent
                         // Need to adjust so that the value set is different thant the component value
