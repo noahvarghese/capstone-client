@@ -3,6 +3,9 @@ import {
     Alert,
     Box,
     Button,
+    FormControl,
+    FormGroup,
+    FormLabel,
     ListItemIcon,
     ListItemText,
     MenuItem,
@@ -59,7 +62,7 @@ const UserQuizView: React.FC = () => {
         console.log(data);
         // TODO: submit quiz
         // TODO: Make call to end quiz attempt using quiz attempt id
-        setSubmitQuiz(true);
+        // setSubmitQuiz(true);
     }, []);
 
     useEffect(() => {
@@ -101,17 +104,6 @@ const UserQuizView: React.FC = () => {
                             margin: "1rem",
                         }}
                     >
-                        <Typography
-                            variant="h5"
-                            variantMapping={{
-                                h5: "h4",
-                            }}
-                            sx={{
-                                textAlign: "left",
-                            }}
-                        >
-                            {q.question}
-                        </Typography>{" "}
                         <Box
                             sx={{
                                 display: "flex",
@@ -119,58 +111,121 @@ const UserQuizView: React.FC = () => {
                                 alignItems: "flex-start",
                             }}
                         >
-                            {q.question_type === "true or false" ||
-                            q.question_type ===
-                                "single correct - multiple choice" ? (
-                                <RadioGroup>
-                                    {q.answers.map((a, index) => (
-                                        <Controller
-                                            key={
-                                                q.question +
-                                                "_answer" +
-                                                a.answer +
-                                                index.toString()
-                                            }
-                                            name={q.question}
-                                            control={control}
-                                            defaultValue={undefined}
-                                            render={({ field }) => (
-                                                <Input
-                                                    error={errors[q.question]}
-                                                    label={a.answer}
-                                                    disabled={false}
-                                                    type="radio"
-                                                    field={field}
-                                                />
-                                            )}
-                                        />
-                                    ))}
-                                </RadioGroup>
-                            ) : q.question_type ===
-                              "multiple correct - multiple choice" ? (
-                                q.answers.map((a, index) => (
-                                    <Controller
-                                        key={
-                                            q.question +
-                                            "_answer" +
-                                            a.answer +
-                                            index.toString()
-                                        }
+                            <FormControl>
+                                <FormLabel id={q.question}>
+                                    <Typography
+                                        variant="h5"
+                                        variantMapping={{
+                                            h5: "h4",
+                                        }}
+                                        sx={{
+                                            textAlign: "left",
+                                        }}
+                                    >
+                                        {q.question}
+                                    </Typography>
+                                </FormLabel>
+                                {q.question_type === "true or false" ? (
+                                    <RadioGroup
                                         name={q.question}
-                                        control={control}
                                         defaultValue={undefined}
-                                        render={({ field }) => (
-                                            <Input
-                                                error={errors[q.question]}
-                                                label={a.answer}
-                                                disabled={false}
-                                                type="checkbox"
-                                                field={field}
+                                        aria-labelledby={q.question}
+                                    >
+                                        {q.answers.map((a, index) => (
+                                            <Controller
+                                                key={
+                                                    q.question +
+                                                    "_answer" +
+                                                    a.answer.toString() +
+                                                    index.toString()
+                                                }
+                                                name={a.answer.toString()}
+                                                defaultValue={undefined}
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        error={
+                                                            errors[q.question]
+                                                        }
+                                                        label={a.answer}
+                                                        disabled={false}
+                                                        type="radio"
+                                                        field={{
+                                                            ...field,
+                                                            value: a.answer.toString(),
+                                                        }}
+                                                        setValueAs={(v) =>
+                                                            v === "true"
+                                                        }
+                                                    />
+                                                )}
                                             />
-                                        )}
-                                    />
-                                ))
-                            ) : null}
+                                        ))}
+                                    </RadioGroup>
+                                ) : q.question_type ===
+                                  "single correct - multiple choice" ? (
+                                    <RadioGroup>
+                                        {q.answers.map((a, index) => (
+                                            <Controller
+                                                key={
+                                                    q.question +
+                                                    "_answer" +
+                                                    a.answer.toString() +
+                                                    index.toString()
+                                                }
+                                                name={a.answer}
+                                                control={control}
+                                                defaultValue={undefined}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        error={
+                                                            errors[q.question]
+                                                        }
+                                                        label={a.answer}
+                                                        disabled={false}
+                                                        type="radio"
+                                                        field={{
+                                                            ...field,
+                                                            value: a.answer,
+                                                        }}
+                                                    />
+                                                )}
+                                            />
+                                        ))}
+                                    </RadioGroup>
+                                ) : q.question_type ===
+                                  "multiple correct - multiple choice" ? (
+                                    <FormGroup>
+                                        {q.answers.map((a, index) => (
+                                            <Controller
+                                                key={
+                                                    q.question +
+                                                    "_answer" +
+                                                    a.answer +
+                                                    index.toString()
+                                                }
+                                                name={a.answer}
+                                                control={control}
+                                                defaultValue={undefined}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        error={
+                                                            errors[q.question]
+                                                        }
+                                                        label={a.answer}
+                                                        disabled={false}
+                                                        type="checkbox"
+                                                        field={{
+                                                            ...field,
+                                                            value: a.answer,
+                                                        }}
+                                                    />
+                                                )}
+                                            />
+                                        ))}
+                                    </FormGroup>
+                                ) : null}
+                            </FormControl>
                         </Box>
                         {j !== sections[i].questions.length - 1 ? (
                             <hr
