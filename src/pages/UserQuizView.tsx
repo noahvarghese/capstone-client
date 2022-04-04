@@ -55,13 +55,17 @@ const UserQuizView: React.FC = () => {
     const defaultValues = useMemo(() => {
         if (!quiz) return {};
 
-        const values: { [question: string]: string } = {};
+        const values: { [question: string]: string | string[] } = {};
 
         for (let i = 0; i < quiz.sections.length; i++) {
             for (let j = 0; j < quiz.sections[i].questions.length; j++) {
                 values[
                     quiz.sections[i].questions[j].question.split(" ").join("")
-                ] = "";
+                ] =
+                    quiz.sections[i].questions[j].question_type ===
+                    "multiple correct - multiple choice"
+                        ? []
+                        : "";
             }
         }
 
