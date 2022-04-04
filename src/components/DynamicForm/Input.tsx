@@ -25,7 +25,6 @@ const Input: React.FC<{
      * Key is what will be sent to the server
      */
     items?: { key: string | number; value: string }[];
-    checked?: boolean;
     value?: string | number;
     label: string;
     disabled: boolean;
@@ -33,23 +32,10 @@ const Input: React.FC<{
     setValueAs?: (v: any) => any;
     type: "input" | "checkbox" | "radio" | "select" | "hidden";
     field?: ControllerRenderProps<FieldValues, string>;
-}> = ({
-    items,
-    type,
-    field,
-    disabled,
-    error,
-    label,
-    inputType,
-    checked,
-    value,
-}) => {
+}> = ({ items, type, field, disabled, error, label, inputType, value }) => {
     let validator: (e: BaseEvent) => BaseEvent;
 
     if (type !== "radio" && !field) throw new Error("field is required");
-
-    if (type === "checkbox" && checked === undefined)
-        throw new Error(`Invalid args type: ${type}, checked: ${checked}`);
 
     if (type === "select" && !items)
         throw new Error(`Invalid args type: ${type}, items: ${items}`);
@@ -73,7 +59,6 @@ const Input: React.FC<{
         case "checkbox":
             return (
                 <FormControlLabel
-                    checked={checked}
                     label={label}
                     control={
                         <Checkbox
@@ -110,7 +95,6 @@ const Input: React.FC<{
             return (
                 <FormControlLabel
                     value={value}
-                    checked={checked}
                     control={<Radio />}
                     label={label}
                 />
