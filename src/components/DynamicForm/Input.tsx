@@ -26,16 +26,25 @@ const Input: React.FC<{
      */
     items?: { key: string | number; value: string }[];
     value?: string | number;
+    name?: string;
     label: string;
     disabled: boolean;
     error?: FieldError;
     setValueAs?: (v: any) => any;
     type: "input" | "checkbox" | "radio" | "select" | "hidden";
     field?: ControllerRenderProps<FieldValues, string>;
-}> = ({ items, type, field, disabled, error, label, inputType, value }) => {
+}> = ({
+    items,
+    type,
+    field,
+    disabled,
+    error,
+    label,
+    inputType,
+    value,
+    name,
+}) => {
     let validator: (e: BaseEvent) => BaseEvent;
-
-    if (type !== "radio" && !field) throw new Error("field is required");
 
     if (type === "select" && !items)
         throw new Error(`Invalid args type: ${type}, items: ${items}`);
@@ -63,9 +72,10 @@ const Input: React.FC<{
                     control={
                         <Checkbox
                             disabled={disabled}
-                            value={field!.value}
-                            onChange={field!.onChange}
-                            onBlur={field!.onBlur}
+                            name={field?.name ?? name}
+                            value={field?.value ?? value}
+                            onChange={field?.onChange}
+                            onBlur={field?.onBlur}
                         />
                     }
                 />

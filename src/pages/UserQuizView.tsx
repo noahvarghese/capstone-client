@@ -192,36 +192,29 @@ const UserQuizView: React.FC = () => {
                                     />
                                 ) : q.question_type ===
                                   "multiple correct - multiple choice" ? (
-                                    <FormGroup>
-                                        {q.answers.map((a, index) => (
-                                            <Controller
-                                                key={`question_${questionName}_answer${a.answer
-                                                    .split(" ")
-                                                    .join("")}${index}`}
-                                                name={
-                                                    q.question +
-                                                    "_answer" +
-                                                    a.answer +
-                                                    index.toString()
-                                                }
-                                                control={control}
-                                                render={({ field }) => (
+                                    <Controller
+                                        name={questionName}
+                                        control={control}
+                                        render={({ field }) => (
+                                            <FormGroup
+                                                {...field}
+                                                aria-labelledby={questionName}
+                                                defaultValue=""
+                                            >
+                                                {q.answers.map((a, index) => (
                                                     <Input
-                                                        key={
-                                                            q.question +
-                                                            "_answer" +
-                                                            a.answer +
-                                                            index.toString()
-                                                        }
+                                                        key={`question_${questionName}_answer${a.answer
+                                                            .split(" ")
+                                                            .join("")}${index}`}
                                                         label={a.answer}
                                                         disabled={false}
                                                         type="checkbox"
-                                                        field={field}
+                                                        value={a.id.toString()}
                                                     />
-                                                )}
-                                            />
-                                        ))}
-                                    </FormGroup>
+                                                ))}
+                                            </FormGroup>
+                                        )}
+                                    />
                                 ) : null}
                             </FormControl>
                         </Box>
