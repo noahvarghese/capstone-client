@@ -95,8 +95,6 @@ const DynamicForm = ({
         mode: "all",
     });
 
-    console.log({ formOptions });
-
     const formInputs = useMemo(
         () =>
             Object.entries(formOptions).map(
