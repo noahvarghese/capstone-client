@@ -3,22 +3,18 @@ import {
     Alert,
     Box,
     Button,
-    FormControl,
-    FormGroup,
-    FormLabel,
     ListItemIcon,
     ListItemText,
     MenuItem,
     MenuList,
     Paper,
-    RadioGroup,
     Typography,
 } from "@mui/material";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { Prompt, useParams, useHistory } from "react-router-dom";
-import Input from "src/components/DynamicForm/Input";
 import Loading from "src/components/Loading";
+import useQuizDisplay from "src/components/QuizDisplay";
 import { server } from "src/util/permalink";
 import { Answer } from "./QuizQuestionView";
 import { Question, Section } from "./QuizSectionView";
@@ -28,7 +24,7 @@ type CompleteQuestion = Question & { answers: Answer[] };
 
 type CompleteSection = Section & { questions: CompleteQuestion[] };
 
-type CompleteQuiz = Quiz & {
+export type CompleteQuiz = Quiz & {
     sections: CompleteSection[];
 };
 
@@ -93,149 +89,7 @@ const UserQuizView: React.FC = () => {
     }, [startQuiz]);
 
     // TODO: submit quiz attempt on exit after prompt
-
-    const formInputs: { [sectionId: number]: JSX.Element[] } = useMemo(() => {
-        // Store inputs in HashMap with the section.id as the key and an array of JSX.Elements as the value
-        const sectionsMap: { [sectionId: number]: JSX.Element[] } = {};
-
-        if (!quiz) return sectionsMap;
-
-        const { sections } = quiz;
-
-        // Iterate over all questions
-        for (let i = 0; i < sections.length; i++) {
-            const { questions } = sections[i];
-            sectionsMap[sections[i].id] = [];
-
-            for (let j = 0; j < questions.length; j++) {
-                const q = questions[j];
-                const questionName = q.question.split(" ").join("");
-
-                // TODO: Add refs to each Input element
-                sectionsMap[sections[i].id].push(
-                    <Box
-                        key={questionName}
-                        sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "1rem",
-                            margin: "1rem",
-                        }}
-                    >
-                        <Box
-                            sx={{
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "flex-start",
-                            }}
-                        >
-                            <FormControl component="fieldset">
-                                <FormLabel id={questionName} component="legend">
-                                    <Typography
-                                        variant="h5"
-                                        variantMapping={{
-                                            h5: "h4",
-                                        }}
-                                        sx={{
-                                            textAlign: "left",
-                                        }}
-                                    >
-                                        {q.question}
-                                    </Typography>
-                                </FormLabel>
-                                {q.question_type === "true or false" ? (
-                                    <Controller
-                                        control={control}
-                                        name={questionName}
-                                        render={({ field }) => (
-                                            <RadioGroup
-                                                aria-labelledby={questionName}
-                                                {...field}
-                                                defaultValue=""
-                                                value={field.value ?? ""}
-                                            >
-                                                {q.answers.map((a, index) => (
-                                                    <Input
-                                                        key={`question_${questionName}_answer${a.answer
-                                                            .split(" ")
-                                                            .join("")}${index}`}
-                                                        label={a.answer}
-                                                        disabled={false}
-                                                        type="radio"
-                                                        value={a.id.toString()}
-                                                    />
-                                                ))}
-                                            </RadioGroup>
-                                        )}
-                                    />
-                                ) : q.question_type ===
-                                  "single correct - multiple choice" ? (
-                                    <Controller
-                                        control={control}
-                                        name={q.question}
-                                        render={({ field }) => (
-                                            <RadioGroup
-                                                aria-labelledby={questionName}
-                                                {...field}
-                                                defaultValue=""
-                                                value={field.value ?? ""}
-                                            >
-                                                {q.answers.map((a, index) => (
-                                                    <Input
-                                                        key={`question_${questionName}_answer${a.answer
-                                                            .split(" ")
-                                                            .join("")}${index}`}
-                                                        label={a.answer}
-                                                        disabled={false}
-                                                        type="radio"
-                                                        value={a.id.toString()}
-                                                    />
-                                                ))}
-                                            </RadioGroup>
-                                        )}
-                                    />
-                                ) : q.question_type ===
-                                  "multiple correct - multiple choice" ? (
-                                    <Controller
-                                        name={questionName}
-                                        control={control}
-                                        render={({ field }) => (
-                                            <FormGroup
-                                                {...field}
-                                                aria-labelledby={questionName}
-                                                defaultValue=""
-                                            >
-                                                {q.answers.map((a, index) => (
-                                                    <Input
-                                                        key={`question_${questionName}_answer${a.answer
-                                                            .split(" ")
-                                                            .join("")}${index}`}
-                                                        label={a.answer}
-                                                        disabled={false}
-                                                        type="checkbox"
-                                                        value={a.id.toString()}
-                                                    />
-                                                ))}
-                                            </FormGroup>
-                                        )}
-                                    />
-                                ) : null}
-                            </FormControl>
-                        </Box>
-                        {j !== sections[i].questions.length - 1 ? (
-                            <hr
-                                style={{
-                                    width: "100%",
-                                }}
-                            />
-                        ) : null}
-                    </Box>
-                );
-            }
-        }
-
-        return sectionsMap;
-    }, [control, quiz]);
+    const quizDisplay = useQuizDisplay({ control, disabled: false, quiz });
 
     // Get full document
     useEffect(() => {
@@ -418,7 +272,7 @@ const UserQuizView: React.FC = () => {
                                 </Typography>
                                 <Box>
                                     {selectedSectionId
-                                        ? formInputs[selectedSectionId]
+                                        ? quizDisplay[selectedSectionId]
                                         : null}
                                 </Box>
                             </Paper>

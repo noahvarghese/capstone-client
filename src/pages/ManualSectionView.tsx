@@ -383,8 +383,9 @@ const ManualSectionView = () => {
                         formOptions={{
                             title: {
                                 defaultValue: manualSection.title,
-                                label: "title",
-                                type: "input",
+                                input: {
+                                    label: "title",
+                                },
                                 registerOptions: {
                                     required: "title cannot be empty",
                                 },

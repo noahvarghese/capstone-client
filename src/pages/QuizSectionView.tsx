@@ -14,17 +14,16 @@ import DynamicDataTable from "src/components/DynamicDataTable";
 import DynamicForm from "src/components/DynamicForm";
 import Loading from "src/components/Loading";
 import { server } from "src/util/permalink";
+import {
+    QuestionType,
+    selectQuestionTypeOptions,
+} from "src/util/questionTypes";
 import { Quiz } from "./QuizzesList";
 
 export interface Section {
     id: number;
     title: string;
 }
-
-export type QuestionType =
-    | "true or false"
-    | "multiple correct - multiple choice"
-    | "single correct - multiple choice";
 
 export interface Question {
     id: number;
@@ -121,8 +120,9 @@ const QuizSectionView: React.FC = () => {
                         formOptions={{
                             title: {
                                 defaultValue: quizSection.title,
-                                label: "title",
-                                type: "input",
+                                input: {
+                                    label: "title",
+                                },
                                 registerOptions: {
                                     required: "title cannot be empty",
                                 },
@@ -158,30 +158,19 @@ const QuizSectionView: React.FC = () => {
                     formOptions={{
                         question: {
                             defaultValue: "",
-                            label: "question",
-                            type: "input",
+                            input: {
+                                label: "question",
+                            },
                             registerOptions: {
                                 required: "question cannot be empty",
                             },
                         },
                         question_type: {
                             defaultValue: "",
-                            label: "question type",
-                            type: "select",
-                            items: [
-                                {
-                                    key: "true or false",
-                                    value: "true or false",
-                                },
-                                {
-                                    key: "multiple correct - multiple choice",
-                                    value: "multiple correct - multiple choice",
-                                },
-                                {
-                                    key: "single correct - multiple choice",
-                                    value: "single correct - multiple choice",
-                                },
-                            ],
+                            select: {
+                                label: "question type",
+                                items: selectQuestionTypeOptions,
+                            },
                             registerOptions: {
                                 required: "question type cannot be empty",
                             },

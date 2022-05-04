@@ -101,8 +101,9 @@ const QuizView: React.FC = () => {
                         formOptions={{
                             title: {
                                 defaultValue: quiz.title,
-                                label: "title",
-                                type: "input",
+                                input: {
+                                    label: "title",
+                                },
                                 registerOptions: {
                                     required: "title cannot be empty",
                                     disabled: quiz.prevent_edit,
@@ -110,9 +111,10 @@ const QuizView: React.FC = () => {
                             },
                             max_attempts: {
                                 defaultValue: quiz.max_attempts,
-                                label: "max attempts",
-                                type: "input",
-                                inputType: "number",
+                                input: {
+                                    label: "max attempts",
+                                    inputType: "number",
+                                },
                                 registerOptions: {
                                     disabled: quiz.prevent_edit,
                                     required: "max attempts cannot be empty",
@@ -120,22 +122,25 @@ const QuizView: React.FC = () => {
                             },
                             prevent_edit: {
                                 defaultValue: quiz.prevent_edit,
-                                label: "prevent edit",
-                                type: "checkbox",
+                                singleCheckbox: {
+                                    label: "prevent edit",
+                                },
                                 registerOptions: {},
                             },
                             prevent_delete: {
                                 defaultValue: quiz.prevent_delete,
-                                label: "prevent delete",
-                                type: "checkbox",
+                                singleCheckbox: {
+                                    label: "prevent delete",
+                                },
                                 registerOptions: {
                                     disabled: quiz.prevent_edit,
                                 },
                             },
                             published: {
                                 defaultValue: quiz.published,
-                                label: "publish",
-                                type: "checkbox",
+                                singleCheckbox: {
+                                    label: "publish",
+                                },
                                 registerOptions: {
                                     disabled: quiz.prevent_edit,
                                 },
@@ -186,9 +191,9 @@ const QuizView: React.FC = () => {
                     formOptions={{
                         title: {
                             defaultValue: "",
-                            label: "title",
-                            type: "input",
-                            inputType: "text",
+                            input: {
+                                label: "title",
+                            },
                             registerOptions: {
                                 required: "title cannot be empty",
                             },

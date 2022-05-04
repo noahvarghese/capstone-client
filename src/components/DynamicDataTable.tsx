@@ -6,7 +6,7 @@ import React, {
     useMemo,
     useState,
 } from "react";
-import DynamicForm, { FormInputOptions } from "./DynamicForm";
+import DynamicForm, { FormOptions } from "./DynamicForm";
 import DynamicTable from "./DynamicTable";
 
 interface DynamicDataTableProps<T extends { id: number }> {
@@ -17,9 +17,7 @@ interface DynamicDataTableProps<T extends { id: number }> {
     disableDeleteForRow?: (model: T) => boolean;
     disableDeleteForTable?: boolean;
     disableForm?: boolean;
-    formOptions: {
-        [x: string]: FormInputOptions;
-    };
+    formOptions: FormOptions;
     getUrl: string;
     modelName: string;
     navigateUrl: (id: number) => string;

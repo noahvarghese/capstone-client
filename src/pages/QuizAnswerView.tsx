@@ -13,18 +13,18 @@ import { Link } from "react-router-dom";
 import DynamicForm from "src/components/DynamicForm";
 import Loading from "src/components/Loading";
 import { server } from "src/util/permalink";
+import { genItems } from "src/util/questionTypes";
 import { Answer } from "./QuizQuestionView";
 import { Section, Question } from "./QuizSectionView";
 import { Quiz } from "./QuizzesList";
 
-const QuizAnswerView = () => {
-    const { id, question_id, section_id, quiz_id } =
-        useParams<{
-            id?: string;
-            question_id?: string;
-            section_id?: string;
-            quiz_id?: string;
-        }>();
+const QuizAnswerView: React.FC = () => {
+    const { id, question_id, section_id, quiz_id } = useParams<{
+        id?: string;
+        question_id?: string;
+        section_id?: string;
+        quiz_id?: string;
+    }>();
     const [quiz, setQuiz] = useState<Quiz | undefined>();
     const [quizSection, setQuizSection] = useState<Section | undefined>();
     const [quizQuestion, setQuizQuestion] = useState<Question | undefined>();
@@ -138,8 +138,9 @@ const QuizAnswerView = () => {
                         formOptions={{
                             answer: {
                                 defaultValue: quizAnswer.answer,
-                                label: "answer",
-                                type: "input",
+                                input: {
+                                    label: "answer",
+                                },
                                 registerOptions: {
                                     disabled:
                                         quizQuestion.question_type ===
@@ -149,12 +150,10 @@ const QuizAnswerView = () => {
                             },
                             correct: {
                                 defaultValue: quizAnswer.correct.toString(),
-                                label: "correct",
-                                type: "select",
-                                items: [
-                                    { key: "true", value: "true" },
-                                    { key: "false", value: "false" },
-                                ],
+                                select: {
+                                    label: "correct",
+                                    items: genItems(["true", "false"]),
+                                },
                                 registerOptions: {
                                     setValueAs: (v) => v === "true",
                                     required:

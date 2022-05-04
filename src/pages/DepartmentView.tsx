@@ -13,6 +13,7 @@ import Loading from "src/components/Loading";
 import { server } from "src/util/permalink";
 import DynamicForm from "src/components/DynamicForm";
 import DynamicDataTable from "src/components/DynamicDataTable";
+import { genItems } from "src/util/questionTypes";
 
 const DepartmentView: React.FC = () => {
     const { roles } = useContext(AppContext);
@@ -125,8 +126,9 @@ const DepartmentView: React.FC = () => {
                         formOptions={{
                             name: {
                                 defaultValue: department.name,
-                                type: "input",
-                                label: "name",
+                                input: {
+                                    label: "name",
+                                },
                                 registerOptions: {
                                     required: "name cannot be empty",
                                 },
@@ -166,29 +168,30 @@ const DepartmentView: React.FC = () => {
                     formOptions={{
                         name: {
                             defaultValue: "",
-                            label: "name",
-                            type: "input",
+                            input: {
+                                label: "name",
+                            },
                             registerOptions: {
                                 required: "name cannot be empty",
                             },
                         },
                         access: {
                             defaultValue: "",
-                            type: "select",
-                            items: [
-                                { key: "MANAGER", value: "MANAGER" },
-                                { key: "USER", value: "USER" },
-                            ],
-                            label: "access",
+                            select: {
+                                items: genItems(["USER", "MANAGER"]),
+                                label: "access",
+                            },
                             registerOptions: {
                                 required: "access cannot be empty",
                             },
                         },
                         department_id: {
                             defaultValue: department.id,
-                            type: "hidden",
-                            inputType: "number",
-                            label: "department id",
+                            hidden: {
+                                disabled: true,
+                                value: department.id,
+                                label: "department id",
+                            },
                             registerOptions: { valueAsNumber: true },
                         },
                     }}

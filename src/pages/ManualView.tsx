@@ -119,31 +119,35 @@ const ManualView = () => {
                                     required: "title cannot be empty",
                                     disabled: manual.prevent_edit,
                                 },
-                                type: "input",
-                                label: "title",
+                                input: {
+                                    label: "title",
+                                },
                                 defaultValue: manual.title,
                             },
                             prevent_edit: {
                                 registerOptions: {},
                                 defaultValue: manual.prevent_edit,
-                                type: "checkbox",
-                                label: "prevent edit",
+                                singleCheckbox: {
+                                    label: "prevent edit",
+                                },
                             },
                             prevent_delete: {
                                 registerOptions: {
                                     disabled: manual.prevent_edit,
                                 },
                                 defaultValue: manual.prevent_delete,
-                                type: "checkbox",
-                                label: "prevent delete",
+                                singleCheckbox: {
+                                    label: "prevent delete",
+                                },
                             },
                             published: {
                                 registerOptions: {
                                     disabled: manual.prevent_edit,
                                 },
                                 defaultValue: manual.published,
-                                type: "checkbox",
-                                label: "publish",
+                                singleCheckbox: {
+                                    label: "publish",
+                                },
                             },
                         }}
                     />
@@ -185,9 +189,10 @@ const ManualView = () => {
                     formOptions={{
                         title: {
                             defaultValue: "",
-                            label: "title",
-                            type: "input",
-                            inputType: "text",
+                            input: {
+                                label: "title",
+                                inputType: "text",
+                            },
                             registerOptions: {
                                 required: "title cannot be empty",
                             },
@@ -220,19 +225,21 @@ const ManualView = () => {
                     description={(q) => `${q?.title}`}
                     formOptions={{
                         title: {
-                            type: "input",
                             defaultValue: "",
-                            label: "title",
-                            inputType: "text",
+                            input: {
+                                label: "title",
+                                inputType: "text",
+                            },
                             registerOptions: {
                                 required: "title cannot be empty",
                             },
                         },
                         max_attempts: {
-                            type: "input",
                             defaultValue: "",
-                            label: "max attempts",
-                            inputType: "number",
+                            input: {
+                                label: "max attempts",
+                                inputType: "number",
+                            },
                             registerOptions: {
                                 required: "max attempts cannot be empty",
                             },
@@ -240,20 +247,23 @@ const ManualView = () => {
                         prevent_edit: {
                             registerOptions: {},
                             defaultValue: false,
-                            type: "checkbox",
-                            label: "prevent edit",
+                            singleCheckbox: {
+                                label: "prevent edit",
+                            },
                         },
                         prevent_delete: {
                             registerOptions: {},
                             defaultValue: false,
-                            type: "checkbox",
-                            label: "prevent delete",
+                            singleCheckbox: {
+                                label: "prevent delete",
+                            },
                         },
                         published: {
                             registerOptions: {},
                             defaultValue: false,
-                            type: "checkbox",
-                            label: "publish",
+                            singleCheckbox: {
+                                label: "publish",
+                            },
                         },
                     }}
                     getUrl={server(`/manuals/${manual.id}/quizzes`)}
