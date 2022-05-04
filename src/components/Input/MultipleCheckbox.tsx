@@ -31,7 +31,7 @@ const MultipleCheckbox: React.FC<MultipleCheckboxProps> = ({
                     name=""
                     disabled={disabled}
                     key={key}
-                    label={key}
+                    label={label}
                     value={value}
                 />
             ))}
