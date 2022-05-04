@@ -15,6 +15,7 @@ import DynamicForm from "src/components/DynamicForm";
 import Loading from "src/components/Loading";
 import AppContext, { Member, Role } from "src/context";
 import { server } from "src/util/permalink";
+import { genItems } from "src/util/questionTypes";
 import { Manual } from "./ManualsList";
 
 const RoleView: React.FC = () => {
@@ -125,9 +126,10 @@ const RoleView: React.FC = () => {
                         formOptions={{
                             name: {
                                 defaultValue: role.name,
-                                label: "name",
-                                type: "input",
-                                inputType: "text",
+                                input: {
+                                    label: "name",
+                                    inputType: "text",
+                                },
                                 registerOptions: {
                                     required: "name cannot be empty",
                                     disabled:
@@ -136,18 +138,21 @@ const RoleView: React.FC = () => {
                             },
                             access: {
                                 defaultValue: role.access,
-                                label: "access",
-                                type: "select",
-                                items: [
-                                    role.access === "ADMIN"
-                                        ? { key: "ADMIN", value: "ADMIN" }
-                                        : undefined,
-                                    { key: "MANAGER", value: "MANAGER" },
-                                    { key: "USER", value: "USER" },
-                                ].filter((v) => v !== undefined) as {
-                                    key: string;
-                                    value: string;
-                                }[],
+                                select: {
+                                    label: "access",
+                                    type: "select",
+                                    items: genItems(
+                                        [
+                                            role.access === "ADMIN"
+                                                ? "ADMIN"
+                                                : undefined,
+                                            "MANAGER",
+                                            "USER",
+                                        ].filter(
+                                            (a) => a !== undefined
+                                        ) as string[]
+                                    ),
+                                },
                                 registerOptions: {
                                     required: "access cannot be empty",
                                     disabled:

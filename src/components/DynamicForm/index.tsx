@@ -7,60 +7,46 @@ import {
     useCallback,
 } from "react";
 import { useForm, RegisterOptions, Controller } from "react-hook-form";
-import Input from "./Input";
+import Input, { InputProps } from "../Input";
+import { HiddenProps } from "../Input/Hidden";
+import { TextInputProps } from "../Input/Text";
+import { SelectProps } from "../Input/Select";
+import { SingleCheckboxProps } from "../Input/Checkbox";
+import { MultipleCheckboxProps } from "../Input/MultipleCheckbox";
+import { RadioGroupProps } from "../Input/Radio";
 
-interface BaseInputOptions {
-    type: string;
-    label: string;
-    defaultValue: any;
-    registerOptions: RegisterOptions;
+const formInputOptions = [
+    "hidden",
+    "input",
+    "multipleCheckbox",
+    "radio",
+    "select",
+    "singleCheckbox",
+] as const;
+
+export declare type FormInputOptions = {
+    hidden?: HiddenProps;
+    input?: Omit<TextInputProps, "field">;
+    multipleCheckbox?: Omit<MultipleCheckboxProps, "field">;
+    radio?: Omit<RadioGroupProps, "field">;
+    select?: Omit<SelectProps, "field">;
+    singleCheckbox?: Omit<
+        SingleCheckboxProps,
+        "onChange" | "onBlur" | "value" | "name"
+    >;
+};
+
+export interface FormOptions {
+    [x: string]: {
+        defaultValue: any;
+        registerOptions: RegisterOptions;
+    } & FormInputOptions;
 }
-
-interface TextOptions extends BaseInputOptions {
-    type: "input";
-    /**
-     * Type of the `input` element. It should be [a valid HTML5 input type](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#Form_%3Cinput%3E_types).
-     * Only used if type is input
-     * @default 'text'
-     */
-    inputType?: string;
-}
-
-interface CheckboxOptions extends BaseInputOptions {
-    type: "checkbox";
-}
-
-interface SelectOptions extends BaseInputOptions {
-    type: "select";
-    /**
-     * Value is the human readable option
-     * Key is what will be sent to the server
-     */
-    items: { key: string | number; value: string }[];
-}
-
-interface HiddenOptions extends BaseInputOptions {
-    type: "hidden";
-    /**
-     * Type of the `input` element. It should be [a valid HTML5 input type](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#Form_%3Cinput%3E_types).
-     * Only used if type is input
-     * @default 'text'
-     */
-    inputType?: string;
-}
-
-export declare type FormInputOptions =
-    | TextOptions
-    | CheckboxOptions
-    | SelectOptions
-    | HiddenOptions;
 
 interface DynamicFormProps {
     disableSubmit?: boolean;
     fetchOptions: RequestInit;
-    formOptions: {
-        [x: string]: FormInputOptions;
-    };
+    formOptions: FormOptions;
     /**
      * @default Cancel
      */
@@ -109,6 +95,8 @@ const DynamicForm = ({
         mode: "all",
     });
 
+    console.log({ formOptions });
+
     const formInputs = useMemo(
         () =>
             Object.entries(formOptions).map(
@@ -119,28 +107,49 @@ const DynamicForm = ({
                         defaultValue,
                         ...rest
                     },
-                ]) => (
-                    <Controller
-                        key={key}
-                        name={key}
-                        control={control}
-                        defaultValue={defaultValue}
-                        rules={rules}
-                        render={({ field }) => (
-                            <Input
-                                {...rest}
-                                error={errors[key]}
-                                field={field}
-                                disabled={
-                                    (disableSubmit !== undefined &&
-                                        disableSubmit) ||
-                                    disabled ||
-                                    isSubmitting
+                ]) => {
+                    return (
+                        <Controller
+                            key={key}
+                            name={key}
+                            control={control}
+                            defaultValue={defaultValue}
+                            rules={rules}
+                            render={({ field }) => {
+                                let props: Record<string, unknown> = {};
+
+                                for (let [inputType, value] of Object.entries(
+                                    rest
+                                )) {
+                                    if (
+                                        value !== undefined &&
+                                        formInputOptions.includes(
+                                            inputType as typeof formInputOptions[number]
+                                        )
+                                    ) {
+                                        props[inputType] = {
+                                            ...value,
+                                            field,
+                                            label:
+                                                (value as TextInputProps)
+                                                    .label ?? "",
+                                            error: errors[key],
+                                            disabled:
+                                                (disableSubmit !== undefined &&
+                                                    disableSubmit) ||
+                                                disabled ||
+                                                isSubmitting,
+                                        };
+                                    }
                                 }
-                            />
-                        )}
-                    />
-                )
+
+                                return (
+                                    <Input {...({ ...props } as InputProps)} />
+                                );
+                            }}
+                        />
+                    );
+                }
             ),
         [control, disableSubmit, errors, formOptions, isSubmitting]
     );

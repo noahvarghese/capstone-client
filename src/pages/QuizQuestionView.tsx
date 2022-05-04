@@ -14,6 +14,7 @@ import DynamicDataTable from "src/components/DynamicDataTable";
 import DynamicForm from "src/components/DynamicForm";
 import Loading from "src/components/Loading";
 import { server } from "src/util/permalink";
+import { genItems, selectQuestionTypeOptions } from "src/util/questionTypes";
 import { Question, Section } from "./QuizSectionView";
 import { Quiz } from "./QuizzesList";
 
@@ -126,30 +127,19 @@ const QuizQuestionView: React.FC = () => {
                         formOptions={{
                             question: {
                                 defaultValue: quizQuestion.question,
-                                label: "question",
-                                type: "input",
+                                input: {
+                                    label: "question",
+                                },
                                 registerOptions: {
                                     required: "question cannot be empty",
                                 },
                             },
                             question_type: {
                                 defaultValue: quizQuestion.question_type,
-                                label: "question type",
-                                type: "select",
-                                items: [
-                                    {
-                                        key: "true or false",
-                                        value: "true or false",
-                                    },
-                                    {
-                                        key: "multiple correct - multiple choice",
-                                        value: "multiple correct - multiple choice",
-                                    },
-                                    {
-                                        key: "single correct - multiple choice",
-                                        value: "single correct - multiple choice",
-                                    },
-                                ],
+                                select: {
+                                    label: "question type",
+                                    items: selectQuestionTypeOptions,
+                                },
                                 registerOptions: {
                                     required: "question type cannot be empty",
                                 },
@@ -217,20 +207,19 @@ const QuizQuestionView: React.FC = () => {
                     formOptions={{
                         answer: {
                             defaultValue: "",
-                            label: "answer",
-                            type: "input",
+                            input: {
+                                label: "answer",
+                            },
                             registerOptions: {
                                 required: "answer cannot be empty",
                             },
                         },
                         correct: {
                             defaultValue: "",
-                            label: "correct",
-                            type: "select",
-                            items: [
-                                { key: "true", value: "true" },
-                                { key: "false", value: "false" },
-                            ],
+                            select: {
+                                label: "correct",
+                                items: genItems(["true", "false"]),
+                            },
                             registerOptions: {
                                 setValueAs: (v) => v === "true",
                                 required: "correct cannot be empty",
