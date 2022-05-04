@@ -34,7 +34,6 @@ function exactlyOneKeySet(opts: Record<string, unknown>) {
 }
 
 const Input: React.FC<InputProps> = (props) => {
-    console.log({ props });
     if (!exactlyOneKeySet(props)) throw new Error("Only one option may be set");
 
     const { hidden, input, multipleCheckbox, radio, select, singleCheckbox } =

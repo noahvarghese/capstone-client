@@ -102,8 +102,6 @@ const useQuizDisplay = ({
                     q.question_type
                 );
 
-                console.log({ props });
-
                 sectionsMap[sections[i].id].push(
                     <Box
                         key={questionName}
@@ -149,11 +147,6 @@ const useQuizDisplay = ({
                                         };
 
                                         const keys = Object.keys(props);
-                                        console.log({
-                                            input: props[
-                                                keys[0] as typeof quizAnswerOptions[number]
-                                            ],
-                                        });
 
                                         // Expect inputProps to only contain one key
                                         inputProps[
@@ -164,8 +157,6 @@ const useQuizDisplay = ({
                                             ],
                                             field,
                                         };
-
-                                        console.log({ inputProps });
 
                                         return (
                                             <Input
