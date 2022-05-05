@@ -20,15 +20,11 @@ const MultipleCheckbox: React.FC<MultipleCheckboxProps> = ({
     disabled,
     field,
     items,
-    ...rest
 }) => {
     return (
         <>
-            {items.map(({ id, key, label, value }, index) => (
+            {items.map(({ id, key, label }) => (
                 <FormControlLabel
-                    /**
-                     * TODO: Decide how to use names
-                     */
                     key={key}
                     label={label}
                     onChange={() => {
