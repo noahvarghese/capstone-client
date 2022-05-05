@@ -135,7 +135,7 @@ const useQuizDisplay = ({
                                 </FormLabel>
                                 <Controller
                                     control={control}
-                                    name={questionName}
+                                    name={q.id.toString()}
                                     render={({ field }) => {
                                         const inputProps: Partial<
                                             Record<
