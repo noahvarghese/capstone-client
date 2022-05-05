@@ -75,16 +75,55 @@ const UserQuizView: React.FC = () => {
     const submit = useCallback(
         (data) => {
             console.log(data);
-            // TODO: submit quiz
-            fetch(server(`/quizzes/attempts/${quizAttemptId}`), {
-                method: "PUT",
-                mode: "cors",
-                credentials: "include",
-            });
-
-            setSubmitQuiz(true);
+            Promise.all(
+                Object.entries(data).map(async ([key, value]) => {
+                    if (Array.isArray(value)) {
+                        return Promise.all(
+                            value.map((v) =>
+                                fetch(
+                                    server(
+                                        `/quizzes/attempts/${quizAttemptId}/results/${key}`
+                                    ),
+                                    {
+                                        method: "POST",
+                                        credentials: "include",
+                                        mode: "cors",
+                                        body: JSON.stringify({
+                                            quiz_answer_id: v,
+                                        }),
+                                    }
+                                )
+                            )
+                        );
+                    } else {
+                        return fetch(
+                            server(
+                                `/quizzes/attempts/${quizAttemptId}/results/${key}`
+                            ),
+                            {
+                                method: "POST",
+                                credentials: "include",
+                                mode: "cors",
+                                body: JSON.stringify({
+                                    quiz_answer_id: value,
+                                }),
+                            }
+                        );
+                    }
+                })
+            )
+                .then(() => {
+                    fetch(server(`/quizzes/attempts/${quizAttemptId}`), {
+                        method: "PUT",
+                        mode: "cors",
+                        credentials: "include",
+                    });
+                })
+                .then(() => {
+                    setSubmitQuiz(true);
+                });
         },
-        [quizAttemptId]
+        [id, quizAttemptId]
     );
 
     useEffect(() => {
