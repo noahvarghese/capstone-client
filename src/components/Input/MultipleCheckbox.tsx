@@ -1,8 +1,7 @@
-import { FormGroup } from "@mui/material";
+import { Checkbox, FormControlLabel } from "@mui/material";
 import React from "react";
 import { ControllerRenderProps, FieldValues } from "react-hook-form";
 import { BaseProps } from ".";
-import CheckboxControl from "./Checkbox";
 
 // TODO: Override name and onChange
 // https://stackoverflow.com/questions/61475234/material-ui-react-form-hook-multiple-checkboxes-default-selected
@@ -24,20 +23,31 @@ const MultipleCheckbox: React.FC<MultipleCheckboxProps> = ({
     ...rest
 }) => {
     return (
-        <FormGroup {...field} aria-labelledby={rest["aria-labelledby"]}>
+        <>
             {items.map(({ id, key, label, value }, index) => (
-                <CheckboxControl
+                <FormControlLabel
                     /**
                      * TODO: Decide how to use names
                      */
-                    name={key + index}
-                    disabled={disabled}
                     key={key}
                     label={label}
-                    value={value}
+                    onChange={() => {
+                        const currentValue = Array.isArray(field.value)
+                            ? field.value
+                            : [];
+
+                        if (currentValue.includes(id)) {
+                            currentValue.splice(currentValue.indexOf(id), 1);
+                        } else {
+                            currentValue.push(id);
+                        }
+
+                        field.onChange(currentValue);
+                    }}
+                    control={<Checkbox disabled={disabled} />}
                 />
             ))}
-        </FormGroup>
+        </>
     );
 };
 
