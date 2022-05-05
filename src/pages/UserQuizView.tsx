@@ -48,6 +48,8 @@ const UserQuizView: React.FC = () => {
         severity?: "warning" | "error" | "info" | "success";
     }>({ message: "" });
 
+    const [quizAttemptId, setQuizAttemptId] = useState<number>(NaN);
+
     const defaultValues = useMemo(() => {
         if (!quiz) return {};
 
@@ -70,12 +72,20 @@ const UserQuizView: React.FC = () => {
 
     const { control, handleSubmit } = useForm({ mode: "all", defaultValues });
 
-    const submit = useCallback((data) => {
-        console.log(data);
-        // TODO: submit quiz
-        // TODO: Make call to end quiz attempt using quiz attempt id
-        // setSubmitQuiz(true);
-    }, []);
+    const submit = useCallback(
+        (data) => {
+            console.log(data);
+            // TODO: submit quiz
+            fetch(server(`/quizzes/attempts/${quizAttemptId}`), {
+                method: "PUT",
+                mode: "cors",
+                credentials: "include",
+            });
+
+            setSubmitQuiz(true);
+        },
+        [quizAttemptId]
+    );
 
     useEffect(() => {
         if (submitQuiz) history.push("/quizzes");
@@ -84,11 +94,23 @@ const UserQuizView: React.FC = () => {
     useEffect(() => {
         if (startQuiz) {
             // TODO: Make call to create new quiz attempt
-            // TODO: Store quiz attempt id
+            fetch(server(`/quizzes/${id}/attempts`), {
+                method: "POST",
+                credentials: "include",
+                mode: "cors",
+            })
+                .then((res) => res.json())
+                .then(({ quizAttemptId: attemptId }) =>
+                    setQuizAttemptId(attemptId)
+                )
+                .catch(() => {
+                    history.push("/quizzes");
+                });
         }
-    }, [startQuiz]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id, startQuiz]);
 
-    // TODO: submit quiz attempt on exit after prompt
+    // TODO: submit quiz attempt on exit after prompt (via useEffect cleanup)
     const quizDisplay = useQuizDisplay({ control, disabled: false, quiz });
 
     // Get full document
