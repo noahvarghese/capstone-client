@@ -1,78 +1,23 @@
 import { Alert, Box, MenuItem, TextField, Typography } from "@mui/material";
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
 import AppContext from "src/context";
 import useManuals from "src/hooks/data/useManuals";
 import { server } from "src/util/permalink";
 import { Quiz } from "./QuizzesList";
+import DisplayCard from "src/components/DisplayCard";
 
-const QuizCard: React.FC<{ quiz: { attempts?: any[] } & Quiz }> = ({
-    quiz,
-}) => {
-    const history = useHistory();
-    const numberOfAttempts = quiz.attempts?.length ?? 0;
-
-    return (
-        <Box
-            className="quiz-card"
-            sx={{
-                "&:hover":
-                    numberOfAttempts < quiz.max_attempts
-                        ? {
-                              boxShadow:
-                                  "8px 12px 12px rgba(44, 44, 44, 0.25) !important",
-                              transform: "scale(1.01)",
-                              cursor: "pointer",
-                          }
-                        : {},
-            }}
-            style={{
-                position: "relative",
-                transition: "all 0.15s ease-in-out",
-                width: "20rem",
-                height: "20rem",
-                backgroundColor: "#f3f3f3",
-                boxShadow: "4px 8px 8px rgba(44,44,44,0.1)",
-                border: "1px solid #eeeeee",
-                display: "flex",
-                flexDirection: "column",
-                borderRadius: "4px",
-                alignItems: "flex-start",
-                justifyContent: "center",
-            }}
-            onClick={() => {
-                if (numberOfAttempts < quiz.max_attempts)
-                    history.push(`/quizzes/${quiz.id}`);
-            }}
-        >
-            <Typography
-                variant="h2"
-                style={{
-                    padding: "1rem",
-                    textAlign: "left",
-                    width: "80%",
-                    borderBottom: "5px solid #1976d2",
-                }}
-            >
-                {quiz.title}
-            </Typography>
-            <Box
-                style={{
-                    color: "rgb(111, 126, 140)",
-                    position: "absolute",
-                    right: "1rem",
-                    bottom: "1rem",
-                }}
-            >
-                Attempt: {numberOfAttempts} / {quiz.max_attempts}
-            </Box>
-        </Box>
-    );
+export type QuizAttempt = {
+    user_id: number;
+    quiz_id: number;
+    score: number;
+    total: number;
 };
 
 const UserQuizList = () => {
     const { userId } = useContext(AppContext);
-    const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+    const [quizzes, setQuizzes] = useState<
+        (Quiz & { attempts: QuizAttempt[] })[]
+    >([]);
     const [refresh, setRefresh] = useState(true);
     const [search, setSearch] = useState("");
     const [filter, setFilter] = useState<number | undefined>();
@@ -286,7 +231,13 @@ const UserQuizList = () => {
                     }}
                 >
                     {quizzes.map((q) => (
-                        <QuizCard quiz={q} key={`quiz${q.id}`} />
+                        <DisplayCard
+                            title={q.title}
+                            key={`quiz${q.id}`}
+                            url={`/quizzes/${q.id}`}
+                            canNavigate={q.attempts.length < q.max_attempts}
+                            footer={`Attempt: ${q.attempts.length} / ${q.max_attempts}`}
+                        />
                     ))}
                 </Box>
             </Box>

@@ -1,51 +1,9 @@
 import { Alert, Box, MenuItem, TextField, Typography } from "@mui/material";
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
+import DisplayCard from "src/components/DisplayCard";
 import AppContext from "src/context";
 import { server } from "src/util/permalink";
 import { Manual } from "./ManualsList";
-
-const ManualCard: React.FC<{ manual: Manual }> = ({ manual }) => {
-    const history = useHistory();
-
-    return (
-        <Box
-            className="manual-card"
-            sx={{
-                "&:hover": {
-                    boxShadow:
-                        "8px 12px 12px rgba(44, 44, 44, 0.25) !important",
-                    transform: "scale(1.01)",
-                },
-            }}
-            style={{
-                cursor: "pointer",
-                transition: "all 0.15s ease-in-out",
-                width: "20rem",
-                height: "20rem",
-                backgroundColor: "#f3f3f3",
-                boxShadow: "4px 8px 8px rgba(44,44,44,0.1)",
-                border: "1px solid #eeeeee",
-                display: "flex",
-                borderRadius: "4px",
-                alignItems: "center",
-            }}
-            onClick={() => history.push(`/manuals/${manual.id}`)}
-        >
-            <Typography
-                variant="h2"
-                style={{
-                    padding: "1rem",
-                    textAlign: "left",
-                    width: "100%",
-                    borderBottom: "5px solid #1976d2",
-                }}
-            >
-                {manual.title}
-            </Typography>
-        </Box>
-    );
-};
 
 const UserManualsList = () => {
     const [manuals, setManuals] = useState<Manual[]>([]);
@@ -228,7 +186,11 @@ const UserManualsList = () => {
                     }}
                 >
                     {manuals.map((m) => (
-                        <ManualCard manual={m} key={`manual${m.id}`} />
+                        <DisplayCard
+                            title={m.title}
+                            url={`/manuals/${m.id}`}
+                            key={`manual${m.id}`}
+                        />
                     ))}
                 </Box>
             </Box>
