@@ -7,6 +7,7 @@ import { Quiz } from "./QuizzesList";
 import DisplayCard from "src/components/DisplayCard";
 
 export type QuizAttempt = {
+    id: number;
     user_id: number;
     quiz_id: number;
     score: number;
