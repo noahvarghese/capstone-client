@@ -13,7 +13,7 @@ export type QuizAttempt = {
     total: number;
 };
 
-const UserQuizList = () => {
+const UserQuizList: React.FC = () => {
     const { userId } = useContext(AppContext);
     const [quizzes, setQuizzes] = useState<
         (Quiz & { attempts: QuizAttempt[] })[]
