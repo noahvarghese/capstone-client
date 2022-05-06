@@ -80,7 +80,16 @@ const Scores: React.FC = () => {
     }, [filter, filterField, refresh, search, userId]);
 
     return (
-        <div>
+        <div
+            style={{
+                minHeight: 400,
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+            }}
+        >
             <Typography variant="h1">Scores</Typography>
             <Box
                 style={{
