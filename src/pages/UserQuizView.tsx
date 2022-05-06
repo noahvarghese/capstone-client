@@ -105,7 +105,7 @@ const UserQuizView: React.FC = () => {
                                 credentials: "include",
                                 mode: "cors",
                                 body: JSON.stringify({
-                                    quiz_answer_id: value,
+                                    quiz_answer_id: Number(value),
                                 }),
                             }
                         );
@@ -123,7 +123,7 @@ const UserQuizView: React.FC = () => {
                     setSubmitQuiz(true);
                 });
         },
-        [id, quizAttemptId]
+        [quizAttemptId]
     );
 
     useEffect(() => {
