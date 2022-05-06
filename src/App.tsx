@@ -35,6 +35,7 @@ import QuizSectionView from "./pages/QuizSectionView";
 import QuizQuestionView from "./pages/QuizQuestionView";
 import QuizAnswerView from "./pages/QuizAnswerView";
 import UserQuizView from "./pages/UserQuizView";
+import ScoreView from "./pages/ScoreView";
 
 function App() {
     const history = useHistory();
@@ -174,6 +175,7 @@ function App() {
                     <Route exact path="/quizzes" component={UserQuizList} />
                     <Route exact path="/quizzes/:id" component={UserQuizView} />
                     <Route exact path="/scores" component={ScoresList} />
+                    <Route exact path="/scores/:id" component={ScoreView} />
                     <Route exact path="/logout" component={Logout} />
                     <Route path="*" component={NotFound} />
                 </Switch>
