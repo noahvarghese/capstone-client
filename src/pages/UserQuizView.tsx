@@ -74,7 +74,6 @@ const UserQuizView: React.FC = () => {
 
     const submit = useCallback(
         (data) => {
-            console.log(data);
             Promise.all(
                 Object.entries(data).map(async ([key, value]) => {
                     if (Array.isArray(value)) {
