@@ -20,9 +20,9 @@ import { Answer } from "./QuizQuestionView";
 import { Question, Section } from "./QuizSectionView";
 import { Quiz } from "./QuizzesList";
 
-type CompleteQuestion = Question & { answers: Answer[] };
+export type CompleteQuestion = Question & { answers: Answer[] };
 
-type CompleteSection = Section & { questions: CompleteQuestion[] };
+export type CompleteSection = Section & { questions: CompleteQuestion[] };
 
 export type CompleteQuiz = Quiz & {
     sections: CompleteSection[];
@@ -70,7 +70,10 @@ const UserQuizView: React.FC = () => {
         return values;
     }, [quiz]);
 
-    const { control, handleSubmit } = useForm({ mode: "all", defaultValues });
+    const { control, handleSubmit, getValues } = useForm({
+        mode: "all",
+        defaultValues,
+    });
 
     const submit = useCallback(
         (data) => {
@@ -144,12 +147,63 @@ const UserQuizView: React.FC = () => {
                 .catch(() => {
                     history.push("/quizzes");
                 });
+
+            return () => {
+                const data = getValues();
+
+                Promise.all(
+                    Object.entries(data).map(async ([key, value]) => {
+                        if (Array.isArray(value)) {
+                            return Promise.all(
+                                value.map((v) =>
+                                    fetch(
+                                        server(
+                                            `/quizzes/attempts/${quizAttemptId}/results/${key}`
+                                        ),
+                                        {
+                                            method: "POST",
+                                            credentials: "include",
+                                            mode: "cors",
+                                            body: JSON.stringify({
+                                                quiz_answer_id: v,
+                                            }),
+                                        }
+                                    )
+                                )
+                            );
+                        } else {
+                            return fetch(
+                                server(
+                                    `/quizzes/attempts/${quizAttemptId}/results/${key}`
+                                ),
+                                {
+                                    method: "POST",
+                                    credentials: "include",
+                                    mode: "cors",
+                                    body: JSON.stringify({
+                                        quiz_answer_id: Number(value),
+                                    }),
+                                }
+                            );
+                        }
+                    })
+                )
+                    .then(() => {
+                        fetch(server(`/quizzes/attempts/${quizAttemptId}`), {
+                            method: "PUT",
+                            mode: "cors",
+                            credentials: "include",
+                        });
+                    })
+                    .then(() => {
+                        setSubmitQuiz(true);
+                    });
+            };
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, startQuiz]);
 
-    // TODO: submit quiz attempt on exit after prompt (via useEffect cleanup)
-    const quizDisplay = useQuizDisplay({ control, disabled: false, quiz });
+    const quizDisplay = useQuizDisplay({ control, quiz });
 
     // Get full document
     useEffect(() => {
