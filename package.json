@@ -18,6 +18,7 @@
         "react-router-dom": "^5.2.0",
         "react-scripts": "5.0.0",
         "react-table": "^7.7.0",
+        "recharts": "^2.1.9",
         "validator": "^13.7.0",
         "web-vitals": "^2.1.4"
     },
@@ -37,6 +38,7 @@
         "@types/react-router": "^5.1.18",
         "@types/react-router-dom": "^5.3.3",
         "@types/react-table": "^7.7.9",
+        "@types/recharts": "^1.8.23",
         "@types/validator": "^13.7.1",
         "istanbul-badges-readme": "^1.8.1",
         "jest-html-reporter": "^3.4.2",
