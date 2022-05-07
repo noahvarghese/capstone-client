@@ -1,23 +1,17 @@
 import { Checkbox, FormControlLabel } from "@mui/material";
 import React from "react";
-import { Noop } from "react-hook-form";
+import { ControllerRenderProps, FieldValues } from "react-hook-form";
 import { BaseProps } from ".";
 
 export interface SingleCheckboxProps extends BaseProps {
     label: string;
-    name: string;
-    onChange?: (...event: any[]) => void;
-    onBlur?: Noop;
-    value: string | number;
+    field: ControllerRenderProps<FieldValues, string>;
 }
 
 const CheckboxControl: React.FC<SingleCheckboxProps> = ({
     disabled,
     label,
-    name,
-    onBlur,
-    onChange,
-    value,
+    field,
 }) => {
     return (
         <FormControlLabel
@@ -25,10 +19,8 @@ const CheckboxControl: React.FC<SingleCheckboxProps> = ({
             control={
                 <Checkbox
                     disabled={disabled}
-                    name={name}
-                    value={value}
-                    onChange={onChange}
-                    onBlur={onBlur}
+                    {...field}
+                    checked={field.value}
                 />
             }
         />

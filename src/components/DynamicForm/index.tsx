@@ -30,10 +30,7 @@ export declare type FormInputOptions = {
     multipleCheckbox?: Omit<MultipleCheckboxProps, "field">;
     radio?: Omit<RadioGroupProps, "field">;
     select?: Omit<SelectProps, "field">;
-    singleCheckbox?: Omit<
-        SingleCheckboxProps,
-        "onChange" | "onBlur" | "value" | "name"
-    >;
+    singleCheckbox?: Omit<SingleCheckboxProps, "field">;
 };
 
 export interface FormOptions {
@@ -141,9 +138,7 @@ const DynamicForm = ({
                                     }
                                 }
 
-                                return (
-                                    <Input {...({ ...props } as InputProps)} />
-                                );
+                                return <Input {...(props as InputProps)} />;
                             }}
                         />
                     );
