@@ -57,22 +57,29 @@ function App() {
 
             Promise.all([
                 fetch(server("/businesses"), fetchOptions).then((res) =>
-                    res.ok ? res.json().then(setBusinesses) : null
+                    res.json()
                 ),
                 fetch(server(`/members/${userId}/roles`), fetchOptions).then(
-                    (res) => (res.ok ? res.json().then(setRoles) : null)
+                    (res) => res.json()
                 ),
             ])
+                .then(([businesses, roles]) => {
+                    setBusinesses(businesses);
+                    setRoles(roles);
+                })
                 .then(() => history.push("/"))
                 .catch((e) => {
                     const { message } = e as Error;
                     console.error(message);
                 });
 
-            return () => controller.abort();
+            return () => {
+                controller.abort();
+            };
         }
         // do not include navigate otherwise it triggers a refresh everytime the url changes
-    }, [history, userId]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [userId]);
 
     if (userId && businesses.length === 0) {
         return <Loading />;

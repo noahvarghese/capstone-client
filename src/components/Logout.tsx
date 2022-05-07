@@ -9,13 +9,10 @@ const Logout: React.FC = () => {
     const { logout } = useContext(AppContext);
 
     useEffect(() => {
-        const controller = new AbortController();
-
         fetch(server("/auth/logout"), {
             method: "POST",
             credentials: "include",
             mode: "cors",
-            signal: controller.signal,
         })
             .then((res) => {
                 if (res.ok) {
@@ -30,10 +27,8 @@ const Logout: React.FC = () => {
                 alert("Error logging out");
             });
 
-        return () => controller.abort();
-        // navigate causes problems
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [logout]);
+    }, []);
 
     return <Loading />;
 };
