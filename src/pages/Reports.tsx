@@ -171,7 +171,7 @@ const Reports: React.FC = () => {
                     allowScrollButtonsMobile
                     scrollButtons
                     aria-label="scrollable tabs"
-                    style={{ maxWidth: "95vw", zIndex: 3 }}
+                    style={{ maxWidth: "95vw" }}
                 >
                     <Tab label="Charts" />
                     <Tab label="Manuals" />
