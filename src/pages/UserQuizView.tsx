@@ -70,7 +70,7 @@ const UserQuizView: React.FC = () => {
         return values;
     }, [quiz]);
 
-    const { control, handleSubmit, getValues } = useForm({
+    const { control, handleSubmit } = useForm({
         mode: "all",
         defaultValues,
     });
@@ -98,6 +98,8 @@ const UserQuizView: React.FC = () => {
                             )
                         );
                     } else {
+                        if (!value) return;
+
                         return fetch(
                             server(
                                 `/quizzes/attempts/${quizAttemptId}/results/${key}`
@@ -133,72 +135,20 @@ const UserQuizView: React.FC = () => {
     }, [submitQuiz, history]);
 
     useEffect(() => {
-        if (startQuiz) {
-            // TODO: Make call to create new quiz attempt
+        if (startQuiz && id) {
             fetch(server(`/quizzes/${id}/attempts`), {
                 method: "POST",
                 credentials: "include",
                 mode: "cors",
             })
                 .then((res) => res.json())
-                .then(({ quizAttemptId: attemptId }) =>
-                    setQuizAttemptId(attemptId)
-                )
-                .catch(() => {
+                .then(({ quizAttemptId: attemptId }) => {
+                    setQuizAttemptId(attemptId);
+                })
+                .catch((e) => {
+                    console.error(e.message);
                     history.push("/quizzes");
                 });
-
-            return () => {
-                const data = getValues();
-
-                Promise.all(
-                    Object.entries(data).map(async ([key, value]) => {
-                        if (Array.isArray(value)) {
-                            return Promise.all(
-                                value.map((v) =>
-                                    fetch(
-                                        server(
-                                            `/quizzes/attempts/${quizAttemptId}/results/${key}`
-                                        ),
-                                        {
-                                            method: "POST",
-                                            credentials: "include",
-                                            mode: "cors",
-                                            body: JSON.stringify({
-                                                quiz_answer_id: v,
-                                            }),
-                                        }
-                                    )
-                                )
-                            );
-                        } else {
-                            return fetch(
-                                server(
-                                    `/quizzes/attempts/${quizAttemptId}/results/${key}`
-                                ),
-                                {
-                                    method: "POST",
-                                    credentials: "include",
-                                    mode: "cors",
-                                    body: JSON.stringify({
-                                        quiz_answer_id: Number(value),
-                                    }),
-                                }
-                            );
-                        }
-                    })
-                )
-                    .then(() => {
-                        fetch(server(`/quizzes/attempts/${quizAttemptId}`), {
-                            method: "PUT",
-                            mode: "cors",
-                            credentials: "include",
-                        });
-                    })
-                    .then(() => {
-                        setSubmitQuiz(true);
-                    });
-            };
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, startQuiz]);
@@ -414,7 +364,7 @@ const UserQuizView: React.FC = () => {
             )}
             <Prompt
                 when={startQuiz && !submitQuiz}
-                message="Are you sure you want to leave the quiz? Your current progress will be submitted."
+                message="Are you sure you want to leave the quiz? Your current attempt will be marked as incomplete."
             />
         </div>
     );
