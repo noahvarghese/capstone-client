@@ -27,8 +27,8 @@ type InputPropsWithoutField = Partial<{
 type SectionQuestions = { [sectionId: number]: Array<JSX.Element> };
 
 interface QuizDisplayProps {
-    control: Control;
-    disabled: boolean;
+    control?: Control;
+    answers?: Record<number, number | number[]>;
     quiz?: CompleteQuiz;
 }
 
@@ -67,8 +67,8 @@ const genProps = (
 };
 
 const useQuizDisplay = ({
+    answers,
     control,
-    disabled,
     quiz,
 }: QuizDisplayProps): SectionQuestions => {
     const formInputs: SectionQuestions = useMemo(() => {
@@ -96,7 +96,7 @@ const useQuizDisplay = ({
                 }));
 
                 const props = genProps(
-                    disabled,
+                    answers !== undefined || answers !== null,
                     items,
                     questionName,
                     q.question_type
@@ -133,10 +133,44 @@ const useQuizDisplay = ({
                                         {q.question}
                                     </Typography>
                                 </FormLabel>
-                                <Controller
-                                    control={control}
-                                    name={q.id.toString()}
-                                    render={({ field }) => {
+                                {control && !answers ? (
+                                    <Controller
+                                        control={control}
+                                        name={q.id.toString()}
+                                        render={({ field }) => {
+                                            const inputProps: Partial<
+                                                Record<
+                                                    keyof FormInputOptions,
+                                                    unknown
+                                                >
+                                            > = {
+                                                ...props,
+                                            };
+
+                                            const keys = Object.keys(props);
+
+                                            // Expect inputProps to only contain one key
+                                            inputProps[
+                                                keys[0] as typeof quizAnswerOptions[number]
+                                            ] = {
+                                                ...props[
+                                                    keys[0] as typeof quizAnswerOptions[number]
+                                                ],
+                                                disabled: false,
+                                                field,
+                                            };
+
+                                            return (
+                                                <Input
+                                                    {...(inputProps as InputProps)}
+                                                />
+                                            );
+                                        }}
+                                    />
+                                ) : (
+                                    (() => {
+                                        if (!answers) return;
+
                                         const inputProps: Partial<
                                             Record<
                                                 keyof FormInputOptions,
@@ -155,7 +189,17 @@ const useQuizDisplay = ({
                                             ...props[
                                                 keys[0] as typeof quizAnswerOptions[number]
                                             ],
-                                            field,
+                                            disabled: true,
+                                            field: {
+                                                name: q.id.toString(),
+                                                value: answers[q.id],
+                                                onChange: () => {
+                                                    return;
+                                                },
+                                                onBlur: () => {
+                                                    return;
+                                                },
+                                            },
                                         };
 
                                         return (
@@ -163,8 +207,8 @@ const useQuizDisplay = ({
                                                 {...(inputProps as InputProps)}
                                             />
                                         );
-                                    }}
-                                />
+                                    })()
+                                )}
                             </FormControl>
                         </Box>
                         {j !== sections[i].questions.length - 1 ? (
@@ -180,7 +224,7 @@ const useQuizDisplay = ({
         }
 
         return sectionsMap;
-    }, [control, disabled, quiz]);
+    }, [answers, control, quiz]);
 
     return formInputs;
 };
