@@ -28,7 +28,7 @@ const PieChart: React.FC<PieChartProps> = ({ title, data }) => {
             <Typography variant="h2" style={{ fontSize: "1.25rem" }}>
                 {title}
             </Typography>
-            <PieGraph width={400} height={300}>
+            <PieGraph width={400} height={400}>
                 <Pie
                     data={data}
                     cx="50%"
@@ -40,7 +40,7 @@ const PieChart: React.FC<PieChartProps> = ({ title, data }) => {
                     fill={baseColor}
                     dataKey="value"
                 >
-                    {data.map((entry, index) => (
+                    {data.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={selectColor(index)} />
                     ))}
                 </Pie>

@@ -1,6 +1,8 @@
 import { Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import BarChart from "src/components/graphs/BarChart";
 import PieChart from "src/components/graphs/PieChart";
+import { Department, Role } from "src/context";
 import { server } from "src/util/permalink";
 
 const Reports: React.FC = () => {
@@ -12,24 +14,36 @@ const Reports: React.FC = () => {
             total_attempts: number;
         }[];
     }>();
+    const [departments, setDepartments] = useState<Department[]>([]);
+    const [roles, setRoles] = useState<Role[]>([]);
 
     useEffect(() => {
         const controller = new AbortController();
-        fetch(server("/reports/quizzes/attempts"), {
+        const fetchOptions: RequestInit = {
             method: "GET",
             credentials: "include",
             mode: "cors",
             signal: controller.signal,
-        })
-            .then((res) => res.json())
-            .then(setQuizAttempts);
+        };
+
+        Promise.all([
+            fetch(server("/reports/quizzes/attempts"), fetchOptions)
+                .then((res) => res.json())
+                .then(setQuizAttempts),
+            fetch(server("/departments"), fetchOptions)
+                .then((res) => res.json())
+                .then(({ data }) => data)
+                .then(setDepartments),
+            fetch(server("/roles"), fetchOptions)
+                .then((res) => res.json())
+                .then(({ data }) => data)
+                .then(setRoles),
+        ]);
 
         return () => {
             controller.abort();
         };
     }, []);
-
-    console.log(quizAttempts);
 
     return (
         <div
@@ -77,6 +91,27 @@ const Reports: React.FC = () => {
                               }))
                             : []
                     }
+                />
+                <BarChart
+                    title="Number of employees per department"
+                    data={departments.map((d) => ({
+                        name: d.name,
+                        value: d.num_members,
+                    }))}
+                />
+                <BarChart
+                    title="Number of employees per role"
+                    data={roles.map((r) => ({
+                        name: r.name,
+                        value: r.num_members,
+                    }))}
+                />
+                <BarChart
+                    title="Number of managers per department"
+                    data={departments.map((d) => ({
+                        name: d.name,
+                        value: d.num_managers,
+                    }))}
                 />
             </div>
         </div>
