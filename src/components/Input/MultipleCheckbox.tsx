@@ -40,7 +40,21 @@ const MultipleCheckbox: React.FC<MultipleCheckboxProps> = ({
 
                         field.onChange(currentValue);
                     }}
-                    control={<Checkbox disabled={disabled} />}
+                    control={
+                        (Array.isArray(field.value)
+                            ? field.value.length > 0
+                            : field.value) && disabled ? (
+                            <Checkbox
+                                disabled={disabled}
+                                defaultChecked={
+                                    Array.isArray(field.value) &&
+                                    field.value.includes(id)
+                                }
+                            />
+                        ) : (
+                            <Checkbox disabled={disabled} />
+                        )
+                    }
                 />
             ))}
         </>
