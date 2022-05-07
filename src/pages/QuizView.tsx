@@ -156,7 +156,7 @@ const QuizView: React.FC = () => {
                         </ListItem>
                         <ListItem>
                             <ListItemText
-                                primary="title"
+                                primary="max attempts"
                                 secondary={quiz.max_attempts}
                             />
                         </ListItem>
