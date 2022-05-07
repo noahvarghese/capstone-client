@@ -56,8 +56,6 @@ const Charts: React.FC<{ index: number; active: number }> = ({
         };
     }, []);
 
-    console.log({ incompleteQuizzes, unreadManuals });
-
     return (
         <div
             hidden={active !== index}
