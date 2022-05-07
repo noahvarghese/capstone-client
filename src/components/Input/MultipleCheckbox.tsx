@@ -3,7 +3,6 @@ import React from "react";
 import { ControllerRenderProps, FieldValues } from "react-hook-form";
 import { BaseProps } from ".";
 
-// TODO: Override name and onChange
 // https://stackoverflow.com/questions/61475234/material-ui-react-form-hook-multiple-checkboxes-default-selected
 export interface MultipleCheckboxProps extends BaseProps {
     "aria-labelledby": string;
@@ -41,19 +40,15 @@ const MultipleCheckbox: React.FC<MultipleCheckboxProps> = ({
                         field.onChange(currentValue);
                     }}
                     control={
-                        (Array.isArray(field.value)
-                            ? field.value.length > 0
-                            : field.value) && disabled ? (
-                            <Checkbox
-                                disabled={disabled}
-                                defaultChecked={
-                                    Array.isArray(field.value) &&
-                                    field.value.includes(id)
-                                }
-                            />
-                        ) : (
-                            <Checkbox disabled={disabled} />
-                        )
+                        <Checkbox
+                            disabled={disabled}
+                            checked={
+                                (Array.isArray(field.value) &&
+                                    field.value.length > 0 &&
+                                    field.value.includes(id)) ||
+                                false
+                            }
+                        />
                     }
                 />
             ))}

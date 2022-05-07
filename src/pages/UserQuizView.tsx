@@ -57,9 +57,7 @@ const UserQuizView: React.FC = () => {
 
         for (let i = 0; i < quiz.sections.length; i++) {
             for (let j = 0; j < quiz.sections[i].questions.length; j++) {
-                values[
-                    quiz.sections[i].questions[j].question.split(" ").join("")
-                ] =
+                values[quiz.sections[i].questions[j].id] =
                     quiz.sections[i].questions[j].question_type ===
                     "multiple correct - multiple choice"
                         ? []
@@ -70,13 +68,14 @@ const UserQuizView: React.FC = () => {
         return values;
     }, [quiz]);
 
-    const { control, handleSubmit } = useForm({
+    const { control, handleSubmit, getValues } = useForm({
         mode: "all",
         defaultValues,
     });
 
     const submit = useCallback(
         (data) => {
+            console.log(data);
             Promise.all(
                 Object.entries(data).map(async ([key, value]) => {
                     if (Array.isArray(value)) {
@@ -153,7 +152,28 @@ const UserQuizView: React.FC = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, startQuiz]);
 
-    const quizDisplay = useQuizDisplay({ control, quiz });
+    const quizDisplay = useQuizDisplay({
+        control,
+        quiz,
+        answers: Object.entries(getValues()).reduce((prev, curr) => {
+            const [key, value] = curr;
+
+            if (value) {
+                if (!Array.isArray(value)) {
+                    prev[Number(key)] = Number(value);
+                } else {
+                    const numberValueArray = [];
+
+                    for (let i = 0; i < value.length; i++) {
+                        numberValueArray.push(Number(value[i]));
+                    }
+                    prev[Number(key)] = numberValueArray;
+                }
+            }
+
+            return prev;
+        }, {} as Record<number, number | number[]>),
+    });
 
     // Get full document
     useEffect(() => {
