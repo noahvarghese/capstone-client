@@ -2,7 +2,7 @@ import { Box, Typography, Tab, Tabs } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import BarChart from "src/components/graphs/BarChart";
 import PieChart from "src/components/graphs/PieChart";
-import { Department, Role } from "src/context";
+import { Department, Member, Role } from "src/context";
 import { server } from "src/util/permalink";
 
 const Charts: React.FC<{ index: number; active: number }> = ({
@@ -19,6 +19,8 @@ const Charts: React.FC<{ index: number; active: number }> = ({
     }>();
     const [departments, setDepartments] = useState<Department[]>([]);
     const [roles, setRoles] = useState<Role[]>([]);
+    const [incompleteQuizzes, setIncompleteQuizzes] = useState<Member[]>([]);
+    const [unreadManuals, setUnreadManuals] = useState<Member[]>([]);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -41,6 +43,12 @@ const Charts: React.FC<{ index: number; active: number }> = ({
                 .then((res) => res.json())
                 .then(({ data }) => data)
                 .then(setRoles),
+            fetch(server("/reports/manuals/unread"), fetchOptions)
+                .then((res) => res.json())
+                .then(setUnreadManuals),
+            fetch(server("/reports/quizzes/incomplete"), fetchOptions)
+                .then((res) => res.json())
+                .then(setIncompleteQuizzes),
         ]);
 
         return () => {
@@ -48,7 +56,7 @@ const Charts: React.FC<{ index: number; active: number }> = ({
         };
     }, []);
 
-    console.log({ index, active });
+    console.log({ incompleteQuizzes, unreadManuals });
 
     return (
         <div
@@ -107,6 +115,18 @@ const Charts: React.FC<{ index: number; active: number }> = ({
                     value: d.num_managers,
                 }))}
             />
+            <Box>
+                <Typography variant="h2" style={{ fontSize: "1.25rem" }}>
+                    Employees who have not read the manuals assigned:{" "}
+                    {unreadManuals.length}
+                </Typography>
+            </Box>
+            <Box>
+                <Typography variant="h2" style={{ fontSize: "1.25rem" }}>
+                    Employees who have not completed the quizzes assigned:{" "}
+                    {incompleteQuizzes.length}
+                </Typography>
+            </Box>
         </div>
     );
 };
@@ -159,7 +179,6 @@ const Reports: React.FC = () => {
                 </Tabs>
                 <Box>
                     <Charts index={0} active={active} />
-                    <div hidden={1 !== active}></div>
                 </Box>
             </Box>
         </div>
