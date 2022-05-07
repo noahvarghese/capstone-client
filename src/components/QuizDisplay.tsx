@@ -133,7 +133,7 @@ const useQuizDisplay = ({
                                         {q.question}
                                     </Typography>
                                 </FormLabel>
-                                {control && !answers ? (
+                                {control ? (
                                     <Controller
                                         control={control}
                                         name={q.id.toString()}
@@ -157,7 +157,13 @@ const useQuizDisplay = ({
                                                     keys[0] as typeof quizAnswerOptions[number]
                                                 ],
                                                 disabled: false,
-                                                field,
+                                                field: {
+                                                    ...field,
+                                                    value:
+                                                        answers && answers[q.id]
+                                                            ? answers[q.id]
+                                                            : field.value,
+                                                },
                                             };
 
                                             return (
