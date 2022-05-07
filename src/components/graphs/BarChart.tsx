@@ -28,10 +28,17 @@ const BarChart: React.FC<BarChartProps> = ({ title, data }) => {
                 justifyContent: "center",
             }}
         >
-            <Typography variant="h2" style={{ fontSize: "1.25rem" }}>
+            <Typography
+                variant="h2"
+                style={{
+                    fontSize: "1.25rem",
+                    width: "100%",
+                    textAlign: "center",
+                }}
+            >
                 {title}
             </Typography>
-            <BarGraph width={400} height={400} data={data}>
+            <BarGraph width={700} height={400} data={data}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis

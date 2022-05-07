@@ -50,24 +50,26 @@ const Reports: React.FC = () => {
             style={{
                 minHeight: 400,
                 width: "100%",
+                maxWidth: "95vw",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
                 gap: "5rem",
-                margin: "0 2rem",
+                margin: "0 2vw",
             }}
         >
             <Typography variant="h1">Reports</Typography>
             <div
                 style={{
-                    minHeight: 400,
                     width: "100%",
+                    maxWidth: "95vw",
                     display: "flex",
                     flexDirection: "row",
                     flexWrap: "wrap",
                     justifyContent: "space-evenly",
                     alignItems: "flex-start",
+                    gap: "5rem",
                 }}
             >
                 <PieChart
