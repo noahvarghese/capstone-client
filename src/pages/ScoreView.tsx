@@ -128,7 +128,7 @@ const ScoreView: React.FC = () => {
         return () => {
             controller.abort();
         };
-    }, [id]);
+    }, [id, userId]);
 
     useEffect(() => {
         if (!selectedAttemptId || !userId) return;
