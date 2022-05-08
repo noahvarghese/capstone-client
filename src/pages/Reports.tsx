@@ -23,6 +23,7 @@ import usePagination from "src/hooks/usePagination";
 import useSort from "src/hooks/useSort";
 import { server } from "src/util/permalink";
 import { Manual } from "./ManualsList";
+import { Quiz } from "./QuizzesList";
 
 interface TabProps {
     index: number;
@@ -131,27 +132,314 @@ const Charts: React.FC<TabProps> = ({ active, index }) => {
 };
 
 const QuizReport: React.FC<TabProps> = ({ active, index }) => {
-    const [quizzes, setQuizzes] = useState<unknown>();
+    // TODO: Open modal showing list of user's attempts per quiz with scores - allow delete
+    const [memberQuizzes, setMemberQuizzes] = useState<
+        {
+            user_id: number;
+            first_name: string;
+            last_name: string;
+            title: string;
+            quiz_id: number;
+            number_of_attempts: number;
+        }[]
+    >([]);
+    const [members, setMembers] = useState<Member[]>([]);
+    const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+    const [refresh, setRefresh] = useState(true);
+    const [filter, setFilter] = useState<number | undefined>();
+    const [complete, setComplete] = useState<boolean | undefined>();
+    const [search, setSearch] = useState("");
+    const [filterField, setFilterField] = useState<
+        "user" | "quiz" | undefined
+    >();
+    const [count, setCount] = useState(0);
+    const { sortCallback, sortColumn, sortOrder } = useSort(() =>
+        setRefresh(true)
+    );
+    const { page, limit, onPageChange, onRowsPerPageChange } = usePagination(
+        5,
+        () => setRefresh(true)
+    );
 
     useEffect(() => {
-        const controller = new AbortController();
-        const fetchOptions: RequestInit = {
-            method: "GET",
-            credentials: "include",
-            mode: "cors",
-            signal: controller.signal,
-        };
+        if (refresh) {
+            const controller = new AbortController();
+            const fetchOptions: RequestInit = {
+                method: "GET",
+                credentials: "include",
+                mode: "cors",
+                signal: controller.signal,
+            };
 
-        fetch(server("/reports/quizzes/incomplete"), fetchOptions)
-            .then((res) => res.json())
-            .then(console.log);
+            Promise.all([
+                fetch(
+                    server(
+                        `/reports/quizzes/?page=${page + 1}&limit=${limit}${
+                            sortColumn
+                                ? `&sort_field=${sortColumn}&sort_order=${sortOrder.toUpperCase()}`
+                                : ""
+                        }${
+                            filter
+                                ? `&filter_field=${filterField}&filter_ids=${JSON.stringify(
+                                      [filter]
+                                  )}`
+                                : ""
+                        }${search ? `&search=${search}` : ""}${
+                            complete !== undefined
+                                ? `&complete=${complete.toString()}`
+                                : ""
+                        }`
+                    ),
+                    fetchOptions
+                )
+                    .then((res) => res.json())
+                    .then(({ data, count: numberOfEntries }) => {
+                        setMemberQuizzes(data);
+                        setCount(numberOfEntries);
+                    }),
+                fetch(server("/members"), fetchOptions)
+                    .then((res) => res.json())
+                    .then(({ data }) => data)
+                    .then(setMembers),
+                fetch(server("/quizzes"), fetchOptions)
+                    .then((res) => res.json())
+                    .then(({ data }) => data)
+                    .then(setQuizzes),
+            ]).finally(() => setRefresh(false));
 
-        return () => {
-            controller.abort();
-        };
-    }, []);
+            return () => {
+                controller.abort();
+            };
+        }
+    }, [
+        complete,
+        filter,
+        filterField,
+        limit,
+        page,
+        refresh,
+        search,
+        sortColumn,
+        sortOrder,
+    ]);
 
-    return <Box style={{ display: index === active ? "block" : "none" }}></Box>;
+    return (
+        <Box
+            style={{
+                display: index === active ? "flex" : "none",
+                minHeight: 400,
+                width: "100%",
+                gap: "2rem",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+            }}
+        >
+            <Box
+                style={{
+                    display: "flex",
+                    gap: "2rem",
+                }}
+                sx={{
+                    width: {
+                        xl: "75%",
+                        lg: "90%",
+                        md: "90%",
+                        sm: "90%",
+                        xs: "90%",
+                    },
+                }}
+            >
+                <TextField
+                    type="text"
+                    value={search}
+                    placeholder="search"
+                    label="search"
+                    id="search"
+                    style={{ width: "20rem" }}
+                    onChange={(e) => {
+                        setSearch(e.target.value);
+                        setRefresh(true);
+                    }}
+                />
+                <TextField
+                    select
+                    label="filter by member"
+                    id="department"
+                    value={
+                        filterField === "user" && filter && filter > 0
+                            ? filter
+                            : ""
+                    }
+                    placeholder="member"
+                    style={{ width: "15rem" }}
+                    onChange={(e) => {
+                        const id =
+                            e.target.value === undefined
+                                ? undefined
+                                : Number(e.target.value);
+                        if (filterField !== "user") setFilterField("user");
+                        setFilter(id);
+                        setRefresh(true);
+                    }}
+                >
+                    <MenuItem value="">
+                        <em>None</em>
+                    </MenuItem>
+                    {members.map((m) => (
+                        <MenuItem key={m.id} value={m.id}>
+                            {m.first_name} {m.last_name}
+                        </MenuItem>
+                    ))}
+                </TextField>
+                <TextField
+                    select
+                    label="filter by quiz"
+                    id="manual"
+                    placeholder="manual"
+                    style={{ width: "15rem" }}
+                    value={
+                        filterField === "quiz" && filter && filter > 0
+                            ? filter
+                            : ""
+                    }
+                    onChange={(e) => {
+                        const id =
+                            e.target.value === undefined
+                                ? undefined
+                                : Number(e.target.value);
+                        if (filterField !== "quiz") setFilterField("quiz");
+                        setFilter(id);
+                        setRefresh(true);
+                    }}
+                >
+                    <MenuItem value="">
+                        <em>None</em>
+                    </MenuItem>
+                    {quizzes.map((q) => (
+                        <MenuItem key={q.id} value={q.id}>
+                            {q.title}
+                        </MenuItem>
+                    ))}
+                </TextField>
+                <TextField
+                    select
+                    label="filter by complete"
+                    id="read"
+                    value={complete === undefined ? "" : complete ? 1 : 0}
+                    placeholder="read"
+                    style={{ width: "15rem" }}
+                    onChange={(e) => {
+                        setComplete(
+                            e.target.value !== ""
+                                ? Number(e.target.value) === 1
+                                : undefined
+                        );
+                        setRefresh(true);
+                    }}
+                >
+                    <MenuItem value="">
+                        <em>None</em>
+                    </MenuItem>
+                    <MenuItem value={0}>Incomplete</MenuItem>
+                    <MenuItem value={1}>Complete</MenuItem>
+                </TextField>
+            </Box>
+            <TableContainer
+                component={Paper}
+                sx={{
+                    width: {
+                        xl: "75%",
+                        lg: "90%",
+                        md: "90%",
+                        sm: "90%",
+                        xs: "90%",
+                    },
+                    margin: "0 auto",
+                }}
+            >
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sortColumn === "first_name"}
+                                    direction={
+                                        sortColumn === "first_name"
+                                            ? sortOrder
+                                            : "asc"
+                                    }
+                                    onClick={sortCallback("first_name")}
+                                >
+                                    first name
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sortColumn === "last_name"}
+                                    onClick={sortCallback("last_name")}
+                                    direction={
+                                        sortColumn === "last_name"
+                                            ? sortOrder
+                                            : "asc"
+                                    }
+                                >
+                                    last name
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sortColumn === "title"}
+                                    onClick={sortCallback("title")}
+                                    direction={
+                                        sortColumn === "title"
+                                            ? sortOrder
+                                            : "asc"
+                                    }
+                                >
+                                    quiz
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell>complete</TableCell>
+                            <TableCell>attempts</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {memberQuizzes.map((m) => {
+                            return (
+                                <TableRow
+                                    key={`user${m.user_id}manual${m.quiz_id}`}
+                                    hover={true}
+                                    onClick={() => {
+                                        // history.push(`/members/${m.id}`);
+                                    }}
+                                >
+                                    <TableCell>{m.first_name}</TableCell>
+                                    <TableCell>{m.last_name}</TableCell>
+                                    <TableCell>{m.title}</TableCell>
+                                    <TableCell>
+                                        {(m.number_of_attempts > 0).toString()}
+                                    </TableCell>
+                                    <TableCell>
+                                        {m.number_of_attempts}
+                                    </TableCell>
+                                </TableRow>
+                            );
+                        })}
+                    </TableBody>
+                </Table>
+                <TablePagination
+                    rowsPerPageOptions={[5, 10, 25]}
+                    count={count}
+                    component="div"
+                    page={page}
+                    rowsPerPage={limit}
+                    onPageChange={onPageChange}
+                    onRowsPerPageChange={onRowsPerPageChange}
+                />
+            </TableContainer>
+        </Box>
+    );
 };
 
 const ManualReport: React.FC<TabProps> = ({ active, index }) => {
@@ -160,7 +448,6 @@ const ManualReport: React.FC<TabProps> = ({ active, index }) => {
     const [membersAndManuals, setMembersAndManuals] = useState<
         {
             user_id: number;
-            email: string;
             first_name: string;
             last_name: string;
             manual_id: number;
@@ -432,10 +719,6 @@ const ManualReport: React.FC<TabProps> = ({ active, index }) => {
                             return (
                                 <TableRow
                                     key={`user${m.user_id}manual${m.manual_id}`}
-                                    hover={true}
-                                    onClick={() => {
-                                        // history.push(`/members/${m.id}`);
-                                    }}
                                 >
                                     <TableCell>{m.first_name}</TableCell>
                                     <TableCell>{m.last_name}</TableCell>
