@@ -1,14 +1,35 @@
-import { Box, Typography, Tab, Tabs } from "@mui/material";
+import {
+    Box,
+    Typography,
+    Tab,
+    Tabs,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TablePagination,
+    TableRow,
+    TableSortLabel,
+    TextField,
+    MenuItem,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import BarChart from "src/components/graphs/BarChart";
 import PieChart from "src/components/graphs/PieChart";
 import { Department, Member, Role } from "src/context";
+import usePagination from "src/hooks/usePagination";
+import useSort from "src/hooks/useSort";
 import { server } from "src/util/permalink";
+import { Manual } from "./ManualsList";
 
-const Charts: React.FC<{ index: number; active: number }> = ({
-    active,
-    index,
-}) => {
+interface TabProps {
+    index: number;
+    active: number;
+}
+
+const Charts: React.FC<TabProps> = ({ active, index }) => {
     const [quizAttempts, setQuizAttempts] = useState<{
         role_details: { id: number; name: string; total_attempts: number }[];
         department_details: {
@@ -19,8 +40,6 @@ const Charts: React.FC<{ index: number; active: number }> = ({
     }>();
     const [departments, setDepartments] = useState<Department[]>([]);
     const [roles, setRoles] = useState<Role[]>([]);
-    const [incompleteQuizzes, setIncompleteQuizzes] = useState<Member[]>([]);
-    const [unreadManuals, setUnreadManuals] = useState<Member[]>([]);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -43,12 +62,6 @@ const Charts: React.FC<{ index: number; active: number }> = ({
                 .then((res) => res.json())
                 .then(({ data }) => data)
                 .then(setRoles),
-            fetch(server("/reports/manuals/unread"), fetchOptions)
-                .then((res) => res.json())
-                .then(setUnreadManuals),
-            fetch(server("/reports/quizzes/incomplete"), fetchOptions)
-                .then((res) => res.json())
-                .then(setIncompleteQuizzes),
         ]);
 
         return () => {
@@ -113,19 +126,342 @@ const Charts: React.FC<{ index: number; active: number }> = ({
                     value: d.num_managers,
                 }))}
             />
-            <Box>
-                <Typography variant="h2" style={{ fontSize: "1.25rem" }}>
-                    Employees who have not read the manuals assigned:{" "}
-                    {unreadManuals.length}
-                </Typography>
-            </Box>
-            <Box>
-                <Typography variant="h2" style={{ fontSize: "1.25rem" }}>
-                    Employees who have not completed the quizzes assigned:{" "}
-                    {incompleteQuizzes.length}
-                </Typography>
-            </Box>
         </div>
+    );
+};
+
+const QuizReport: React.FC<TabProps> = ({ active, index }) => {
+    const [quizzes, setQuizzes] = useState<unknown>();
+
+    useEffect(() => {
+        const controller = new AbortController();
+        const fetchOptions: RequestInit = {
+            method: "GET",
+            credentials: "include",
+            mode: "cors",
+            signal: controller.signal,
+        };
+
+        fetch(server("/reports/quizzes/incomplete"), fetchOptions)
+            .then((res) => res.json())
+            .then(console.log);
+
+        return () => {
+            controller.abort();
+        };
+    }, []);
+
+    return <Box style={{ display: index === active ? "block" : "none" }}></Box>;
+};
+
+const ManualReport: React.FC<TabProps> = ({ active, index }) => {
+    const [members, setMembers] = useState<Member[]>([]);
+    const [manuals, setManuals] = useState<Manual[]>([]);
+    const [membersAndManuals, setMembersAndManuals] = useState<
+        {
+            user_id: number;
+            email: string;
+            first_name: string;
+            last_name: string;
+            manual_id: number;
+            read: boolean;
+            title: string;
+            total_contents: number;
+            contents_read: number;
+        }[]
+    >([]);
+    const [refresh, setRefresh] = useState(true);
+    const [filter, setFilter] = useState<number | undefined>();
+    const [read, setRead] = useState<boolean | undefined>();
+    const [search, setSearch] = useState("");
+    const [filterField, setFilterField] = useState<
+        "user" | "manual" | undefined
+    >();
+    const [count, setCount] = useState(0);
+    const { sortCallback, sortColumn, sortOrder } = useSort(() =>
+        setRefresh(true)
+    );
+    const { page, limit, onPageChange, onRowsPerPageChange } = usePagination(
+        5,
+        () => setRefresh(true)
+    );
+
+    useEffect(() => {
+        if (refresh) {
+            const controller = new AbortController();
+            const fetchOptions: RequestInit = {
+                method: "GET",
+                credentials: "include",
+                mode: "cors",
+                signal: controller.signal,
+            };
+
+            Promise.all([
+                fetch(
+                    server(
+                        `/reports/manuals/?page=${page + 1}&limit=${limit}${
+                            sortColumn
+                                ? `&sort_field=${sortColumn}&sort_order=${sortOrder.toUpperCase()}`
+                                : ""
+                        }${
+                            filter
+                                ? `&filter_field=${filterField}&filter_ids=${JSON.stringify(
+                                      [filter]
+                                  )}`
+                                : ""
+                        }${search ? `&search=${search}` : ""}${
+                            read !== undefined ? `&read=${read.toString()}` : ""
+                        }`
+                    ),
+                    fetchOptions
+                )
+                    .then((res) => res.json())
+                    .then(({ data, count: numberOfEntries }) => {
+                        setMembersAndManuals(data);
+                        setCount(numberOfEntries);
+                    }),
+                fetch(server("/members"), fetchOptions)
+                    .then((res) => res.json())
+                    .then(({ data }) => data)
+                    .then(setMembers),
+                fetch(server("/manuals"), fetchOptions)
+                    .then((res) => res.json())
+                    .then(({ data }) => data)
+                    .then(setManuals),
+            ]).finally(() => setRefresh(false));
+
+            return () => {
+                controller.abort();
+            };
+        }
+    }, [
+        filter,
+        filterField,
+        limit,
+        page,
+        read,
+        refresh,
+        search,
+        sortColumn,
+        sortOrder,
+    ]);
+
+    return (
+        <Box
+            style={{
+                display: index === active ? "flex" : "none",
+                minHeight: 400,
+                width: "100%",
+                gap: "2rem",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+            }}
+        >
+            <Box
+                style={{
+                    display: "flex",
+                    gap: "2rem",
+                }}
+                sx={{
+                    width: {
+                        xl: "75%",
+                        lg: "90%",
+                        md: "90%",
+                        sm: "90%",
+                        xs: "90%",
+                    },
+                }}
+            >
+                <TextField
+                    type="text"
+                    value={search}
+                    placeholder="search"
+                    label="search"
+                    id="search"
+                    style={{ width: "20rem" }}
+                    onChange={(e) => {
+                        setSearch(e.target.value);
+                        setRefresh(true);
+                    }}
+                />
+                <TextField
+                    select
+                    label="filter by member"
+                    id="department"
+                    value={
+                        filterField === "user" && filter && filter > 0
+                            ? filter
+                            : ""
+                    }
+                    placeholder="member"
+                    style={{ width: "15rem" }}
+                    onChange={(e) => {
+                        const id =
+                            e.target.value === undefined
+                                ? undefined
+                                : Number(e.target.value);
+                        if (filterField !== "user") setFilterField("user");
+                        setFilter(id);
+                        setRefresh(true);
+                    }}
+                >
+                    <MenuItem value="">
+                        <em>None</em>
+                    </MenuItem>
+                    {members.map((m) => (
+                        <MenuItem key={m.id} value={m.id}>
+                            {m.first_name} {m.last_name}
+                        </MenuItem>
+                    ))}
+                </TextField>
+                <TextField
+                    select
+                    label="filter by manual"
+                    id="manual"
+                    placeholder="manual"
+                    style={{ width: "15rem" }}
+                    value={
+                        filterField === "manual" && filter && filter > 0
+                            ? filter
+                            : ""
+                    }
+                    onChange={(e) => {
+                        const id =
+                            e.target.value === undefined
+                                ? undefined
+                                : Number(e.target.value);
+                        if (filterField !== "manual") setFilterField("manual");
+                        setFilter(id);
+                        setRefresh(true);
+                    }}
+                >
+                    <MenuItem value="">
+                        <em>None</em>
+                    </MenuItem>
+                    {manuals.map((m) => (
+                        <MenuItem key={m.id} value={m.id}>
+                            {m.title}
+                        </MenuItem>
+                    ))}
+                </TextField>
+                <TextField
+                    select
+                    label="filter by read"
+                    id="read"
+                    value={read === undefined ? "" : read ? 1 : 0}
+                    placeholder="read"
+                    style={{ width: "15rem" }}
+                    onChange={(e) => {
+                        setRead(
+                            e.target.value !== ""
+                                ? Number(e.target.value) === 1
+                                : undefined
+                        );
+                        setRefresh(true);
+                    }}
+                >
+                    <MenuItem value="">
+                        <em>None</em>
+                    </MenuItem>
+                    <MenuItem value={0}>Unread</MenuItem>
+                    <MenuItem value={1}>Read</MenuItem>
+                </TextField>
+            </Box>
+            <TableContainer
+                component={Paper}
+                sx={{
+                    width: {
+                        xl: "75%",
+                        lg: "90%",
+                        md: "90%",
+                        sm: "90%",
+                        xs: "90%",
+                    },
+                    margin: "0 auto",
+                }}
+            >
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sortColumn === "first_name"}
+                                    direction={
+                                        sortColumn === "first_name"
+                                            ? sortOrder
+                                            : "asc"
+                                    }
+                                    onClick={sortCallback("first_name")}
+                                >
+                                    first name
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sortColumn === "last_name"}
+                                    onClick={sortCallback("last_name")}
+                                    direction={
+                                        sortColumn === "last_name"
+                                            ? sortOrder
+                                            : "asc"
+                                    }
+                                >
+                                    last name
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sortColumn === "title"}
+                                    onClick={sortCallback("title")}
+                                    direction={
+                                        sortColumn === "title"
+                                            ? sortOrder
+                                            : "asc"
+                                    }
+                                >
+                                    manual
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell>read</TableCell>
+                            <TableCell>contents read</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {membersAndManuals.map((m) => {
+                            return (
+                                <TableRow
+                                    key={`user${m.user_id}manual${m.manual_id}`}
+                                    hover={true}
+                                    onClick={() => {
+                                        // history.push(`/members/${m.id}`);
+                                    }}
+                                >
+                                    <TableCell>{m.first_name}</TableCell>
+                                    <TableCell>{m.last_name}</TableCell>
+                                    <TableCell>{m.title}</TableCell>
+                                    <TableCell>
+                                        {(
+                                            m.contents_read === m.total_contents
+                                        ).toString()}
+                                    </TableCell>
+                                    <TableCell>{`${m.contents_read}/${m.total_contents}`}</TableCell>
+                                </TableRow>
+                            );
+                        })}
+                    </TableBody>
+                </Table>
+                <TablePagination
+                    rowsPerPageOptions={[5, 10, 25]}
+                    count={count}
+                    component="div"
+                    page={page}
+                    rowsPerPage={limit}
+                    onPageChange={onPageChange}
+                    onRowsPerPageChange={onRowsPerPageChange}
+                />
+            </TableContainer>
+        </Box>
     );
 };
 
@@ -133,7 +469,6 @@ const Reports: React.FC = () => {
     const [active, setActive] = useState(0);
 
     const handleChange = (_: React.ChangeEvent<unknown>, index: number) => {
-        console.log(index);
         setActive(index);
     };
 
@@ -160,6 +495,7 @@ const Reports: React.FC = () => {
                     alignItems: "center",
                     justifyContent: "center",
                     gap: "5rem",
+                    width: "100%",
                 }}
             >
                 <Tabs
@@ -175,8 +511,18 @@ const Reports: React.FC = () => {
                     <Tab label="Manuals" />
                     <Tab label="Quizzes" />
                 </Tabs>
-                <Box>
+                <Box
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                    }}
+                >
                     <Charts index={0} active={active} />
+                    <ManualReport index={1} active={active} />
+                    <QuizReport index={2} active={active} />
                 </Box>
             </Box>
         </div>
