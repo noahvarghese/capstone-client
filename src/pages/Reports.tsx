@@ -14,7 +14,13 @@ import {
     TableSortLabel,
     TextField,
     MenuItem,
+    Modal,
+    List,
+    IconButton,
+    ListItem,
+    ListItemText,
 } from "@mui/material";
+import { Delete } from "@mui/icons-material";
 import React, { useEffect, useState } from "react";
 import BarChart from "src/components/graphs/BarChart";
 import PieChart from "src/components/graphs/PieChart";
@@ -24,6 +30,7 @@ import useSort from "src/hooks/useSort";
 import { server } from "src/util/permalink";
 import { Manual } from "./ManualsList";
 import { Quiz } from "./QuizzesList";
+import { QuizAttempt } from "./UserQuizList";
 
 interface TabProps {
     index: number;
@@ -133,6 +140,17 @@ const Charts: React.FC<TabProps> = ({ active, index }) => {
 
 const QuizReport: React.FC<TabProps> = ({ active, index }) => {
     // TODO: Open modal showing list of user's attempts per quiz with scores - allow delete
+    const [selectedMemberQuiz, setSelectedMemberQuiz] = useState<
+        | {
+              user_id: number;
+              quiz_id: number;
+              title: string;
+              first_name: string;
+              last_name: string;
+          }
+        | undefined
+    >();
+    const [selectedAttempts, setSelectedAttempts] = useState<QuizAttempt[]>([]);
     const [memberQuizzes, setMemberQuizzes] = useState<
         {
             user_id: number;
@@ -160,6 +178,33 @@ const QuizReport: React.FC<TabProps> = ({ active, index }) => {
         5,
         () => setRefresh(true)
     );
+
+    useEffect(() => {
+        if (!selectedMemberQuiz) {
+            setSelectedAttempts([]);
+            return;
+        }
+
+        const controller = new AbortController();
+
+        fetch(
+            server(
+                `/quizzes/${selectedMemberQuiz.quiz_id}/attempts/users/${selectedMemberQuiz.user_id}`
+            ),
+            {
+                method: "GET",
+                credentials: "include",
+                mode: "cors",
+                signal: controller.signal,
+            }
+        )
+            .then((res) => res.json())
+            .then(setSelectedAttempts);
+
+        return () => {
+            controller.abort();
+        };
+    }, [selectedMemberQuiz]);
 
     useEffect(() => {
         if (refresh) {
@@ -409,9 +454,16 @@ const QuizReport: React.FC<TabProps> = ({ active, index }) => {
                             return (
                                 <TableRow
                                     key={`user${m.user_id}manual${m.quiz_id}`}
-                                    hover={true}
+                                    hover={m.number_of_attempts > 0}
                                     onClick={() => {
-                                        // history.push(`/members/${m.id}`);
+                                        if (m.number_of_attempts === 0) return;
+                                        setSelectedMemberQuiz({
+                                            user_id: m.user_id,
+                                            quiz_id: m.quiz_id,
+                                            first_name: m.first_name,
+                                            last_name: m.last_name,
+                                            title: m.title,
+                                        });
                                     }}
                                 >
                                     <TableCell>{m.first_name}</TableCell>
@@ -438,6 +490,69 @@ const QuizReport: React.FC<TabProps> = ({ active, index }) => {
                     onRowsPerPageChange={onRowsPerPageChange}
                 />
             </TableContainer>
+            <Modal
+                open={selectedAttempts.length > 0}
+                onClose={() => setSelectedMemberQuiz(undefined)}
+            >
+                <Box
+                    component={Paper}
+                    sx={{
+                        position: "absolute" as "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: 400,
+                        boxShadow: 24,
+                        p: 4,
+                    }}
+                >
+                    <Typography
+                        variant="subtitle1"
+                        variantMapping={{ h3: "h5" }}
+                    >
+                        {selectedMemberQuiz?.title}:{" "}
+                        {selectedMemberQuiz?.first_name}{" "}
+                        {selectedMemberQuiz?.last_name}
+                    </Typography>
+                    <List>
+                        {selectedAttempts?.map((s, i) => (
+                            <ListItem
+                                key={`attempt${s.id}`}
+                                secondaryAction={
+                                    <IconButton
+                                        edge="end"
+                                        aria-label="delete"
+                                        onClick={() => {
+                                            fetch(
+                                                server(
+                                                    `/quizzes/attempts/${s.id}`
+                                                ),
+                                                {
+                                                    method: "DELETE",
+                                                    mode: "cors",
+                                                    credentials: "include",
+                                                }
+                                            ).then(() => {
+                                                setSelectedMemberQuiz(
+                                                    undefined
+                                                );
+                                                setRefresh(true);
+                                            });
+                                        }}
+                                    >
+                                        <Delete />
+                                    </IconButton>
+                                }
+                            >
+                                <ListItemText
+                                    primary={`Attempt: ${i + 1}`}
+                                    secondary={`${s.score}/${s.total}`}
+                                ></ListItemText>
+                            </ListItem>
+                        ))}
+                    </List>
+                </Box>
+            </Modal>
         </Box>
     );
 };
