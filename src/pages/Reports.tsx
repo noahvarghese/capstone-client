@@ -123,7 +123,7 @@ const Charts: React.FC<TabProps> = ({ active, index }) => {
             <BarChart
                 title="Number of employees per role"
                 data={roles.map((r) => ({
-                    name: r.name,
+                    name: `${r.name}: <${r.department.name}>`,
                     value: r.num_members,
                 }))}
             />
