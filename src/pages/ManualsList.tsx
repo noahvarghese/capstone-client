@@ -443,7 +443,7 @@ const Manuals = () => {
                                 <TableCell>{m.title}</TableCell>
                                 <TableCell>{m.published.toString()}</TableCell>
                                 <TableCell>
-                                    {m.prevent_edit.toString()}
+                                    {(!m.prevent_edit).toString()}
                                 </TableCell>
                                 <TableCell>
                                     {!m.prevent_delete ? (

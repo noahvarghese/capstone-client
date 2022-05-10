@@ -509,7 +509,7 @@ const Quizzes = () => {
                                 <TableCell>{q.title}</TableCell>
                                 <TableCell>{q.published.toString()}</TableCell>
                                 <TableCell>
-                                    {q.prevent_edit.toString()}
+                                    {(!q.prevent_edit).toString()}
                                 </TableCell>
                                 <TableCell>
                                     {!q.prevent_delete ? (
